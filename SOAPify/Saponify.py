@@ -102,7 +102,7 @@ if __name__ == "__main__":
         "1ns",
         "Water.hdf5",
         "WaterSOAP.hdf5",
-        SOAPatomMask="HO",
+        SOAPatomMask="O",
         chunkdim=100,
         SOAPnJobs=12,
     )

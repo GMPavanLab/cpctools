@@ -1,6 +1,6 @@
 import h5py
 import numpy as np
-from SOAPbase import SOAPdistance
+from .SOAPbase import SOAPdistance
 from dataclasses import dataclass
 
 
