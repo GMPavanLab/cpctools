@@ -40,9 +40,9 @@ def saponify(
         symbols = traj["Types"].asstr()[:]
         # we are getting only the SOAP results of the oxigens from each water molecule in
         # this simulation
-        atomsMask = None
+        centersMask = None
         if SOAPatomMask is not None:
-            atomsMask = [i for i in range(len(symbols)) if symbols[i] in SOAPatomMask]
+            centersMask = [i for i in range(len(symbols)) if symbols[i] in SOAPatomMask]
 
         species = list(set(symbols))
         soapEngine = SOAP(
@@ -57,18 +57,18 @@ def saponify(
         NofFeatures = soapEngine.get_number_of_features()
 
         soapDir = soapOffloader.require_group("SOAP")
-        nOx = len(atomsMask)
+        nCenters =  len(symbols) if centersMask is None else len(centersMask)
         if trajectoryGroupName not in soapDir.keys():
             soapDir.create_dataset(
                 trajectoryGroupName,
-                (0, nOx, NofFeatures),
+                (0, nCenters, NofFeatures),
                 compression="gzip",
                 compression_opts=9,
-                chunks=(100, nOx, NofFeatures),
-                maxshape=(None, nOx, NofFeatures),
+                chunks=(100, nCenters, NofFeatures),
+                maxshape=(None, nCenters, NofFeatures),
             )
         SOAPout = soapDir[trajectoryGroupName]
-        SOAPout.resize((len(traj["Trajectory"]), nOx, NofFeatures))
+        SOAPout.resize((len(traj["Trajectory"]), nCenters, NofFeatures))
 
         for chunkTraj in traj["Trajectory"].iter_chunks():
             chunkBox = (chunkTraj[0], slice(0, 6, 1))
@@ -87,7 +87,7 @@ def saponify(
                 print(f"working on frames: [{frameStart}:{FrameEnd}]")
                 SOAPout[frameStart:FrameEnd] = soapEngine.create(
                     atoms[jobStart:jobEnd],
-                    positions=[atomsMask] * jobchunk,
+                    positions=[centersMask] * jobchunk,
                     n_jobs=SOAPnJobs,
                 )
                 t2 = time.time()
