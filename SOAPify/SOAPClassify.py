@@ -1,6 +1,6 @@
 import h5py
 import numpy as np
-from .SOAPbase import SOAPdistance
+from SOAPbase import SOAPdistance
 from dataclasses import dataclass
 
 
@@ -47,15 +47,17 @@ def loadRefs(hdf5FileReference: h5py.File, referenceAddresses: list):
     legend = []
     for address in referenceAddresses:
         data = hdf5FileReference[address]
-        if isinstance(data, h5py.Group):
+        if type(data) is h5py.Group:
             for refName in data.keys():
                 dataset = hdf5FileReference[f"{address}/{refName}"]
                 legend.append(refName)
                 spectra.append(np.mean(dataset[:], axis=0))
 
-        else:  # assuming isinstance(data, h5py.Dataset)
+        elif type(data) is h5py.Dataset:
             legend.append(data.name.rsplit("/")[-1])
             spectra.append(np.mean(data[:], axis=0))
+        else:
+            raise TypeError
     spectra = np.array(spectra)
     return spectra, legend
 
