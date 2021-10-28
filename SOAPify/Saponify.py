@@ -16,6 +16,7 @@ def saponify(
     chunkdim: int = 100,
     SOAPnJobs: int = 8,
     SOAPatomMask: str = None,
+    PBC: bool = True,
 ):
     """[summary]
 
@@ -47,7 +48,7 @@ def saponify(
         species = list(set(symbols))
         soapEngine = SOAP(
             species=species,
-            periodic=True,
+            periodic=PBC,
             rcut=rcut,
             nmax=nmax,
             lmax=lmax,
