@@ -71,9 +71,7 @@ def Universe2HDF5(
     boxes = []
     atomicframes = []
     for frame in universe.trajectory:
-        L = atoms.bbox()
-        t = L[1] - L[0]
-        boxes.append(np.array([t[0], t[1], t[2], 90.0, 90.0, 90.0]))
+        boxes.append(universe.dimensions)
         atomicframes.append(atoms.positions)
         frameNum += 1
         if frameNum % trajChunkSize == 0:
@@ -156,12 +154,15 @@ def HDF52AseAtomsChunckedwithSymbols(
     atoms = []
 
     for frame, box in zip(traj["Trajectory"][chunkTraj], traj["Box"][chunkBox]):
+        theBox = [[box[0], 0, 0], [0, box[1], 0], [0, 0, box[2]]]
+        # celldisp = -box[0:3] / 2
         atoms.append(
             aseAtoms(
                 symbols=symbols,
                 positions=frame,
-                cell=box,
+                cell=theBox,
                 pbc=True,
+                # celldisp=celldisp,
             )
         )
     return atoms

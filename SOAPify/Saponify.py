@@ -11,11 +11,15 @@ import time
 
 def saponify(
     trajectoryGroupName: str,
+    exportGroupName: str,
     trajFname: str,
     outputFname: str,
     chunkdim: int = 100,
     SOAPnJobs: int = 8,
     SOAPatomMask: str = None,
+    rcut: float = 8.0,
+    nmax: int = 8,
+    lmax: int = 8,
     PBC: bool = True,
 ):
     """[summary]
@@ -34,9 +38,6 @@ def saponify(
         outputFname, "a"
     ) as soapOffloader:
         traj = trajLoader[f"Trajectories/{trajectoryGroupName}"]
-        rcut = 10.0
-        nmax = 8
-        lmax = 8
 
         symbols = traj["Types"].asstr()[:]
         # we are getting only the SOAP results of the oxigens from each water molecule in
@@ -58,17 +59,17 @@ def saponify(
         NofFeatures = soapEngine.get_number_of_features()
 
         soapDir = soapOffloader.require_group("SOAP")
-        nCenters =  len(symbols) if centersMask is None else len(centersMask)
-        if trajectoryGroupName not in soapDir.keys():
+        nCenters = len(symbols) if centersMask is None else len(centersMask)
+        if exportGroupName not in soapDir.keys():
             soapDir.create_dataset(
-                trajectoryGroupName,
+                exportGroupName,
                 (0, nCenters, NofFeatures),
                 compression="gzip",
                 compression_opts=9,
                 chunks=(100, nCenters, NofFeatures),
                 maxshape=(None, nCenters, NofFeatures),
             )
-        SOAPout = soapDir[trajectoryGroupName]
+        SOAPout = soapDir[exportGroupName]
         SOAPout.resize((len(traj["Trajectory"]), nCenters, NofFeatures))
 
         for chunkTraj in traj["Trajectory"].iter_chunks():

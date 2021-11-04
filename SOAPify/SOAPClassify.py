@@ -1,6 +1,6 @@
 import h5py
 import numpy as np
-from SOAPbase import SOAPdistance
+from .SOAPbase import SOAPdistance
 from dataclasses import dataclass
 
 
@@ -47,32 +47,17 @@ def loadRefs(hdf5FileReference: h5py.File, referenceAddresses: list):
     legend = []
     for address in referenceAddresses:
         data = hdf5FileReference[address]
-        if type(data) is h5py.Group:
+        if isinstance(data, h5py.Group):
             for refName in data.keys():
                 dataset = hdf5FileReference[f"{address}/{refName}"]
                 legend.append(refName)
                 spectra.append(np.mean(dataset[:], axis=0))
 
-        elif type(data) is h5py.Dataset:
-            legend.append(data.name.rsplit("/")[-1])
-            spectra.append(np.mean(data[:], axis=0))
-        else:
-            raise TypeError
-    spectra = np.array(spectra)
-    return spectra, legend
-
-def loadLegend(hdf5FileReference: h5py.File, referenceAddresses: list):
-    legend = []
-    for address in referenceAddresses:
-        data = hdf5FileReference[address]
-        if isinstance(data, h5py.Group):
-            for refName in data.keys():
-                dataset = hdf5FileReference[f"{address}/{refName}"]
-                legend.append(refName)
-
         else:  # assuming isinstance(data, h5py.Dataset)
             legend.append(data.name.rsplit("/")[-1])
-    return legend
+            spectra.append(np.mean(data[:], axis=0))
+    spectra = np.array(spectra)
+    return spectra, legend
 
 
 def transitionMatrixFromSOAPClassification(
@@ -105,27 +90,6 @@ def transitionMatrixFromSOAPClassificationNormalized(
 ) -> "np.ndarray[float]":
     transMat = transitionMatrixFromSOAPClassification(data, stride)
     return normalizeMatrix(transMat)
-
-def Transitions(legend:"list[str]",references:np.ndarray):
-    residenceList={}
-    for atomID in range(len( references[0])):
-        startTime=0
-        stateFrom=references[0][atomID]
-        stateTo=-1
-        for time,frame in enumerate(references[1:]):
-            if stateFrom!=frame[atomID]:
-                stateTo=frame[atomID]
-                numberOfFrames=time+1-startTime
-                if stateFrom not in residenceList.keys():
-                    residenceList[stateFrom]={}    
-                if stateTo not in residenceList[stateFrom].keys():
-                    residenceList[stateFrom][stateTo]=[]    
-                residenceList[stateFrom][stateTo].append(numberOfFrames)
-                stateFrom=frame[atomID]
-                startTime=time+1
-
-
-    return residenceList
 
 
 if __name__ == "__main__":
