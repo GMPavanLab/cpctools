@@ -1,0 +1,72 @@
+LAMMPS (29 Sep 2021)
+OMP_NUM_THREADS environment is not set. Defaulting to 1 thread. (src/comm.cpp:98)
+  using 1 OpenMP thread(s) per MPI task
+units           metal
+atom_style      atomic
+boundary	p p p
+read_data       th4116.reference
+Reading data file ...
+  orthogonal box = (-40.000000 -40.000000 -40.000000) to (40.000000 40.000000 40.000000)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  4116 atoms
+  read_data CPU = 0.003 seconds
+mass 1 196.96655
+pair_style	smatb/single
+pair_coeff	1 1 2.88 10.35	4.178	0.210	1.818	4.07293506	4.9883063257983666
+neighbor	8.0 bin
+neigh_modify	every 1 delay 0 check yes
+minimize       1.0e-8 1.0e-10 10000 100000
+Neighbor list info ...
+  update every 1 steps, delay 0 steps, check yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 12.988306
+  ghost atom cutoff = 12.988306
+  binsize = 6.4941532, bins = 13 13 13
+  1 neighbor lists, perpetual/occasional/extra = 1 0 0
+  (1) pair smatb/single, perpetual
+      attributes: half, newton on
+      pair build: half/bin/atomonly/newton
+      stencil: half/bin/3d
+      bin: standard
+Per MPI rank memory allocation (min/avg/max) = 7.287 | 7.287 | 7.287 Mbytes
+Step Temp E_pair E_mol TotEng Press 
+       0            0   -15361.945            0   -15361.945   -5472.8372 
+      24            0   -15409.258            0   -15409.258   -2.1214772 
+Loop time of 0.229355 on 1 procs for 24 steps with 4116 atoms
+
+100.0% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+Minimization stats:
+  Stopping criterion = energy tolerance
+  Energy initial, next-to-last, final = 
+     -15361.9447606219  -15409.2583445029  -15409.2584455189
+  Force two-norm initial, final = 22.975309 0.023512587
+  Force max component initial, final = 1.3618421 0.0012731800
+  Final line search alpha, max atom move = 1.0000000 0.0012731800
+  Iterations, force evaluations = 24 46
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.22697    | 0.22697    | 0.22697    |   0.0 | 98.96
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 2.0742e-05 | 2.0742e-05 | 2.0742e-05 |   0.0 |  0.01
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 0.002361   |            |       |  1.03
+
+Nlocal:        4116.00 ave        4116 max        4116 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:        16.0000 ave          16 max          16 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:        806906.0 ave      806906 max      806906 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 806906
+Ave neighs/atom = 196.04130
+Neighbor list builds = 0
+Dangerous builds = 0
+write_data th4116.data
+System init for write_data ...
+Total wall time: 0:00:00
