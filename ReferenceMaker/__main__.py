@@ -2,10 +2,30 @@ from .referenceSaponificator import referenceSaponificator
 from lammps import lammps
 import numpy
 
-pair_coeff = "pair_coeff	1 1 2.88 10.35	4.178	0.210	1.818	4.07293506	4.9883063257983666"
-atomMass = 196.96655
-diameter = 2.88
-referencesFile = "AuReferences.hdf5"
+choice = [
+    {
+        "kind": "Au",
+        "diameter": 2.88,
+        "atomMass": 196.96655,
+        "pair_coeff": "2.88 10.35	4.178	0.210	1.818	4.07293506	4.9883063257983666",
+    }
+]
+
+print("Please choose your metal type:")
+n = 0
+for metal in choice:
+    print(f"{n} : {metal['kind']}, coeffs: {metal['pair_coeff']}")
+    n += 1
+
+idChosen = int(input("MetalID: "))
+chosen = choice[idChosen]
+
+
+kind = chosen["kind"]
+pair_coeff = f"pair_coeff	1 1 {chosen['pair_coeff']}"
+atomMass = chosen["atomMass"]
+diameter = chosen["diameter"]
+referencesFile = f"{kind}References.hdf5"
 latticebcc = 2 * diameter / numpy.sqrt(3.0)
 latticefcc = diameter * numpy.sqrt(2.0)
 
