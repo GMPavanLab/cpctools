@@ -1,6 +1,6 @@
-import dhfat3049
-import ico5083
-import th4116
+from . import dhfat3049
+from . import ico5083
+from . import th4116
 import numpy
 
 """
