@@ -4,6 +4,8 @@
 *.data
 *.bak
 *.png
+*.csv
+test.py
 log.lammps
 # Byte-compiled / optimized / DLL files
 __pycache__/

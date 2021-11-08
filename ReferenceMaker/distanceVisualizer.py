@@ -1,11 +1,12 @@
 import seaborn as sns
 import pandas as pd
 import h5py
-from SOAPify import loadRefs, SOAPdistance
+from SOAPify import loadRefs
+from SOAPify import simpleSOAPdistance as SOAPdistance
 import numpy as np
 
 
-def distanceVisualizer(rcuts, referencesFile):
+def distanceVisualizer(rcuts: "list[float]", referencesFile: str, kind: str):
     for rcut in rcuts:
         data, legend = loadRefs(
             h5py.File(referencesFile, "r"),
@@ -27,7 +28,7 @@ def distanceVisualizer(rcuts, referencesFile):
                 )
 
         df = pd.DataFrame(distanceMatrix, index=legend, columns=legend)
-        # df.to_csv(f"distmat_AuClassification_rcut{rcut}.csv")
+        # df.to_csv(f"distmat_{kind}Classification_rcut{rcut}.csv")
         center = df.values[np.tril_indices(df.shape[0], k=1)].mean()
 
         g = sns.clustermap(
@@ -44,5 +45,5 @@ def distanceVisualizer(rcuts, referencesFile):
 
         g.ax_col_dendrogram.remove()
         # _ = g.ax_heatmap.set_xticks([])
-        g.savefig(f"distmat_AuClassification_rcut{rcut}.png", bbox_inches="tight")
-        # g.savefig(f"distmat_AuClassification_rcut{rcut}.pdf", bbox_inches="tight")
+        g.savefig(f"distmat_{kind}Classification_rcut{rcut}.png", bbox_inches="tight")
+        # g.savefig(f"distmat_{kind}Classification_rcut{rcut}.pdf", bbox_inches="tight")

@@ -1,7 +1,10 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import numpy.linalg as la
 from ase.io import read
 from dscribe.descriptors import SOAP
+
+# import scipy
 
 
 def get_axes(L, max_col=3):
@@ -16,11 +19,32 @@ def get_axes(L, max_col=3):
 ### Kernel (unit normalized)
 
 
+def simpleKernelSoap(x, y):
+    """
+    Soap Kernel
+    """
+
+    # return 1 - scipy.spatial.distance.cosine(x, y)
+    return np.dot(x, y) / (la.norm(x) * la.norm(y))
+
+
+def simpleSOAPdistance(x, y):
+    """
+    Distance based on Soap Kernel.
+    """
+    try:
+        return np.sqrt(2.0 - 2.0 * simpleKernelSoap(x, y))
+    except FloatingPointError:
+        return 0
+
+
 def KernelSoap(x, y, n):
     """
     Soap Kernel
     """
-    return (np.dot(x, y) / (np.dot(x, x) * np.dot(y, y)) ** 0.5) ** n
+
+    # return (1 - scipy.spatial.distance.cosine(x, y)) ** n
+    return (np.dot(x, y) / (la.norm(x) * la.norm(y))) ** n
 
 
 def SOAPdistance(x, y, n=1):
@@ -28,9 +52,10 @@ def SOAPdistance(x, y, n=1):
     Distance based on Soap Kernel.
     """
     try:
-        return (2.0 - 2.0 * KernelSoap(x, y, n)) ** 0.5
+        return np.sqrt(2.0 - 2.0 * KernelSoap(x, y, n))
     except FloatingPointError:
         return 0
+
 
 def KL(p, q):
     """
@@ -46,7 +71,7 @@ def JS(p, q):
     return jensenshannon(np.exp(p), np.exp(q))
 
 
-def SOAPyfy(
+def SOAPify(
     inputFile,
     boxFile,
     rcut,

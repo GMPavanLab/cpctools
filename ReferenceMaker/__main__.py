@@ -109,4 +109,4 @@ for np in [
         lmp.commands_list(commands_list)
 
 referenceSaponificator(rcuts=[2.9, 3.0, 5.8, 6.0], referencesFile=referencesFile)
-distanceVisualizer(rcuts=[2.9, 3.0, 5.8, 6.0], referencesFile=referencesFile)
+distanceVisualizer(rcuts=[2.9, 3.0, 5.8, 6.0], referencesFile=referencesFile, kind=kind)
