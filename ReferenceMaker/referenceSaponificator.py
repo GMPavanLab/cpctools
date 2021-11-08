@@ -4,9 +4,9 @@ import numpy
 from MDAnalysis import Universe as mdaUniverse
 from dscribe.descriptors import SOAP as dscribeSOAP
 from ase import Atoms as aseAtoms
-from .Masks_Ico5083 import *
-from .Masks_th4116 import *
-from .Masks_dhfat3049 import *
+from .ico5083 import *
+from .th4116 import *
+from .dhfat3049 import *
 
 __all__ = ["fingerprintMaker", "referenceSaponificator"]
 
@@ -136,10 +136,10 @@ def referenceSaponificator(rcuts, referencesFile):
             file,
             "ico5083.data",
             [
-                {"name": "vertexes_ico", "mask": vertexes_ico},
-                {"name": "edges_ico", "mask": edges_ico},
-                {"name": "face111_ico", "mask": face111_ico},
-                {"name": "fiveFoldedAxis_ico", "mask": fiveFoldedAxis_ico},
+                {"name": "vertexes_ico", "mask": maskVertexes_ico},
+                {"name": "edges_ico", "mask": maskEdges_ico},
+                {"name": "face111_ico", "mask": maskFace111_ico},
+                {"name": "fiveFoldedAxis_ico", "mask": maskFiveFoldedAxis_ico},
             ],
             PBC=False,
         )
@@ -149,10 +149,10 @@ def referenceSaponificator(rcuts, referencesFile):
             file,
             "th4116.data",
             [
-                {"name": "face111_th", "mask": face111_th},
-                {"name": "face001_th", "mask": face001_th},
-                {"name": "vertexes_th", "mask": vertexes_th},
-                {"name": "edges_th", "mask": edges_th},
+                {"name": "face111_th", "mask": maskFace111_th},
+                {"name": "face001_th", "mask": maskFace001_th},
+                {"name": "vertexes_th", "mask": maskVertexes_th},
+                {"name": "edges_th", "mask": maskEdges_th},
             ],
             PBC=False,
         )
@@ -164,8 +164,8 @@ def referenceSaponificator(rcuts, referencesFile):
             "dhfat3049.data",
             [
                 # {"name": "face111_dh", "mask": face111_th},
-                {"name": "concave_dh", "mask": concave_deca},
-                {"name": "fiveFoldedAxis_dh", "mask": fiveFoldedAxis_deca},
+                {"name": "concave_dh", "mask": maskConcave_dh},
+                {"name": "fiveFoldedAxis_dh", "mask": maskFiveFoldedAxis_dh},
             ],
             PBC=False,
         )

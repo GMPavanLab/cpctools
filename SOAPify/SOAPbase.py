@@ -119,7 +119,7 @@ if __name__ == "__main__":
     if len(argv) > 5:
         outFolder = argv[5]
 
-    soapRes = SOAPyfy(
+    soapRes = SOAPify(
         inputFile,
         boxFile,
         rcut,

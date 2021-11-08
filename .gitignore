@@ -5,6 +5,7 @@
 *.bak
 *.png
 *.csv
+*.xyz
 test.py
 log.lammps
 # Byte-compiled / optimized / DLL files
