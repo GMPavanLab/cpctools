@@ -1,4 +1,5 @@
 import h5py
+from h5py._hl.group import Group
 import numpy
 from MDAnalysis import Universe as mdaUniverse
 from dscribe.descriptors import SOAP as dscribeSOAP
@@ -6,6 +7,8 @@ from ase import Atoms as aseAtoms
 from .Masks_Ico5083 import *
 from .Masks_th4116 import *
 from .Masks_dhfat3049 import *
+
+__all__ = ["fingerprintMaker", "referenceSaponificator"]
 
 
 class mda2AseIterator:
@@ -40,7 +43,7 @@ def fingerprintMaker(
     SOAPnJobs: int = 1,
 ) -> numpy.array:
     """
-    create the SOAP fingerprint for a configuration of atoms or for the atoms whose
+    creates the SOAP fingerprint for a configuration of atoms or for the atoms whose
     indexes are specified in the atomsMask
 
     Args:
@@ -78,6 +81,16 @@ def fingerprintMaker(
     return fingerprint
 
 
+def export2hdf5(SOAPfingerPrint: numpy.array, hdf5Group: h5py.Group, dataName: str):
+    dataset = hdf5Group.require_dataset(
+        dataName,
+        shape=SOAPfingerPrint.shape,
+        data=SOAPfingerPrint,
+        dtype=SOAPfingerPrint.dtype,
+    )
+    dataset[:] = SOAPfingerPrint
+
+
 # wfpipes.
 def RefCreator(
     rcuts, groupname, targetFile: h5py.File, structureFile, masks, PBC: bool = False
@@ -90,17 +103,16 @@ def RefCreator(
         for mask in masks:
             structure = structureFile
 
-            fp = fingerprintMaker(structure, rcut, mask["mask"], SOAPpbc=PBC)
-
-            dataset = outgroup.require_dataset(
-                mask["name"], shape=fp.shape, data=fp, dtype=fp.dtype
+            export2hdf5(
+                fingerprintMaker(structure, rcut, mask["mask"], SOAPpbc=PBC),
+                outgroup,
+                mask["name"],
             )
-            dataset[:] = fp
 
 
 def referenceSaponificator(rcuts, referencesFile):
     with h5py.File(referencesFile, "a") as file:
-        # for rcut in [6.0, 8.0, 10.0]:
+
         for rcut in rcuts:
             outgroup = file.require_group(f"Bulk/R{rcut}")
             outgroup.attrs["rcut"] = rcut
@@ -110,14 +122,13 @@ def referenceSaponificator(rcuts, referencesFile):
                 "bcc.data",
                 "fcc.data",
                 "hcp.data",
-                "hcp.data",
                 "sc.data",
             ]:
-
-                fp = fingerprintMaker(structure, rcut)
-                name = structure.rsplit(sep=".", maxsplit=1)[0]
-                ds = outgroup.require_dataset(name, shape=fp.shape, dtype=fp.dtype)
-                ds[:] = fp
+                export2hdf5(
+                    fingerprintMaker(structure, rcut),
+                    outgroup,
+                    structure.rsplit(sep=".", maxsplit=1)[0],
+                )
 
         RefCreator(
             rcuts,

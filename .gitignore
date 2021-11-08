@@ -2,6 +2,8 @@
 *_script.py
 *.hdf5
 *.data
+*.bak
+*.png
 log.lammps
 # Byte-compiled / optimized / DLL files
 __pycache__/
