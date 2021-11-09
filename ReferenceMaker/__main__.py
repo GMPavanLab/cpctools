@@ -6,6 +6,17 @@ from .dhfat3049 import dhfat3049
 from .th4116 import th4116
 from .distanceVisualizer import distanceVisualizer
 
+## TODO rcuts shoud be multiples of the radius? or of the reticular step?
+# 1 N 2 r
+# 2 N 2.82843 r (sqrt2)
+# 3 N 3.4641 r
+# 4 N 4 r
+# 5 N 4.47214 r
+# 6 N 5.65685 r (2 passi reticolari)
+# 7 N 6 r
+# 8 N 6.32456 r
+# 9 N 7.2111 r
+
 choice = [
     {
         "kind": "Au",
@@ -23,10 +34,20 @@ choice = [
 print(
     "This procedure will create our standard reference dataset that contains the SOAP fingerprints\n"
     "for the following structures:\n"
-    "\t* bulk sc\n"
-    "\t* bulk bcc\n"
-    "\t* bulk hcp\n"
-    "\t* bulk fcc\n"
+    "\t* bulk: sc\n"
+    "\t* bulk: bcc\n"
+    "\t* bulk: hcp\n"
+    "\t* bulk: fcc\n"
+    "\t* th4116: vertexes\n"
+    "\t* th4116: edges\n"
+    "\t* th4116: 001 faces\n"
+    "\t* th4116: 111 faces\n"
+    "\t* ico5083: vertexes\n"
+    "\t* ico5083: edges\n"
+    "\t* ico5083: 111 faces\n"
+    "\t* ico5083: five folded axis\n"
+    "\t* dh3049: concave atom\n"
+    "\t* dh3049: five folded axis\n"
 )
 print("Please choose your metal type:")
 n = 0
@@ -45,7 +66,18 @@ diameter = chosen["diameter"]
 referencesFile = f"{kind}References.hdf5"
 latticebcc = 2 * diameter / numpy.sqrt(3.0)
 latticefcc = diameter * numpy.sqrt(2.0)
-
+rgreater = 1.1 * diameter / 2.0
+rcuts = [
+    rgreater * val
+    for val in [
+        2.0,
+        2.82843,
+        3.4641,
+        4.0,
+        4.47214,
+        5.65685,
+    ]
+]
 for d in [
     {"name": "bcc", "latticeCMD": f"lattice bcc {latticebcc}"},
     {"name": "fcc", "latticeCMD": f"lattice fcc {latticefcc}"},
@@ -108,5 +140,5 @@ for np in [
         ]
         lmp.commands_list(commands_list)
 
-referenceSaponificator(rcuts=[2.9, 3.0, 5.8, 6.0], referencesFile=referencesFile)
-distanceVisualizer(rcuts=[2.9, 3.0, 5.8, 6.0], referencesFile=referencesFile, kind=kind)
+referenceSaponificator(rcuts=rcuts, referencesFile=referencesFile)
+distanceVisualizer(rcuts=rcuts, referencesFile=referencesFile, kind=kind)

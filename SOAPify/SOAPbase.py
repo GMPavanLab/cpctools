@@ -35,7 +35,7 @@ def simpleSOAPdistance(x, y):
     try:
         return np.sqrt(2.0 - 2.0 * simpleKernelSoap(x, y))
     except FloatingPointError:
-        return 0
+        return 0.0
 
 
 def KernelSoap(x, y, n):
