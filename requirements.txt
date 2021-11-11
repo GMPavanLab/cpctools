@@ -1,0 +1,5 @@
+ase
+mdanalysis
+h5py
+dscribe !=1.1.0
+seaborn

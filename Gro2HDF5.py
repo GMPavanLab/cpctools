@@ -1,10 +1,4 @@
 #!/usr/bin/env python
-# coding: utf-8
-
-# # GRO 2 hdf5
-
-# In[1]:
-
 
 import HDF5er
 from MDAnalysis import Universe as mdaUniverse

@@ -1,3 +1,4 @@
+from ase.io.formats import F
 import h5py
 import numpy as np
 from .SOAPbase import SOAPdistance
@@ -42,7 +43,9 @@ def classifyWithSOAP(
     return SOAPclassification(distances, references, legend)
 
 
-def loadRefs(hdf5FileReference: h5py.File, referenceAddresses: list):
+def loadRefs(
+    hdf5FileReference: h5py.File, referenceAddresses: list
+) -> "tuple[np.ndarray[float],list[str]]":
     spectra = []  # np.zeros((0, 0), dtype=np.dtype(float))
     legend = []
     for address in referenceAddresses:
@@ -77,7 +80,7 @@ def transitionMatrixFromSOAPClassification(
     return transMat
 
 
-def normalizeMatrix(transMat):
+def normalizeMatrix(transMat: "np.ndarray[float]") -> "np.ndarray[float]":
     for row in range(transMat.shape[0]):
         sum = np.sum(transMat[row, :])
         if sum != 0:

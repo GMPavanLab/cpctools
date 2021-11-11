@@ -5,8 +5,7 @@ from dscribe.descriptors import SOAP
 from HDF5er import HDF52AseAtomsChunckedwithSymbols as HDF2ase
 import time
 
-# this is an example script for Applying the SOAP analysis on a trajectory saved on an
-# HDF5 file formatted with our HDF5er and save the result in another HDF5 file
+__all__ = ["saponify"]
 
 
 def saponify(
@@ -100,6 +99,8 @@ def saponify(
 
 
 if __name__ == "__main__":
+    # this is an example script for Applying the SOAP analysis on a trajectory saved on an
+    # HDF5 file formatted with our HDF5er and save the result in another HDF5 file
     saponify(
         "1ns",
         "Water.hdf5",
