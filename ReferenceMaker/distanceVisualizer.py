@@ -8,7 +8,7 @@ import numpy as np
 
 def distanceVisualizer(rcuts: "list[float]", referencesFile: str, kind: str):
     for rcut in rcuts:
-        print(f"Drsawing distance graph for rcut={rcut}")
+        print(f"Drawing distance graph for rcut={rcut}")
         data, legend = loadRefs(
             h5py.File(referencesFile, "r"),
             [
@@ -27,8 +27,8 @@ def distanceVisualizer(rcuts: "list[float]", referencesFile: str, kind: str):
                 distanceMatrix[j, i] = distanceMatrix[i, j] = SOAPdistance(
                     data[i], data[j]
                 )
-                if np.isnan(distanceMatrix[j, i]):
-                    distanceMatrix[j, i] = distanceMatrix[i, j] = 0.0
+                # if np.isnan(distanceMatrix[j, i]):
+                #    distanceMatrix[j, i] = distanceMatrix[i, j] = 0.0
                 # print(distanceMatrix[j, i])
 
         df = pd.DataFrame(distanceMatrix, index=legend, columns=legend)

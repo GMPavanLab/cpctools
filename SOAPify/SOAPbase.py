@@ -4,7 +4,7 @@ import numpy.linalg as la
 from ase.io import read
 from dscribe.descriptors import SOAP
 
-# import scipy
+import scipy
 
 
 def get_axes(L, max_col=3):
@@ -24,8 +24,8 @@ def simpleKernelSoap(x, y):
     Soap Kernel
     """
 
-    # return 1 - scipy.spatial.distance.cosine(x, y)
-    return np.dot(x, y) / (la.norm(x) * la.norm(y))
+    return 1 - scipy.spatial.distance.cosine(x, y)
+    # return np.dot(x, y) / (la.norm(x) * la.norm(y))
 
 
 def simpleSOAPdistance(x, y):

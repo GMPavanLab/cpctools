@@ -30,6 +30,12 @@ choice = [
         "atomMass": 64,
         "pair_coeff": "2.56 10.55	2.43	0.0894	1.2799	3.62038672	4.4340500673763259",
     },
+    {
+        "kind": "Ag",
+        "diameter": 2.89,
+        "atomMass": 108,
+        "pair_coeff": " 2.89 10.85	3.18	0.1031	1.1895	4.08707719	5.0056268338740553",
+    },
 ]
 print(
     "This procedure will create our standard reference dataset that contains the SOAP fingerprints\n"
