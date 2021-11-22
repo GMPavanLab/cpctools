@@ -56,8 +56,7 @@ def fingerprintMaker(
     Args:
         structure (str): the name of the file with the atomsDescription
         SOAPrcut (float): the cutoff range of SOAP
-        atomsMask (numpy.array, optional): the indexes of the atoms to consider for the
-            fingerprint, if None all atoms are considered. Defaults to None.
+        atomsMask (numpy.array, optional): the indexes of the atoms to consider for the fingerprint, if None all atoms are considered. Defaults to None.
         atomkind (str, optional): the kind of the atoms. Defaults to "Au".
         SOAPpbc (bool, optional): if set to True SOAP will consider the PBC. Defaults to True.
         SOAPnmax (int, optional): SOAP parameter. Defaults to 8.
@@ -65,8 +64,7 @@ def fingerprintMaker(
         SOAPnJobs (int, optional): number of jobs to use with SOAP. Defaults to 1.
 
     Returns:
-        numpy.array: the fingerprint of the configuration the shape is (1,1,nFeatures),
-            with nFeatures the number of features calculated by SOAP
+        numpy.array: the fingerprint of the configuration the shape is (1,1,nFeatures), with nFeatures the number of features calculated by SOAP
     """
 
     u = mdaUniverse(structure, atom_style="id type x y z")
