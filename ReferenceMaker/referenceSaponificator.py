@@ -7,8 +7,15 @@ from ase import Atoms as aseAtoms
 from .ico5083 import *
 from .th4116 import *
 from .dhfat3049 import *
+from dataclasses import dataclass
 
 __all__ = ["fingerprintMaker", "referenceSaponificator"]
+
+
+@dataclass
+class radiusInfo:
+    rcut: float
+    name: str
 
 
 class mda2AseIterator:
@@ -93,29 +100,36 @@ def export2hdf5(SOAPfingerPrint: numpy.array, hdf5Group: h5py.Group, dataName: s
 
 # wfpipes.
 def RefCreator(
-    rcuts, groupname, targetFile: h5py.File, structureFile, masks, PBC: bool = False
+    rcuts: "array[radiusInfo]",
+    groupname,
+    targetFile: h5py.File,
+    structureFile,
+    masks,
+    PBC: bool = False,
 ):
     for rcut in rcuts:
-        outgroup = targetFile.require_group(f"{groupname}/R{rcut}")
-        outgroup.attrs["rcut"] = rcut
+        outgroup = targetFile.require_group(f"{groupname}/{rcut.name}")
+        outgroup.attrs["rcutName"] = rcut.name
+        outgroup.attrs["rcut"] = rcut.rcut
         outgroup.attrs["lmax"] = 8
         outgroup.attrs["nmax"] = 8
         for mask in masks:
             structure = structureFile
 
             export2hdf5(
-                fingerprintMaker(structure, rcut, mask["mask"], SOAPpbc=PBC),
+                fingerprintMaker(structure, rcut.rcut, mask["mask"], SOAPpbc=PBC),
                 outgroup,
                 mask["name"],
             )
 
 
-def referenceSaponificator(rcuts, referencesFile):
+def referenceSaponificator(rcuts: "array[radiusInfo]", referencesFile):
     with h5py.File(referencesFile, "a") as file:
 
         for rcut in rcuts:
-            outgroup = file.require_group(f"Bulk/R{rcut}")
-            outgroup.attrs["rcut"] = rcut
+            outgroup = file.require_group(f"Bulk/{rcut.name}")
+            outgroup.attrs["rcutName"] = rcut.name
+            outgroup.attrs["rcut"] = rcut.rcut
             outgroup.attrs["lmax"] = 8
             outgroup.attrs["nmax"] = 8
             for structure in [
@@ -125,7 +139,7 @@ def referenceSaponificator(rcuts, referencesFile):
                 "sc.data",
             ]:
                 export2hdf5(
-                    fingerprintMaker(structure, rcut),
+                    fingerprintMaker(structure, rcut.rcut),
                     outgroup,
                     structure.rsplit(sep=".", maxsplit=1)[0],
                 )

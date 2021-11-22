@@ -9,34 +9,38 @@ __all__ = ["saponify"]
 
 
 def saponify(
-    trajectoryGroupName: str,
-    exportGroupName: str,
     trajFname: str,
+    trajectoryGroupPath: str,
     outputFname: str,
-    chunkdim: int = 100,
-    SOAPnJobs: int = 8,
+    exportDatasetName: str,
+    SOAPOutputChunkDim: int = 100,
+    SOAPnJobs: int = 1,
     SOAPatomMask: str = None,
-    rcut: float = 8.0,
-    nmax: int = 8,
-    lmax: int = 8,
-    PBC: bool = True,
+    SOAPrcut: float = 8.0,
+    SOAPnmax: int = 8,
+    SOAPlmax: int = 8,
+    SOAP_respectPBC: bool = True,
 ):
     """[summary]
 
     Args:
-        trajectoryGroupName (str): [description]
-        trajFname (str): [description]
-        outputFname (str): [description]
-        chunkdim (int, optional): [description]. Defaults to 100.
-        SOAPnJobs (int, optional): [description]. Defaults to 8.
-        SOAPatomMask (str, optional): A plain string with the names of the atoms whose
-            SOAP will be saved. Defaults to None.
+        trajFname (str): The name of the hdf5 file in wich the trajectory is stored
+        trajectoryGroupPath (str): the path of the group that contains the trajectory in trajFname
+        outputFname (str): the name of the hdf5 file that will contain the ouput or the SOAP analysis
+        exportDatasetName (str): the name of the dataset that will contain the SOAP results, it will be saved in the group called "SOAP"
+        SOAPOutputChunkDim (int, optional): The dimension of the chunck of data in the SOAP results dataset. Defaults to 100.
+        SOAPnJobs (int, optional): the number of concurrent SOAP calculations (option passed to dscribe's SOAP). Defaults to 1.
+        SOAPatomMask (str, optional): the symbols of the atoms whose SOAP fingerprint will be calculated (option passed to dscribe's SOAP). Defaults to None.
+        SOAPrcut (float, optional): The cutoff for local region in angstroms. Should be bigger than 1 angstrom (option passed to dscribe's SOAP). Defaults to 8.0.
+        SOAPnmax (int, optional): The number of radial basis functions (option passed to dscribe's SOAP). Defaults to 8.
+        SOAPlmax (int, optional): The maximum degree of spherical harmonics (option passed to dscribe's SOAP). Defaults to 8.
+        SOAP_respectPBC (bool, optional): Determines whether the system is considered to be periodic (option passed to dscribe's SOAP). Defaults to True.
     """
 
     with h5py.File(trajFname, "r") as trajLoader, h5py.File(
         outputFname, "a"
     ) as soapOffloader:
-        traj = trajLoader[f"Trajectories/{trajectoryGroupName}"]
+        traj = trajLoader[f"Trajectories/{trajectoryGroupPath}"]
 
         symbols = traj["Types"].asstr()[:]
         # we are getting only the SOAP results of the oxigens from each water molecule in
@@ -48,10 +52,10 @@ def saponify(
         species = list(set(symbols))
         soapEngine = SOAP(
             species=species,
-            periodic=PBC,
-            rcut=rcut,
-            nmax=nmax,
-            lmax=lmax,
+            periodic=SOAP_respectPBC,
+            rcut=SOAPrcut,
+            nmax=SOAPnmax,
+            lmax=SOAPlmax,
             average="off",
         )
 
@@ -59,16 +63,16 @@ def saponify(
 
         soapDir = soapOffloader.require_group("SOAP")
         nCenters = len(symbols) if centersMask is None else len(centersMask)
-        if exportGroupName not in soapDir.keys():
+        if exportDatasetName not in soapDir.keys():
             soapDir.create_dataset(
-                exportGroupName,
+                exportDatasetName,
                 (0, nCenters, NofFeatures),
                 compression="gzip",
                 compression_opts=9,
                 chunks=(100, nCenters, NofFeatures),
                 maxshape=(None, nCenters, NofFeatures),
             )
-        SOAPout = soapDir[exportGroupName]
+        SOAPout = soapDir[exportDatasetName]
         SOAPout.resize((len(traj["Trajectory"]), nCenters, NofFeatures))
 
         for chunkTraj in traj["Trajectory"].iter_chunks():
@@ -78,7 +82,7 @@ def saponify(
             # load in memory a chunk of data
             atoms = HDF2ase(traj, chunkTraj, chunkBox, symbols)
 
-            jobchunk = min(chunkdim, len(atoms))
+            jobchunk = min(SOAPOutputChunkDim, len(atoms))
             jobStart = 0
             jobEnd = jobStart + jobchunk
             while jobStart < len(atoms):
@@ -92,7 +96,7 @@ def saponify(
                     n_jobs=SOAPnJobs,
                 )
                 t2 = time.time()
-                jobchunk = min(chunkdim, len(atoms) - jobEnd)
+                jobchunk = min(SOAPOutputChunkDim, len(atoms) - jobEnd)
                 jobStart = jobEnd
                 jobEnd = jobStart + jobchunk
                 print(f"delta create= {t2-t1}")
@@ -102,10 +106,11 @@ if __name__ == "__main__":
     # this is an example script for Applying the SOAP analysis on a trajectory saved on an
     # HDF5 file formatted with our HDF5er and save the result in another HDF5 file
     saponify(
-        "1ns",
         "Water.hdf5",
+        "1ns",
         "WaterSOAP.hdf5",
+        "1nSOAP",
         SOAPatomMask="O",
-        chunkdim=100,
+        SOAPOutputChunkDim=100,
         SOAPnJobs=12,
     )
