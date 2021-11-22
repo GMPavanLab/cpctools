@@ -7,14 +7,26 @@ from dataclasses import dataclass
 
 @dataclass
 class SOAPclassification:
-    distances: "np.ndarray[float]"
-    references: "np.ndarray[int]"
-    legend: "list[str]"
+    """Utility class to store the information about the SOAP classification of a system."""
+
+    distances: "np.ndarray[float]"  #: stores the (per frame) per atom information about the distance from the closes reference fingerprint
+    references: "np.ndarray[int]"  #: stores the (per frame) per atom index of the closest reference
+    legend: "list[str]"  #:: stores the references legend
 
 
 def classifyWithSOAP(
     SOAPTrajData: h5py.Dataset, hdf5FileReference: h5py.File, referenceAddresses: list
 ) -> SOAPclassification:
+    """classifies all atoms in a system, given the precalculated set of SOAP fingerprints, and the references.
+
+    Args:
+        SOAPTrajData (h5py.Dataset): The hdf5 dataset that contaisn the SOAP fingerprints
+        hdf5FileReference (h5py.File): the hdf5 file that contains the references
+        referenceAddresses (list): a list of the addresses of the references and/or of the groups that contain the references in hdf5FileReference
+
+    Returns:
+        SOAPclassification: the information of the whole trajectory divided frame by frame and atom by atom, along with the legend
+    """
     spectra, legend = loadRefs(hdf5FileReference, referenceAddresses)
     nframes = SOAPTrajData.shape[0]
     nat = SOAPTrajData.shape[1]
@@ -47,6 +59,15 @@ def classifyWithSOAP(
 def loadRefs(
     hdf5FileReference: h5py.File, referenceAddresses: list
 ) -> "tuple[np.ndarray[float],list[str]]":
+    """loads the references given in referenceAddresses from an hdf5 file
+
+    Args:
+        hdf5FileReference (h5py.File): the hdf5 file that contains the references
+        referenceAddresses (list): a list of the addresses of the references and/or
+        of the groups that contain the references in hdf5FileReference
+    Returns:
+        tuple[np.ndarray[float],list[str]]: returns a tuple with the fingerprint and the relative names of the references
+    """
     spectra = []  # np.zeros((0, 0), dtype=np.dtype(float))
     legend = []
     for address in referenceAddresses:
@@ -72,6 +93,19 @@ def loadRefs(
 def transitionMatrixFromSOAPClassification(
     data: SOAPclassification, stride: int = 1
 ) -> "np.ndarray[float]":
+    """Generates the unnormalized matrix of the transitions from a :func:`classifyWithSOAP`
+
+        The matrix is organized in the following way:
+        for each atom in each frame we increment by one the cell whose row is the
+        state at the frame `n-stride` and the column is the state at the frame `n`
+
+    Args:
+        data (SOAPclassification): the results of the soapClassification from :func:`classifyWithSOAP`
+        stride (int): the stride in frames between each state confrontation. Defaults to 1.
+        of the groups that contain the references in hdf5FileReference
+    Returns:
+        np.ndarray[float]: the unnormalized matrix of the transitions
+    """
     nframes = len(data.references)
     nat = len(data.references[0])
     # +1 in case of errors
@@ -87,6 +121,16 @@ def transitionMatrixFromSOAPClassification(
 
 
 def normalizeMatrix(transMat: "np.ndarray[float]") -> "np.ndarray[float]":
+    """normalizes a matrix that is an ouput of :func:`transitionMatrixFromSOAPClassification`
+
+    The matrix is normalized with the criterion that the sum of each **row** is `1`
+
+    Args:
+        np.ndarray[float]: the unnormalized matrix of the transitions
+
+    Returns:
+        np.ndarray[float]: the normalized matrix of the transitions
+    """
     for row in range(transMat.shape[0]):
         sum = np.sum(transMat[row, :])
         if sum != 0:
@@ -97,6 +141,21 @@ def normalizeMatrix(transMat: "np.ndarray[float]") -> "np.ndarray[float]":
 def transitionMatrixFromSOAPClassificationNormalized(
     data: SOAPclassification, stride: int = 1
 ) -> "np.ndarray[float]":
+    """Generates the normalized matrix of the transitions from a :func:`classifyWithSOAP` and normalize it
+
+        The matrix is organized in the following way:
+        for each atom in each frame we increment by one the cell whose row is the
+        state at the frame `n-stride` and the column is the state at the frame `n`
+
+        The matrix is normalized with the criterion that the sum of each **row** is `1`
+
+    Args:
+        data (SOAPclassification): the results of the soapClassification from :func:`classifyWithSOAP`
+        stride (int): the stride in frames between each state confrontation. Defaults to 1.
+        of the groups that contain the references in hdf5FileReference
+    Returns:
+        np.ndarray[float]: the normalized matrix of the transitions
+    """
     transMat = transitionMatrixFromSOAPClassification(data, stride)
     return normalizeMatrix(transMat)
 
