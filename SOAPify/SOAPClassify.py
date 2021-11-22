@@ -22,6 +22,7 @@ def classifyWithSOAP(
     references = np.zeros((nframes, nat), np.dtype(int))
     n = 0
     # nchunks=len(T1.iter_chunks())
+    # TODO verify if this loop can be parallelized
     for chunk in SOAPTrajData.iter_chunks():
         print(f"working on chunk {n}, {chunk}")
         n += 1
@@ -56,9 +57,14 @@ def loadRefs(
                 legend.append(refName)
                 spectra.append(np.mean(dataset[:], axis=0))
 
-        else:  # assuming isinstance(data, h5py.Dataset)
+        elif isinstance(data, h5py.Dataset):
             legend.append(data.name.rsplit("/")[-1])
             spectra.append(np.mean(data[:], axis=0))
+        else:
+            print(
+                f"loadRefs cannot create a reference from given input: repr={repr(data)}"
+            )
+            exit(255)
     spectra = np.array(spectra)
     return spectra, legend
 

@@ -1,4 +1,4 @@
-from .referenceSaponificator import referenceSaponificator
+from .referenceSaponificator import referenceSaponificator, radiusInfo
 from lammps import lammps
 import numpy
 from .ico5083 import ico5083
@@ -86,14 +86,12 @@ latticebcc = 2 * diameter / numpy.sqrt(3.0)
 latticefcc = diameter * numpy.sqrt(2.0)
 rgreater = 1.1 * diameter / 2.0
 rcuts = [
-    rgreater * val
+    radiusInfo(rgreater * val[0], val[1])
     for val in [
-        2.0,
-        2.82843,
-        3.4641,
-        4.0,
-        4.47214,
-        5.65685,
+        (2.0, "2R"),  # 2r/NN
+        (2.82843, "LattUn"),  # 1 lattice unit
+        (4.0, "4R"),  # 4r
+        (5.65685, "2LattUn"),  # 2 lattice unit
     ]
 ]
 for d in [
