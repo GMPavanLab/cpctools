@@ -2,9 +2,16 @@ import numpy as np
 import numpy.linalg as la
 import scipy
 
+
 def simpleKernelSoap(x: np.ndarray, y: np.ndarray) -> float:
-    """
-    Soap Kernel
+    """a simpler SOAP Kernel than :func:`KernelSoap`, power is always 1
+
+    Args:
+        x (np.ndarray): a SOAP fingerprint
+        y (np.ndarray): a SOAP fingerprint
+
+    Returns:
+        float: kernel value
     """
 
     return 1 - scipy.spatial.distance.cosine(x, y)
@@ -12,8 +19,14 @@ def simpleKernelSoap(x: np.ndarray, y: np.ndarray) -> float:
 
 
 def simpleSOAPdistance(x: np.ndarray, y: np.ndarray) -> float:
-    """
-    Distance based on Soap Kernel.
+    """a simpler SOAP distance than :func:`SOAPdistance`, power is always 1
+
+    Args:
+        x (np.ndarray): a SOAP fingerprint
+        y (np.ndarray): a SOAP fingerprint
+
+    Returns:
+        float: the distance between the two fingerprints, between 0 and :math:`\sqrt{2}`
     """
     try:
         return np.sqrt(2.0 - 2.0 * simpleKernelSoap(x, y))
@@ -22,8 +35,15 @@ def simpleSOAPdistance(x: np.ndarray, y: np.ndarray) -> float:
 
 
 def KernelSoap(x: np.ndarray, y: np.ndarray, n: int) -> float:
-    """
-    Soap Kernel
+    """The SOAP Kernel with a variable power
+
+    Args:
+        x (np.ndarray): a SOAP fingerprint
+        y (np.ndarray): a SOAP fingerprint
+        n (int): the power to elevate the result of the kernel
+
+    Returns:
+        float: kernel value
     """
 
     # return (1 - scipy.spatial.distance.cosine(x, y)) ** n
@@ -31,11 +51,17 @@ def KernelSoap(x: np.ndarray, y: np.ndarray, n: int) -> float:
 
 
 def SOAPdistance(x: np.ndarray, y: np.ndarray, n: int = 1) -> float:
-    """
-    Distance based on Soap Kernel.
+    """the SOAP distance between two SOAP fingerprints
+
+    Args:
+        x (np.ndarray): a SOAP fingerprint
+        y (np.ndarray): a SOAP fingerprint
+        n (int): the power to elevate the result of the kernel
+
+    Returns:
+        float: the distance between the two fingerprints, between 0 and :math:`\sqrt{2}`
     """
     try:
         return np.sqrt(2.0 - 2.0 * KernelSoap(x, y, n))
     except FloatingPointError:
         return 0
-        

@@ -22,7 +22,7 @@ def classifyWithSOAP(
     Args:
         SOAPTrajData (h5py.Dataset): The hdf5 dataset that contaisn the SOAP fingerprints
         hdf5FileReference (h5py.File): the hdf5 file that contains the references
-        referenceAddresses (list): a list of the addresses of the references and/or of the groups that contain the references in hdf5FileReference
+        referenceAddresses (list): a list of the addresses of the references and\/or of the groups that contain the references in hdf5FileReference
 
     Returns:
         SOAPclassification: the information of the whole trajectory divided frame by frame and atom by atom, along with the legend

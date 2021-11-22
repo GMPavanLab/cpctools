@@ -21,20 +21,31 @@ def saponify(
     SOAPlmax: int = 8,
     SOAP_respectPBC: bool = True,
 ):
-    """[summary]
+    """Calculates the SOAP fingerprints for each atom in a given hdf5 trajectory
+
+    This routine sets up a SOAP engine to calculate the SOAP fingerprints for all
+    the atoms in a given trajectory. The user can choose the otpio
 
     Args:
         trajFname (str): The name of the hdf5 file in wich the trajectory is stored
         trajectoryGroupPath (str): the path of the group that contains the trajectory in trajFname
         outputFname (str): the name of the hdf5 file that will contain the ouput or the SOAP analysis
-        exportDatasetName (str): the name of the dataset that will contain the SOAP results, it will be saved in the group called "SOAP"
-        SOAPOutputChunkDim (int, optional): The dimension of the chunck of data in the SOAP results dataset. Defaults to 100.
-        SOAPnJobs (int, optional): the number of concurrent SOAP calculations (option passed to dscribe's SOAP). Defaults to 1.
-        SOAPatomMask (str, optional): the symbols of the atoms whose SOAP fingerprint will be calculated (option passed to dscribe's SOAP). Defaults to None.
-        SOAPrcut (float, optional): The cutoff for local region in angstroms. Should be bigger than 1 angstrom (option passed to dscribe's SOAP). Defaults to 8.0.
-        SOAPnmax (int, optional): The number of radial basis functions (option passed to dscribe's SOAP). Defaults to 8.
-        SOAPlmax (int, optional): The maximum degree of spherical harmonics (option passed to dscribe's SOAP). Defaults to 8.
-        SOAP_respectPBC (bool, optional): Determines whether the system is considered to be periodic (option passed to dscribe's SOAP). Defaults to True.
+        exportDatasetName (str): the name of the dataset that will contain the SOAP
+        results, it will be saved in the group called "SOAP"
+        SOAPOutputChunkDim (int, optional): The dimension of the chunck of data
+        in the SOAP results dataset. Defaults to 100.
+        SOAPnJobs (int, optional): the number of concurrent SOAP calculations
+        (option passed to dscribe's SOAP). Defaults to 1.
+        SOAPatomMask (str, optional): the symbols of the atoms whose SOAP
+        fingerprint will be calculated (option passed to dscribe's SOAP). Defaults to None.
+        SOAPrcut (float, optional): The cutoff for local region in angstroms.
+        Should be bigger than 1 angstrom (option passed to dscribe's SOAP). Defaults to 8.0.
+        SOAPnmax (int, optional): The number of radial basis functions (option
+        passed to dscribe's SOAP). Defaults to 8.
+        SOAPlmax (int, optional): The maximum degree of spherical harmonics
+        (option passed to dscribe's SOAP). Defaults to 8.
+        SOAP_respectPBC (bool, optional): Determines whether the system is
+        considered to be periodic (option passed to dscribe's SOAP). Defaults to True.
     """
 
     with h5py.File(trajFname, "r") as trajLoader, h5py.File(
