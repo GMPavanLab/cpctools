@@ -12,8 +12,6 @@ pip install -r requirements
 
 This package contains a toolbox to calculate the [SOAP fingerprints](https://doi.org/10.1103/PhysRevB.87.184115) of a system of atoms.
 
-
-
 ## ReferenceMaker
 
 The ReferenceMaker package contains a set of function that can create a reference file to be used with the SOAPify package.

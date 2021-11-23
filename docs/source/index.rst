@@ -6,6 +6,9 @@
 Welcome to SOAPify's documentation!
 ===================================
 
+.. include:: readme_link
+
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:

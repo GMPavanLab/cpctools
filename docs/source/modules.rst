@@ -1,11 +1,3 @@
-ReferenceMaker
-==============
-
-.. toctree::
-   :maxdepth: 4
-
-   ReferenceMaker
-
 SOAPify
 =======
 
@@ -14,3 +6,18 @@ SOAPify
 
    SOAPify
    
+HDF5er
+=======
+
+.. toctree::
+   :maxdepth: 4
+
+   HDF5er
+
+ReferenceMaker
+==============
+
+.. toctree::
+   :maxdepth: 4
+
+   ReferenceMaker
