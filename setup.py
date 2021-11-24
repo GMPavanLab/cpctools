@@ -11,8 +11,10 @@ setuptools.setup(
     description="A package for creating and studying SOAP fingerprints",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    # url="",
-    # project_urls={"Bug Tracker": "/issues",},
+    url="https://github.com/GMPavanLab/SOAPify",
+    project_urls={
+        "Bug Tracker": "https://github.com/GMPavanLab/SOAPify/issues",
+    },
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
