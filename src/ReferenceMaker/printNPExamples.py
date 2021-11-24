@@ -35,6 +35,8 @@ def _xyzExample(name, atoms, properties):
 
 
 def printNPExamples():
+    """Creates an xyz file with the NPs that are used as the proposed references,
+    and evidentiate the atoms used in the reference fingerprints"""
     # {'name':"",'indexes':}
     _xyzExample(
         "dhfat3049",

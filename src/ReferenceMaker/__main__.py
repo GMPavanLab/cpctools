@@ -6,16 +6,7 @@ from .dhfat3049 import dhfat3049
 from .th4116 import th4116
 from .distanceVisualizer import distanceVisualizer
 
-## TODO rcuts shoud be multiples of the radius? or of the reticular step?
-# 1 N 2 r
-# 2 N 2.82843 r (sqrt2)
-# 3 N 3.4641 r
-# 4 N 4 r
-# 5 N 4.47214 r
-# 6 N 5.65685 r (2 passi reticolari)
-# 7 N 6 r
-# 8 N 6.32456 r
-# 9 N 7.2111 r
+## TODO do not use HDD as temporay store for memory
 
 choice = [
     {
@@ -77,11 +68,11 @@ idChosen = int(input("MetalID: "))
 chosen = choice[idChosen]
 
 
-kind = chosen["kind"]
+kind: str = chosen["kind"]
 pair_coeff = f"pair_coeff	1 1 {chosen['pair_coeff']}"
 atomMass = chosen["atomMass"]
 diameter = chosen["diameter"]
-referencesFile = f"{kind}References.hdf5"
+referencesFileName = f"{kind}References.hdf5"
 latticebcc = 2 * diameter / numpy.sqrt(3.0)
 latticefcc = diameter * numpy.sqrt(2.0)
 rgreater = 1.1 * diameter / 2.0
@@ -122,7 +113,7 @@ for d in [
                 "minimize       1.0e-8 1.0e-10 10000 100000",
                 "unfix boxmin",
                 "minimize       1.0e-8 1.0e-10 10000 100000",
-                f"write_data     {input}.data",
+                f"write_data     {kind}_{input}.data",
             ]
         )
         # print(lmp.extract_box())
@@ -152,9 +143,9 @@ for np in [
             "neighbor	8.0 bin",
             "neigh_modify	every 1 delay 0 check yes",
             "minimize       1.0e-8 1.0e-10 10000 100000",
-            f"write_data {np['name']}.data",
+            f"write_data {kind}_{np['name']}.data",
         ]
         lmp.commands_list(commands_list)
 
-referenceSaponificator(rcuts=rcuts, referencesFile=referencesFile)
-distanceVisualizer(rcuts=rcuts, referencesFile=referencesFile, kind=kind)
+referenceSaponificator(rcuts=rcuts, referencesFileName=referencesFileName, kind=kind)
+distanceVisualizer(rcuts=rcuts, referencesFile=referencesFileName, kind=kind)

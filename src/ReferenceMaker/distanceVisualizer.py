@@ -8,6 +8,20 @@ from .referenceSaponificator import radiusInfo
 
 
 def distanceVisualizer(rcuts: "list[radiusInfo]", referencesFile: str, kind: str):
+    """Genereates an image with the distances of the given reference SOAP fingerprints
+
+    This routine will load and generate a graph for the data contained in the following groups within the given hdf5 file:
+
+    * Bulk/*cutoffName*
+    * Ico5083/*cutoffName*
+    * Th4116/*cutoffName*
+    * Dhfat3049/*cutoffName*
+
+    Args:
+        rcuts (list[radiusInfo]): the list of the cutoff to cosider
+        referencesFile (str): the name of the hdf5file with the stored references
+        kind (str): the Symbol of the atom considered
+    """
     for rcut in rcuts:
         print(f"Drawing distance graph for {rcut.name} (rcut={rcut.rcut})")
         data, legend = loadRefs(
