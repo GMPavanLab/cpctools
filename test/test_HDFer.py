@@ -48,8 +48,13 @@ def test_MDA2HDF5():
                     )
 
 
-# def test_ase():
-#    # This creates or overwite the test file:
-#    fourAtomsFiveFrames = giveUniverse()
-#    HDF5er.MDA2HDF5(fourAtomsFiveFrames, "test.hdf5", "4Atoms5Frames", override=True)
-#    aseTraj = HDF5er.HDF52AseAtomsChunckedwithSymbols()
+def test_ase():
+    # this test has been writtend After the function has been written
+    # This creates or overwite the test file:
+    fourAtomsFiveFrames = giveUniverse()
+    HDF5er.MDA2HDF5(fourAtomsFiveFrames, "test.hdf5", "4Atoms5Frames", override=True)
+    with h5py.File("test.hdf5", "r") as hdf5test:
+        group = hdf5test["Trajectories/4Atoms5Frames"]
+        aseTraj = HDF5er.HDF52AseAtomsChunckedwithSymbols(
+            group, slice(5), slice(5), ["H", "H", "H", "H"]
+        )

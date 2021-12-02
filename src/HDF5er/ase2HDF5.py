@@ -4,6 +4,8 @@ from ase import Atoms as aseAtoms
 import numpy as np
 import h5py
 
+# this is "legacy code", use with caution
+
 __all__ = ["xyz2hdf5Converter", "HDF52AseAtomsChunckedwithSymbols"]
 
 # TODO: convert use exportChunk2HDF5
@@ -78,6 +80,7 @@ def xyz2hdf5Converter(xyzName: str, boxfilename: str, group: h5py.Group):
             group["Trajectory"][first:frameNum] = atomicframes
 
 
+# TODO: using slices is not the best compromise here
 def HDF52AseAtomsChunckedwithSymbols(
     groupTraj: h5py.Group,
     chunkTraj: "tuple[slice]",
