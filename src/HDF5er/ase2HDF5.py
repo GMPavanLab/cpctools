@@ -4,6 +4,8 @@ from ase import Atoms as aseAtoms
 import numpy as np
 import h5py
 
+__all__ = ["xyz2hdf5Converter", "HDF52AseAtomsChunckedwithSymbols"]
+
 # TODO: convert use exportChunk2HDF5
 def xyz2hdf5Converter(xyzName: str, boxfilename: str, group: h5py.Group):
     """Generate an HDF5 trajectory from an xyz file and a box file

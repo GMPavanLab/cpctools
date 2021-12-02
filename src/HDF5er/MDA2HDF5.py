@@ -2,6 +2,8 @@ import MDAnalysis
 import h5py
 from .HDF5erUtils import exportChunk2HDF5
 
+__all__ = ["Universe2HDF5", "MDA2HDF5"]
+
 
 def Universe2HDF5(
     MDAUniverseOrSelection: "MDAnalysis.Universe | MDAnalysis.AtomGroup",
@@ -66,6 +68,7 @@ def MDA2HDF5(
     targetHDF5File: str,
     groupName: str,
     trajChunkSize: int = 100,
+    override=False,
 ):
     """Opens or creates the given HDF5 file, request the user's chosen group, then uploads an mda.Universe or an mda.AtomGroup to a h5py.Group in an hdf5 file
 
@@ -76,7 +79,8 @@ def MDA2HDF5(
         targetHDF5File (str): the name of HDF5 file
         groupName (str): the name of the group in wich save the trajectory data within the `targetHDF5File`
         trajChunkSize (int, optional): The desired dimension of the chunks of data that are stored in the hdf5 file. Defaults to 100.
+        override (bool, optional): If true the hdf5 file will be completely overwritten. Defaults to False.
     """
-    with h5py.File(targetHDF5File, "a") as newTraj:
+    with h5py.File(targetHDF5File, "w" if override else "a") as newTraj:
         trajGroup = newTraj.require_group(f"Trajectories/{groupName}")
         Universe2HDF5(MDAUniverseOrSelection, trajGroup, trajChunkSize=trajChunkSize)

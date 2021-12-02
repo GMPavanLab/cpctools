@@ -22,6 +22,7 @@ def giveUniverse() -> MDAnalysis.Universe:
     )
     u = MDAnalysis.Universe.empty(4, trajectory=True)
     u.add_TopologyAttr("type", ["H", "H", "H", "H"])
+
     u.trajectory.set_array(traj, "fac")
     return u
 
@@ -29,7 +30,8 @@ def giveUniverse() -> MDAnalysis.Universe:
 def test_MDA2HDF5():
     # Given an MDA Universe :
     fourAtomsFiveFrames = giveUniverse()
-    HDF5er.MDA2HDF5(fourAtomsFiveFrames, "test.hdf5", "4Atoms5Frames")
+    HDF5er.MDA2HDF5(fourAtomsFiveFrames, "test.hdf5", "4Atoms5Frames", override=True)
+
     with h5py.File("test.hdf5", "r") as hdf5test:
         # this checks also that the group has been created
         group = hdf5test["Trajectories/4Atoms5Frames"]
@@ -44,3 +46,10 @@ def test_MDA2HDF5():
                         - fourAtomsFiveFrames.atoms.positions[atomID, coord]
                         < 1e-8
                     )
+
+
+# def test_ase():
+#    # This creates or overwite the test file:
+#    fourAtomsFiveFrames = giveUniverse()
+#    HDF5er.MDA2HDF5(fourAtomsFiveFrames, "test.hdf5", "4Atoms5Frames", override=True)
+#    aseTraj = HDF5er.HDF52AseAtomsChunckedwithSymbols()
