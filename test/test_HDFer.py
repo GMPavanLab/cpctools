@@ -1,10 +1,7 @@
-from MDAnalysis import coordinates
 import HDF5er
 import h5py
 import pytest
 import MDAnalysis
-from MDAnalysis.topology.MinimalParser import Topology
-from MDAnalysis.coordinates.memory import MemoryReader
 import numpy
 
 # from MDAnalysis.tests.datafiles import
