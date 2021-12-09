@@ -48,7 +48,7 @@ def distanceVisualizer(rcuts: "list[radiusInfo]", referencesFile: str, kind: str
 
         df = pd.DataFrame(distanceMatrix, index=legend, columns=legend)
         outFname = f"distmat_{kind}Classification_{rcut.name}"
-        # df.to_csv(f"{outFname}.csv")
+        df.to_csv(f"{outFname}.csv", float_format="%14.8g")
         center = df.values[np.tril_indices(df.shape[0], k=1)].mean()
 
         g = sns.clustermap(

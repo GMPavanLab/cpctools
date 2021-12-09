@@ -83,6 +83,7 @@ rcuts = [
         (2.82843, "LattUn"),  # 1 lattice unit
         (4.0, "4R"),  # 4r
         (5.65685, "2LattUn"),  # 2 lattice unit
+        (3.45659722, "3rdNeighFCC"),  # 2 lattice unit
     ]
 ]
 for d in [
