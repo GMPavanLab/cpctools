@@ -5,10 +5,10 @@ from dscribe.descriptors import SOAP
 from HDF5er import HDF52AseAtomsChunckedwithSymbols as HDF2ase
 import time
 
-__all__ = ["saponify", "saponifyGroup"]
+__all__ = ["saponifySingle", "saponifyGroup"]
 
 
-def saponifyGroup(
+def saponifyWorker(
     trajGroup: h5py.Group,
     SOAPoutDataset: h5py.Dataset,
     soapEngine: SOAP,
@@ -16,6 +16,20 @@ def saponifyGroup(
     SOAPOutputChunkDim: int = 100,
     SOAPnJobs: int = 1,
 ):
+    """Calculates the soap descriptor and store the result in the given dataset
+
+    Args:
+        trajGroup (h5py.Group): the grooput that contains the trajectory (must
+        contain Box,Trajectory and Types subgroups)
+        SOAPoutDataset (h5py.Dataset): The preformed dataset for storing the
+        SOAP results
+        soapEngine (SOAP): The soap engine already set up
+        centersMask (list): the mask for the SOAP centers, already set up
+        SOAPOutputChunkDim (int, optional): The dimension of the chunck of data
+        in the SOAP results dataset. Defaults to 100.
+        SOAPnJobs (int, optional): the number of concurrent SOAP calculations
+        (option passed to dscribe's SOAP). Defaults to 1.
+    """
     symbols = trajGroup["Types"].asstr()[:]
 
     for chunkTraj in trajGroup["Trajectory"].iter_chunks():
@@ -43,6 +57,82 @@ def saponifyGroup(
             jobStart = jobEnd
             jobEnd = jobStart + jobchunk
             print(f"delta create= {t2-t1}")
+
+
+def saponifyGroup(
+    trajContainers: "h5py.Group|h5py.File",
+    SOAPoutContainers: "h5py.Group|h5py.File",
+    SOAPOutputChunkDim: int = 100,
+    SOAPnJobs: int = 1,
+    SOAPatomMask: str = None,
+    SOAPrcut: float = 8.0,
+    SOAPnmax: int = 8,
+    SOAPlmax: int = 8,
+    SOAP_respectPBC: bool = True,
+):
+    """From a trajectory stored in a group calculates and stores the SOAP
+    descriptor in the given group/file
+
+    Args:
+        trajContainers (h5py.Group): The file/group that contains the trajectories
+        SOAPoutContainers (h5py.Group): The file/group that will store the SOAP results
+        SOAPOutputChunkDim (int, optional): The dimension of the chunck of data
+        in the SOAP results dataset. Defaults to 100.
+        SOAPnJobs (int, optional): the number of concurrent SOAP calculations
+        (option passed to dscribe's SOAP). Defaults to 1.
+        SOAPatomMask (str, optional): the symbols of the atoms whose SOAP
+        fingerprint will be calculated (option passed to dscribe's SOAP). Defaults to None.
+        SOAPrcut (float, optional): The cutoff for local region in angstroms.
+        Should be bigger than 1 angstrom (option passed to dscribe's SOAP). Defaults to 8.0.
+        SOAPnmax (int, optional): The number of radial basis functions (option
+        passed to dscribe's SOAP). Defaults to 8.
+        SOAPlmax (int, optional): The maximum degree of spherical harmonics
+        (option passed to dscribe's SOAP). Defaults to 8.
+        SOAP_respectPBC (bool, optional): Determines whether the system is
+        considered to be periodic (option passed to dscribe's SOAP). Defaults to True.
+    """
+    soapEngine = None
+    for key in trajContainers.keys():
+        if (
+            "Trajectory" in trajContainers[key].keys()
+            and "Types" in trajContainers[key].keys()
+            and "Box" in trajContainers[key].keys()
+        ):
+            traj = trajContainers[key]
+            if soapEngine is None:
+                symbols = traj["Types"].asstr()[:]
+                centersMask = None
+                if SOAPatomMask is not None:
+                    centersMask = [
+                        i for i in range(len(symbols)) if symbols[i] in SOAPatomMask
+                    ]
+
+                species = list(set(symbols))
+                soapEngine = SOAP(
+                    species=species,
+                    periodic=SOAP_respectPBC,
+                    rcut=SOAPrcut,
+                    nmax=SOAPnmax,
+                    lmax=SOAPlmax,
+                    average="off",
+                )
+                NofFeatures = soapEngine.get_number_of_features()
+                nCenters = len(symbols) if centersMask is None else len(centersMask)
+
+            if key not in SOAPoutContainers.keys():
+                SOAPoutContainers.create_dataset(
+                    key,
+                    (0, nCenters, NofFeatures),
+                    compression="gzip",
+                    compression_opts=9,
+                    chunks=(100, nCenters, NofFeatures),
+                    maxshape=(None, nCenters, NofFeatures),
+                )
+            SOAPout = SOAPoutContainers[key]
+            SOAPout.resize((len(traj["Trajectory"]), nCenters, NofFeatures))
+            saponifyWorker(
+                traj, SOAPout, soapEngine, centersMask, SOAPOutputChunkDim, SOAPnJobs
+            )
 
 
 def saponify(
@@ -91,8 +181,6 @@ def saponify(
         traj = trajLoader[f"Trajectories/{trajectoryGroupPath}"]
 
         symbols = traj["Types"].asstr()[:]
-        # we are getting only the SOAP results of the oxigens from each water molecule in
-        # this simulation
         centersMask = None
         if SOAPatomMask is not None:
             centersMask = [i for i in range(len(symbols)) if symbols[i] in SOAPatomMask]
@@ -122,7 +210,7 @@ def saponify(
             )
         SOAPout = soapDir[exportDatasetName]
         SOAPout.resize((len(traj["Trajectory"]), nCenters, NofFeatures))
-        saponifyGroup(
+        saponifyWorker(
             traj, SOAPout, soapEngine, centersMask, SOAPOutputChunkDim, SOAPnJobs
         )
         return
