@@ -5,7 +5,44 @@ from dscribe.descriptors import SOAP
 from HDF5er import HDF52AseAtomsChunckedwithSymbols as HDF2ase
 import time
 
-__all__ = ["saponify"]
+__all__ = ["saponify", "saponifyGroup"]
+
+
+def saponifyGroup(
+    trajGroup: h5py.Group,
+    SOAPoutDataset: h5py.Dataset,
+    soapEngine: SOAP,
+    centersMask: list,
+    SOAPOutputChunkDim: int = 100,
+    SOAPnJobs: int = 1,
+):
+    symbols = trajGroup["Types"].asstr()[:]
+
+    for chunkTraj in trajGroup["Trajectory"].iter_chunks():
+        chunkBox = (chunkTraj[0], slice(0, 6, 1))
+        print(f'working on trajectory chunk "{chunkTraj}"')
+        print(f'   and working on box chunk "{repr(chunkBox)}"')
+        # load in memory a chunk of data
+        atoms = HDF2ase(trajGroup, chunkTraj, chunkBox, symbols)
+
+        jobchunk = min(SOAPOutputChunkDim, len(atoms))
+        jobStart = 0
+        jobEnd = jobStart + jobchunk
+        while jobStart < len(atoms):
+            t1 = time.time()
+            frameStart = jobStart + chunkTraj[0].start
+            FrameEnd = jobEnd + chunkTraj[0].start
+            print(f"working on frames: [{frameStart}:{FrameEnd}]")
+            SOAPoutDataset[frameStart:FrameEnd] = soapEngine.create(
+                atoms[jobStart:jobEnd],
+                positions=[centersMask] * jobchunk,
+                n_jobs=SOAPnJobs,
+            )
+            t2 = time.time()
+            jobchunk = min(SOAPOutputChunkDim, len(atoms) - jobEnd)
+            jobStart = jobEnd
+            jobEnd = jobStart + jobchunk
+            print(f"delta create= {t2-t1}")
 
 
 def saponify(
@@ -85,7 +122,10 @@ def saponify(
             )
         SOAPout = soapDir[exportDatasetName]
         SOAPout.resize((len(traj["Trajectory"]), nCenters, NofFeatures))
-
+        saponifyGroup(
+            traj, SOAPout, soapEngine, centersMask, SOAPOutputChunkDim, SOAPnJobs
+        )
+        return
         for chunkTraj in traj["Trajectory"].iter_chunks():
             chunkBox = (chunkTraj[0], slice(0, 6, 1))
             print(f'working on trajectory chunk "{chunkTraj}"')

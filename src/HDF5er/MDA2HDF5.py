@@ -19,11 +19,7 @@ def Universe2HDF5(
     """
 
     atoms = MDAUniverseOrSelection.atoms
-    universe = (
-        MDAUniverseOrSelection
-        if MDAUniverseOrSelection is MDAnalysis.Universe
-        else MDAUniverseOrSelection.universe
-    )
+    universe = MDAUniverseOrSelection.universe
     nat = len(atoms)
 
     if "Types" not in list(trajFolder.keys()):
