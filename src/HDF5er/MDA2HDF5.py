@@ -68,7 +68,8 @@ def MDA2HDF5(
     targetHDF5File: str,
     groupName: str,
     trajChunkSize: int = 100,
-    override=False,
+    override: bool = False,
+    attrs: dict = None,
 ):
     """Opens or creates the given HDF5 file, request the user's chosen group, then uploads an mda.Universe or an mda.AtomGroup to a h5py.Group in an hdf5 file
 
@@ -84,3 +85,6 @@ def MDA2HDF5(
     with h5py.File(targetHDF5File, "w" if override else "a") as newTraj:
         trajGroup = newTraj.require_group(f"Trajectories/{groupName}")
         Universe2HDF5(MDAUniverseOrSelection, trajGroup, trajChunkSize=trajChunkSize)
+        if attrs:
+            for key in attrs.keys():
+                trajGroup.attrs.create(key, attrs[key])

@@ -27,11 +27,20 @@ def giveUniverse() -> MDAnalysis.Universe:
 def test_MDA2HDF5():
     # Given an MDA Universe :
     fourAtomsFiveFrames = giveUniverse()
-    HDF5er.MDA2HDF5(fourAtomsFiveFrames, "test.hdf5", "4Atoms5Frames", override=True)
-
+    attributes = {"ts": "1ps", "anotherAttr": "anotherAttrVal"}
+    HDF5er.MDA2HDF5(
+        fourAtomsFiveFrames,
+        "test.hdf5",
+        "4Atoms5Frames",
+        override=True,
+        attrs=attributes,
+    )
+    # verify:
     with h5py.File("test.hdf5", "r") as hdf5test:
         # this checks also that the group has been created
         group = hdf5test["Trajectories/4Atoms5Frames"]
+        for key in attributes.keys():
+            assert group.attrs[key] == attributes[key]
         # this checks also that the dataset has been created
         nat = len(group["Types"])
         for i, f in enumerate(fourAtomsFiveFrames.trajectory):
