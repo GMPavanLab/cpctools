@@ -5,3 +5,4 @@
 - Adding override option to HDF5er.MDA2HDF5
 - Added 3rd neighbours in the References
 - Added attributes to HDF5er.MDA2HDF5
+- In the referenceMaker: added the possibility tyo choose lmax and nmax for SOAP

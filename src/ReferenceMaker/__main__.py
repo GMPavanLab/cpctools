@@ -72,6 +72,8 @@ kind: str = chosen["kind"]
 pair_coeff = f"pair_coeff	1 1 {chosen['pair_coeff']}"
 atomMass = chosen["atomMass"]
 diameter = chosen["diameter"]
+SOAPlmax = 8
+SOAPnmax = 8
 referencesFileName = f"{kind}References.hdf5"
 latticebcc = 2 * diameter / numpy.sqrt(3.0)
 latticefcc = diameter * numpy.sqrt(2.0)
@@ -148,5 +150,11 @@ for np in [
         ]
         lmp.commands_list(commands_list)
 
-referenceSaponificator(rcuts=rcuts, referencesFileName=referencesFileName, kind=kind)
+referenceSaponificator(
+    rcuts=rcuts,
+    referencesFileName=referencesFileName,
+    kind=kind,
+    SOAPlmax=SOAPlmax,
+    SOAPnmax=SOAPnmax,
+)
 distanceVisualizer(rcuts=rcuts, referencesFile=referencesFileName, kind=kind)

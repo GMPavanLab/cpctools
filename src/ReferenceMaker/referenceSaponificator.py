@@ -115,6 +115,8 @@ def RefCreator(
     structureFile: str,
     masks: "list[dict[str,numpy.ndarray]]",
     PBC: bool = False,
+    SOAPlmax: int = 8,
+    SOAPnmax: int = 8,
 ):
     """Creates a series of SOAP fingerprints and store them in a subgroup in the requested group
 
@@ -140,19 +142,30 @@ def RefCreator(
     outgroup = targetFile.require_group(f"{groupname}/{rcut.name}")
     outgroup.attrs["rcutName"] = rcut.name
     outgroup.attrs["rcut"] = rcut.rcut
-    outgroup.attrs["lmax"] = 8
-    outgroup.attrs["nmax"] = 8
+    outgroup.attrs["lmax"] = SOAPlmax
+    outgroup.attrs["nmax"] = SOAPnmax
     for mask in masks:
         structure = structureFile
         export2hdf5(
-            fingerprintMaker(structure, rcut.rcut, mask["mask"], SOAPpbc=PBC),
+            fingerprintMaker(
+                structure,
+                rcut.rcut,
+                mask["mask"],
+                SOAPpbc=PBC,
+                SOAPlmax=SOAPlmax,
+                SOAPnmax=SOAPnmax,
+            ),
             outgroup,
             mask["name"],
         )
 
 
 def referenceSaponificator(
-    rcuts: "list[radiusInfo]", referencesFileName: str, kind: str
+    rcuts: "list[radiusInfo]",
+    referencesFileName: str,
+    kind: str,
+    SOAPlmax: int = 8,
+    SOAPnmax: int = 8,
 ):
     """generates the SOAP fingerprints for the reference systems.
 
@@ -195,8 +208,8 @@ def referenceSaponificator(
             outgroup = referenceFile.require_group(f"Bulk/{rcut.name}")
             outgroup.attrs["rcutName"] = rcut.name
             outgroup.attrs["rcut"] = rcut.rcut
-            outgroup.attrs["lmax"] = 8
-            outgroup.attrs["nmax"] = 8
+            outgroup.attrs["lmax"] = SOAPlmax
+            outgroup.attrs["nmax"] = SOAPnmax
             for structure in [
                 f"{kind}_bcc.data",
                 f"{kind}_fcc.data",
@@ -206,7 +219,11 @@ def referenceSaponificator(
                 structureName = structure.rsplit(sep=".", maxsplit=1)[0]
                 structureName = structureName.rsplit(sep="_", maxsplit=1)[1]
                 export2hdf5(
-                    fingerprintMaker(structure, rcut.rcut), outgroup, structureName
+                    fingerprintMaker(
+                        structure, rcut.rcut, SOAPlmax=SOAPlmax, SOAPnmax=SOAPnmax
+                    ),
+                    outgroup,
+                    structureName,
                 )
 
             RefCreator(
@@ -221,6 +238,8 @@ def referenceSaponificator(
                     {"name": "fiveFoldedAxis_ico", "mask": maskFiveFoldedAxis_ico},
                 ],
                 PBC=False,
+                SOAPlmax=SOAPlmax,
+                SOAPnmax=SOAPnmax,
             )
             RefCreator(
                 rcut,
@@ -234,6 +253,8 @@ def referenceSaponificator(
                     {"name": "edges_th", "mask": maskEdges_th},
                 ],
                 PBC=False,
+                SOAPlmax=SOAPlmax,
+                SOAPnmax=SOAPnmax,
             )
 
             RefCreator(
@@ -247,6 +268,8 @@ def referenceSaponificator(
                     {"name": "fiveFoldedAxis_dh", "mask": maskFiveFoldedAxis_dh},
                 ],
                 PBC=False,
+                SOAPlmax=SOAPlmax,
+                SOAPnmax=SOAPnmax,
             )
 
 
