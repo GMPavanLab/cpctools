@@ -5,7 +5,7 @@ from dscribe.descriptors import SOAP
 from HDF5er import HDF52AseAtomsChunckedwithSymbols as HDF2ase
 import time
 
-__all__ = ["saponifySingle", "saponifyGroup"]
+__all__ = ["saponify", "saponifyGroup"]
 
 
 def saponifyWorker(
