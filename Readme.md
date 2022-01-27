@@ -14,7 +14,7 @@ This package contains a toolbox to calculate the [SOAP fingerprints](https://doi
 
 ## HDF5er
 
-This package contains a small toolbox to create [hdf5 files](https://www.hdfgroup.org/) with [h5py](https://www.h5py.org/) from trajectory and topology files. The format we use do not align with [h5md](https://www.nongnu.org/h5md/h5md.html).
+This package contains a small toolbox to create [hdf5 files](https://www.hdfgroup.org/) with [h5py](https://www.h5py.org/) from trajectory and topology files. The format we use **do not** align with [h5md](https://www.nongnu.org/h5md/h5md.html).
 
 ## ReferenceMaker
 

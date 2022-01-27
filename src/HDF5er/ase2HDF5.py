@@ -104,13 +104,13 @@ def HDF52AseAtomsChunckedwithSymbols(
     for frame, box in zip(
         groupTraj["Trajectory"][chunkTraj], groupTraj["Box"][chunkBox]
     ):
-        theBox = [[box[0], 0, 0], [0, box[1], 0], [0, 0, box[2]]]
+        # theBox = [[box[0], 0, 0], [0, box[1], 0], [0, 0, box[2]]]
         # celldisp = -box[0:3] / 2
         atoms.append(
             aseAtoms(
                 symbols=symbols,
                 positions=frame,
-                cell=theBox,
+                cell=box,
                 pbc=True,
                 # celldisp=celldisp,
             )
