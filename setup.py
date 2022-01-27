@@ -5,7 +5,7 @@ with open("Readme.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="SOAPify-GMPavanLab",
-    version="0.0.1",
+    version="0.0.2",
     author="Daniele Rapetti",
     author_email="daniele.rapetti@polito.it",
     description="A package for creating and studying SOAP fingerprints",
@@ -22,5 +22,5 @@ setuptools.setup(
     ],
     package_dir={"": "src"},
     packages=setuptools.find_packages(where="src"),
-    python_requires=">=3.6",
+    python_requires=">=3.8",  # due to MDA
 )

@@ -18,8 +18,10 @@ def giveUniverse() -> MDAnalysis.Universe:
         ]
     )
     u = MDAnalysis.Universe.empty(4, trajectory=True)
-    u.add_TopologyAttr("type", ["H", "H", "H", "H"])
 
+    u.add_TopologyAttr("type", ["H", "H", "H", "H"])
+    # this tests the non orthogonality of the box
+    u.dimensions = [6.0, 6.0, 6.0, 90, 60, 90]
     u.trajectory.set_array(traj, "fac")
     return u
 
@@ -64,3 +66,9 @@ def test_ase():
         aseTraj = HDF5er.HDF52AseAtomsChunckedwithSymbols(
             group, slice(5), slice(5), ["H", "H", "H", "H"]
         )
+        for i, d in enumerate([6.0, 0.0, 0.0]):
+            assert aseTraj[0].cell[0][i] - d < 1e-8
+        for i, d in enumerate([0.0, 6.0, 0.0]):
+            assert aseTraj[0].cell[1][i] - d < 1e-8
+        for i, d in enumerate(6.0 * numpy.array([0.5, 0.0, numpy.sqrt(3.0) / 2])):
+            assert aseTraj[0].cell[2][i] - d < 1e-8
