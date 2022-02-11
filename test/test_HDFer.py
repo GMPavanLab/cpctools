@@ -19,10 +19,14 @@ def giveUniverse() -> MDAnalysis.Universe:
     )
     u = MDAnalysis.Universe.empty(4, trajectory=True)
 
-    u.add_TopologyAttr("type", ["H", "H", "H", "H"])
-    # this tests the non orthogonality of the box
-    u.dimensions = [6.0, 6.0, 6.0, 90, 60, 90]
-    u.trajectory.set_array(traj, "fac")
+    u.add_TopologyAttr("type", ["H"] * 4)
+    u.atoms.positions = traj[0]
+    u.trajectory = MDAnalysis.coordinates.memory.MemoryReader(
+        traj,
+        order="fac",
+        # this tests the non orthogonality of the box
+        dimensions=numpy.array([[6.0, 6.0, 6.0, 90, 60, 90]] * traj.shape[0]),
+    )
     return u
 
 
@@ -45,7 +49,40 @@ def test_MDA2HDF5():
             assert group.attrs[key] == attributes[key]
         # this checks also that the dataset has been created
         nat = len(group["Types"])
+        assert len(group["Trajectory"]) == len(fourAtomsFiveFrames.trajectory)
         for i, f in enumerate(fourAtomsFiveFrames.trajectory):
+            assert nat == len(fourAtomsFiveFrames.atoms)
+            for atomID in range(nat):
+                for coord in range(3):
+                    assert (
+                        group["Trajectory"][i, atomID, coord]
+                        - fourAtomsFiveFrames.atoms.positions[atomID, coord]
+                        < 1e-8
+                    )
+
+
+def test_MDA2HDF5Sliced():
+    # Given an MDA Universe :
+    fourAtomsFiveFrames = giveUniverse()
+    attributes = {"ts": "1ps", "anotherAttr": "anotherAttrVal"}
+    sl = slice(0, None, 2)
+    HDF5er.MDA2HDF5(
+        fourAtomsFiveFrames,
+        "test.hdf5",
+        "4Atoms3Frames",
+        override=True,
+        attrs=attributes,
+        trajslice=sl,
+    )
+    with h5py.File("test.hdf5", "r") as hdf5test:
+        # this checks also that the group has been created
+        group = hdf5test["Trajectories/4Atoms3Frames"]
+        for key in attributes.keys():
+            assert group.attrs[key] == attributes[key]
+        # this checks also that the dataset has been created
+        nat = len(group["Types"])
+        assert len(group["Trajectory"]) == 3
+        for i, f in enumerate(fourAtomsFiveFrames.trajectory[sl]):
             assert nat == len(fourAtomsFiveFrames.atoms)
             for atomID in range(nat):
                 for coord in range(3):
