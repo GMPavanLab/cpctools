@@ -4,6 +4,10 @@ from ase import Atoms as aseAtoms
 import numpy as np
 import h5py
 
+# this is "legacy code", use with caution
+
+__all__ = ["xyz2hdf5Converter", "HDF52AseAtomsChunckedwithSymbols"]
+
 # TODO: convert use exportChunk2HDF5
 def xyz2hdf5Converter(xyzName: str, boxfilename: str, group: h5py.Group):
     """Generate an HDF5 trajectory from an xyz file and a box file
@@ -76,6 +80,7 @@ def xyz2hdf5Converter(xyzName: str, boxfilename: str, group: h5py.Group):
             group["Trajectory"][first:frameNum] = atomicframes
 
 
+# TODO: using slices is not the best compromise here
 def HDF52AseAtomsChunckedwithSymbols(
     groupTraj: h5py.Group,
     chunkTraj: "tuple[slice]",
@@ -99,13 +104,13 @@ def HDF52AseAtomsChunckedwithSymbols(
     for frame, box in zip(
         groupTraj["Trajectory"][chunkTraj], groupTraj["Box"][chunkBox]
     ):
-        theBox = [[box[0], 0, 0], [0, box[1], 0], [0, 0, box[2]]]
+        # theBox = [[box[0], 0, 0], [0, box[1], 0], [0, 0, box[2]]]
         # celldisp = -box[0:3] / 2
         atoms.append(
             aseAtoms(
                 symbols=symbols,
                 positions=frame,
-                cell=theBox,
+                cell=box,
                 pbc=True,
                 # celldisp=celldisp,
             )

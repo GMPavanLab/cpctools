@@ -1,4 +1,4 @@
-# SOAPify and ReferenceMaker
+# SOAPify, HDF5er and ReferenceMaker
 
 This sequence of commands will setup the environment:
 
@@ -12,11 +12,15 @@ pip install -r requirements
 
 This package contains a toolbox to calculate the [SOAP fingerprints](https://doi.org/10.1103/PhysRevB.87.184115) of a system of atoms.
 
+## HDF5er
+
+This package contains a small toolbox to create [hdf5 files](https://www.hdfgroup.org/) with [h5py](https://www.h5py.org/) from trajectory and topology files. The format we use **do not** align with [h5md](https://www.nongnu.org/h5md/h5md.html).
+
 ## ReferenceMaker
 
 The ReferenceMaker package contains a set of function that can create a reference file to be used with the SOAPify package.
 
-ReferenceMaker function can be called with custommade scripts, but the user can create a list of SOAP references with the following:
+ReferenceMaker function can be called with custom made scripts, but the user can create a list of SOAP references with the following:
 
 ```bash
 python3 -m ReferenceMaker
