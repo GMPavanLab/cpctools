@@ -1,4 +1,8 @@
-# Changes From 0.1
+# Changelog
+
+## Changes From 0.0.2
+
+## Changes From 0.0.1
 
 - Tests
 - Changed default imports for HDF5er
@@ -6,3 +10,4 @@
 - Added 3rd neighbours in the References
 - Added attributes to HDF5er.MDA2HDF5
 - In the referenceMaker: added the possibility tyo choose lmax and nmax for SOAP
+- Added the possibility to export to hdf5 slices of the trajectories
