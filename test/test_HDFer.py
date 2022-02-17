@@ -142,7 +142,20 @@ def test_copiMDA2HDF52xyz():
     fourAtomsFiveFrames = giveUniverse((90, 90, 90))
     HDF5er.MDA2HDF5(fourAtomsFiveFrames, "test.hdf5", "4Atoms5Frames", override=True)
     with h5py.File("test.hdf5", "r") as hdf5test:
-        group = hdf5test["Trajectories/4Atoms5Frames_toOver"]
+        group = hdf5test["Trajectories/4Atoms5Frames"]
         stringData = HDF5er.getXYZfromTrajGroup(group)
         lines = stringData.splitlines()
+        nat = int(lines[0])
         assert int(lines[0]) == len(fourAtomsFiveFrames.atoms)
+        assert lines[2].split()[0] == fourAtomsFiveFrames.atoms.types[0]
+        for frame, traj in enumerate(fourAtomsFiveFrames.trajectory):
+            for atomID in range(len(fourAtomsFiveFrames.atoms)):
+                assert (
+                    lines[2 + frame * (nat + 2) + atomID].split()[0]
+                    == fourAtomsFiveFrames.atoms.types[atomID]
+                )
+                for i in range(3):
+                    assert (
+                        float(lines[2 + frame * (nat + 2) + atomID].split()[i + 1])
+                        == fourAtomsFiveFrames.atoms.positions[atomID][i]
+                    )
