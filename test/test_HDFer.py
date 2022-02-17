@@ -3,11 +3,10 @@ import h5py
 import pytest
 import MDAnalysis
 import numpy
+from MDAnalysis.lib.mdamath import triclinic_vectors
 
-# from MDAnalysis.tests.datafiles import
 
-
-def giveUniverse() -> MDAnalysis.Universe:
+def giveUniverse(angles: set = (90.0, 90.0, 90.0)) -> MDAnalysis.Universe:
     traj = numpy.array(
         [
             [[0.0, 0.0, 0.0], [1.0, 1.0, 1.0], [2.0, 2.0, 2.0], [3.0, 3.0, 3.0]],
@@ -25,7 +24,9 @@ def giveUniverse() -> MDAnalysis.Universe:
         traj,
         order="fac",
         # this tests the non orthogonality of the box
-        dimensions=numpy.array([[6.0, 6.0, 6.0, 90, 60, 90]] * traj.shape[0]),
+        dimensions=numpy.array(
+            [[6.0, 6.0, 6.0, angles[0], angles[1], angles[2]]] * traj.shape[0]
+        ),
     )
     return u
 
@@ -50,6 +51,7 @@ def test_MDA2HDF5():
         # this checks also that the dataset has been created
         nat = len(group["Types"])
         assert len(group["Trajectory"]) == len(fourAtomsFiveFrames.trajectory)
+        assert len(group["Trajectory"]) == 5
         for i, f in enumerate(fourAtomsFiveFrames.trajectory):
             assert nat == len(fourAtomsFiveFrames.atoms)
             for atomID in range(nat):
@@ -92,20 +94,55 @@ def test_MDA2HDF5Sliced():
                         < 1e-8
                     )
 
-
-def test_ase():
     # this test has been writtend After the function has been written
     # This creates or overwite the test file:
-    fourAtomsFiveFrames = giveUniverse()
-    HDF5er.MDA2HDF5(fourAtomsFiveFrames, "test.hdf5", "4Atoms5Frames", override=True)
+
+
+def test_MDA2HDF5Box():
+    fourAtomsFiveFrames = giveUniverse((90, 90, 90))
+    HDF5er.MDA2HDF5(
+        fourAtomsFiveFrames, "test.hdf5", "4Atoms5Frames_toOver", override=True
+    )
     with h5py.File("test.hdf5", "r") as hdf5test:
-        group = hdf5test["Trajectories/4Atoms5Frames"]
+        group = hdf5test["Trajectories/4Atoms5Frames_toOver"]
         aseTraj = HDF5er.HDF52AseAtomsChunckedwithSymbols(
             group, slice(5), slice(5), ["H", "H", "H", "H"]
         )
-        for i, d in enumerate([6.0, 0.0, 0.0]):
-            assert aseTraj[0].cell[0][i] - d < 1e-8
-        for i, d in enumerate([0.0, 6.0, 0.0]):
-            assert aseTraj[0].cell[1][i] - d < 1e-8
-        for i, d in enumerate(6.0 * numpy.array([0.5, 0.0, numpy.sqrt(3.0) / 2])):
-            assert aseTraj[0].cell[2][i] - d < 1e-8
+        for j, array in enumerate(triclinic_vectors([6.0, 6.0, 6.0, 90, 90, 90])):
+            for i, d in enumerate(array):
+                assert aseTraj[0].cell[j][i] - d < 1e-7
+    for angles in [
+        (90, 60, 90),
+        (60, 60, 60),
+        (50, 60, 90),
+        (90, 90, 45),
+        (80, 60, 90),
+    ]:
+        print(angles)
+        fourAtomsFiveFramesSkew = giveUniverse(angles)
+        HDF5er.MDA2HDF5(
+            fourAtomsFiveFramesSkew, "test.hdf5", "4Atoms5Frames_toOver", override=True
+        )
+        with h5py.File("test.hdf5", "r") as hdf5test:
+            group = hdf5test["Trajectories/4Atoms5Frames_toOver"]
+            aseTraj = HDF5er.HDF52AseAtomsChunckedwithSymbols(
+                group, slice(5), slice(5), ["H", "H", "H", "H"]
+            )
+            for j, array in enumerate(
+                triclinic_vectors(
+                    [6.0, 6.0, 6.0, angles[0], angles[1], angles[2]],
+                    dtype=numpy.float64,
+                )
+            ):
+                for i, d in enumerate(array):
+                    assert aseTraj[0].cell[j][i] - d < 1e-7
+
+
+def test_copiMDA2HDF52xyz():
+    fourAtomsFiveFrames = giveUniverse((90, 90, 90))
+    HDF5er.MDA2HDF5(fourAtomsFiveFrames, "test.hdf5", "4Atoms5Frames", override=True)
+    with h5py.File("test.hdf5", "r") as hdf5test:
+        group = hdf5test["Trajectories/4Atoms5Frames_toOver"]
+        stringData = HDF5er.getXYZfromTrajGroup(group)
+        lines = stringData.splitlines()
+        assert int(lines[0]) == len(fourAtomsFiveFrames.atoms)
