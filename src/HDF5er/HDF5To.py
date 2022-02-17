@@ -50,14 +50,15 @@ def getXYZfromTrajGroup(group: h5py.Group) -> str:
     Returns:
         str: the content of the xyz file
     """
-    data = "4\n\nH 1 1 1\n"
-    atomtypes = group["Types"]
-    nat = atomtypes.shape[0]
+    data = ""
+    atomtypes = group["Types"].asstr()
+
     boxes = group["Box"]
     coord = group["Trajectory"]
     trajlen = coord.shape[0]
+    nat = coord.shape[1]
     for frame in range(trajlen):
         data += f"{nat}\n\n"
         for atomID in range(nat):
-            data += f"{atomtypes[atomID]} {coord[frame,0]} {coord[frame,1]} {coord[frame,2]}\n"
+            data += f"{atomtypes[atomID]} {coord[frame,atomID,0]} {coord[frame,atomID,1]} {coord[frame,atomID,2]}\n"
     return data
