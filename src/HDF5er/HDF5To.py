@@ -1,8 +1,13 @@
 import h5py
 from ase import Atoms as aseAtoms
 from MDAnalysis.lib.mdamath import triclinic_vectors
+import re
 
-__all__ = ["getXYZfromTrajGroup", "HDF52AseAtomsChunckedwithSymbols"]
+__all__ = [
+    "getXYZfromTrajGroup",
+    "saveXYZfromTrajGroup",
+    "HDF52AseAtomsChunckedwithSymbols",
+]
 
 # TODO: using slices is not the best compromise here
 def HDF52AseAtomsChunckedwithSymbols(
@@ -42,11 +47,18 @@ def HDF52AseAtomsChunckedwithSymbols(
     return atoms
 
 
-def getXYZfromTrajGroup(group: h5py.Group) -> str:
+def getXYZfromTrajGroup(group: h5py.Group, **additionalColumns) -> str:
     """generate an xyz-style string from a trajectory group in an hdf5
+
+        The string generated can be then exported to a file,
+        the additionalColumns arguments are added as extra columns to the file,
+        they must be numpy.ndarray with shape (nofFrames,NofAtoms) for 1D data
+        or (nofFrames,NofAtoms,Nvalues) for multidimensional data
+        this will add one or more columns to the xyz file
 
     Args:
         group (h5py.Group): the trajectory group
+        additionalColumsn(): the additional columns to add to the file
 
     Returns:
         str: the content of the xyz file
@@ -58,8 +70,23 @@ def getXYZfromTrajGroup(group: h5py.Group) -> str:
     coord = group["Trajectory"]
     trajlen = coord.shape[0]
     nat = coord.shape[1]
+    additional = ""
+    for key in additionalColumns:
+        shapeOfData = additionalColumns[key].shape
+        dim = shapeOfData[2] if len(shapeOfData) == 3 else 1
+        if (  # wrong shape of the array
+            (len(shapeOfData) != 2 and len(shapeOfData) != 3)
+            # wrong number of frames
+            or shapeOfData[0] != trajlen
+            # wrong number of atoms
+            or shapeOfData[1] != nat
+        ):
+            raise ValueError(
+                'Extra data passed to "getXYZfromTrajGroup" do not has the right dimensions'
+            )
+        additional += ":" + key + ":R:" + str(dim)
 
-    header: str = f"{nat}\nProperties=species:S:1:pos:R:3:Lattice="
+    header: str = f"{nat}\nProperties=species:S:1:pos:R:3{additional} Lattice="
     for frame in range(trajlen):
         data += f"{header}"
         theBox = triclinic_vectors(boxes[frame])
@@ -67,5 +94,25 @@ def getXYZfromTrajGroup(group: h5py.Group) -> str:
         data += f"{theBox[1][0]} {theBox[1][1]} {theBox[1][2]} "
         data += f'{theBox[2][0]} {theBox[2][1]} {theBox[2][2]}"\n'
         for atomID in range(nat):
-            data += f"{atomtypes[atomID]} {coord[frame,atomID,0]} {coord[frame,atomID,1]} {coord[frame,atomID,2]}\n"
+            data += f"{atomtypes[atomID]} {coord[frame,atomID,0]} {coord[frame,atomID,1]} {coord[frame,atomID,2]}"
+            for key in additionalColumns:
+                # this removes the brackets from the data if the dimensions are >1
+                data += " " + re.sub(
+                    "( \[|\[|\])", "", str(additionalColumns[key][frame, atomID])
+                )
+            data += "\n"
     return data
+
+
+def saveXYZfromTrajGroup(filename: str, group: h5py.Group, **additionalColumns) -> None:
+    """Saves "filename" as an xyz file see
+       saveXYZfromTrajGroup this calls getXYZfromTrajGroup and treats the inputs in the same way
+
+    Args:
+        filename (str): name of the file
+        group (h5py.Group): the trajectory group
+        additionalColumsn(): the additional columns to add to the file
+    """
+    dataStr = getXYZfromTrajGroup(group, **additionalColumns)
+    with open(filename, "w") as file:
+        file.write(dataStr)

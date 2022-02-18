@@ -2,6 +2,8 @@
 
 ## Changes From 0.0.2
 
+- Added the possiblity to export xyz files from the hdf5 trajectories, also with extra data columns
+
 ## Changes From 0.0.1
 
 - Tests
