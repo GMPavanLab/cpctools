@@ -1,5 +1,6 @@
 import h5py
 from ase import Atoms as aseAtoms
+from MDAnalysis.lib.mdamath import triclinic_vectors
 
 __all__ = ["getXYZfromTrajGroup", "HDF52AseAtomsChunckedwithSymbols"]
 
@@ -57,8 +58,14 @@ def getXYZfromTrajGroup(group: h5py.Group) -> str:
     coord = group["Trajectory"]
     trajlen = coord.shape[0]
     nat = coord.shape[1]
+
+    header: str = f"{nat}\nProperties=species:S:1:pos:R:3:Lattice="
     for frame in range(trajlen):
-        data += f"{nat}\n\n"
+        data += f"{header}"
+        theBox = triclinic_vectors(boxes[frame])
+        data += f'"{theBox[0][0]} {theBox[0][1]} {theBox[0][2]} '
+        data += f"{theBox[1][0]} {theBox[1][1]} {theBox[1][2]} "
+        data += f'{theBox[2][0]} {theBox[2][1]} {theBox[2][2]}"\n'
         for atomID in range(nat):
             data += f"{atomtypes[atomID]} {coord[frame,atomID,0]} {coord[frame,atomID,1]} {coord[frame,atomID,2]}\n"
     return data

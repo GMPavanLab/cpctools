@@ -138,8 +138,12 @@ def test_MDA2HDF5Box():
                     assert aseTraj[0].cell[j][i] - d < 1e-7
 
 
-def test_copiMDA2HDF52xyz():
-    fourAtomsFiveFrames = giveUniverse((90, 90, 90))
+def test_copyMDA2HDF52xyz():
+    angles = (75.0, 60.0, 90.0)
+    fourAtomsFiveFrames = giveUniverse(angles)
+    latticeVector = triclinic_vectors(
+        [6.0, 6.0, 6.0, angles[0], angles[1], angles[2]]
+    ).flatten()
     HDF5er.MDA2HDF5(fourAtomsFiveFrames, "test.hdf5", "4Atoms5Frames", override=True)
     with h5py.File("test.hdf5", "r") as hdf5test:
         group = hdf5test["Trajectories/4Atoms5Frames"]
@@ -150,8 +154,14 @@ def test_copiMDA2HDF52xyz():
         assert int(lines[0]) == len(fourAtomsFiveFrames.atoms)
         assert lines[2].split()[0] == fourAtomsFiveFrames.atoms.types[0]
         for frame, traj in enumerate(fourAtomsFiveFrames.trajectory):
+            frameID = frame * (nat + 2)
+            assert int(lines[frameID]) == nat
+            Lattice = lines[frameID + 1].split("Lattice=")[1].replace('"', "").split()
+            for original, control in zip(latticeVector, Lattice):
+                assert (original - float(control)) < 1e-7
             for atomID in range(len(fourAtomsFiveFrames.atoms)):
-                thisline = 2 + frame * (nat + 2) + atomID
+                thisline = frameID + 2 + atomID
+                # TODO: add test for lattice
                 assert (
                     lines[thisline].split()[0]
                     == fourAtomsFiveFrames.atoms.types[atomID]
