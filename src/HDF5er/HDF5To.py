@@ -67,9 +67,9 @@ def getXYZfromTrajGroup(group: h5py.Group, **additionalColumns) -> str:
     atomtypes = group["Types"].asstr()
 
     boxes = group["Box"]
-    coord = group["Trajectory"]
-    trajlen = coord.shape[0]
-    nat = coord.shape[1]
+    coordGroup = group["Trajectory"]
+    trajlen = coordGroup.shape[0]
+    nat = coordGroup.shape[1]
     additional = ""
     for key in additionalColumns:
         shapeOfData = additionalColumns[key].shape
@@ -88,13 +88,14 @@ def getXYZfromTrajGroup(group: h5py.Group, **additionalColumns) -> str:
 
     header: str = f"{nat}\nProperties=species:S:1:pos:R:3{additional} Lattice="
     for frame in range(trajlen):
+        coord=coordGroup[frame,:]
         data += f"{header}"
         theBox = triclinic_vectors(boxes[frame])
         data += f'"{theBox[0][0]} {theBox[0][1]} {theBox[0][2]} '
         data += f"{theBox[1][0]} {theBox[1][1]} {theBox[1][2]} "
         data += f'{theBox[2][0]} {theBox[2][1]} {theBox[2][2]}"\n'
         for atomID in range(nat):
-            data += f"{atomtypes[atomID]} {coord[frame,atomID,0]} {coord[frame,atomID,1]} {coord[frame,atomID,2]}"
+            data += f"{atomtypes[atomID]} {coord[atomID,0]} {coord[atomID,1]} {coord[atomID,2]}"
             for key in additionalColumns:
                 # this removes the brackets from the data if the dimensions are >1
                 data += " " + re.sub(
@@ -104,6 +105,9 @@ def getXYZfromTrajGroup(group: h5py.Group, **additionalColumns) -> str:
     return data
 
 
+# TODO: add the possibility to append
+# TODO: add the possibility to pass a file handler
+# TODO: it is slow with huge files
 def saveXYZfromTrajGroup(filename: str, group: h5py.Group, **additionalColumns) -> None:
     """Saves "filename" as an xyz file see
        saveXYZfromTrajGroup this calls getXYZfromTrajGroup and treats the inputs in the same way

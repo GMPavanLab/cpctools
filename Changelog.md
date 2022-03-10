@@ -3,6 +3,7 @@
 ## Changes From 0.0.2
 
 - Added the possiblity to export xyz files from the hdf5 trajectories, also with extra data columns
+- Improved performance for getXYZfromTrajGroup
 
 ## Changes From 0.0.1
 
