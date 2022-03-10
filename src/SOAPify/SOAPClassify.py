@@ -1,6 +1,7 @@
 import h5py
 import numpy as np
 from .SOAPbase import SOAPdistance, simpleSOAPdistance, SOAPdistanceNormalized
+from .utils import fillSOAPVectorFromdscribe
 from dataclasses import dataclass
 
 
@@ -11,6 +12,14 @@ class SOAPclassification:
     distances: "np.ndarray[float]"  #: stores the (per frame) per atom information about the distance from the closes reference fingerprint
     references: "np.ndarray[int]"  #: stores the (per frame) per atom index of the closest reference
     legend: "list[str]"  #:: stores the references legend
+
+
+@dataclass
+class SOAPReferences:
+    """Utility class to store the information about the SOAP classification of a system."""
+
+    names: "list[str]"  #:: stores the names of the references
+    spectra: "np.ndarray[float]"  #:: stores the SOAP vector of the references
 
 
 def classifyWithSOAP(
@@ -87,6 +96,49 @@ def loadRefs(
             exit(255)
     spectra = np.array(spectra)
     return spectra, legend
+
+
+def mergeReferences(x: SOAPReferences, y: SOAPReferences) -> SOAPReferences:
+    return SOAPReferences(x.names + y.names, np.concatenate((x.spectra, x.spectra)))
+
+
+@dataclass
+class dscribeSettings:
+    lmax: int
+    nmax: int
+
+
+def createReferencesFromTrajectory(
+    h5SOAPDataSet: h5py.Dataset,
+    addresses: dict,
+    doNormalize=True,
+    settingsUsedInDscribe: "dscribeSettings|None" = None,
+) -> SOAPReferences:
+    """Generate a SOAPReferences object by storing the data found from h5SOAPDataSet.
+    The atoms are selected trough the addresses dictionary.
+
+    Args:
+        h5SOAPDataSet (h5py.Dataset): the dataset with the SOAP fingerprints
+        addresses (dict): the dictionary with the names and the addresses of the fingerprints.
+                        The keys will be used as the names of the references and the values
+                        assigned to the keys must be tuples or similar with the number of
+                        the chosen frame and the atom number (for example ``dict(exaple=(framenum, atomID))``)
+        doNormalize (bool, optional): If True normalizes the SOAP vector before storing them. Defaults to True.
+        settingsUsedInDscribe (dscribeSettings|None, optional): If none the SOAP vector are 
+                        not preprpcessed, if not none the SOAP vectors are decompressed, 
+                        as dscribe omits the symmetric part of the spectra. Defaults to None.
+
+    Returns:
+        SOAPReferences: _description_
+    """
+    nofData=len(addresses)
+    names=list(addresses.keys())
+    SOAPDim=h5SOAPDataSet.shape[2]
+    SOAPSpectra=np.empty((nofData,SOAPDim),dtype=h5SOAPDataSet.dtype)
+    if settingsUsedInDscribe is not None:
+        SOAPSpectra=fillSOAPVectorFromdscribe(SOAPSpectra,)
+
+
 
 if __name__ == "__main__":
     import h5py

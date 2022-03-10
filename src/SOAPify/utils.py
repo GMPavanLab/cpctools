@@ -17,7 +17,7 @@ def normalizeArray(a: numpy.ndarray) -> numpy.ndarray:
     return a / norm
 
 
-def fillSOAPVectorFromdscribe(
+def fillsingleSOAPVectorFromdscribe(
     soapFromdscribe: numpy.ndarray, l_max: int = 8, n_max: int = 8
 ) -> numpy.ndarray:
     """Given the resul of a SOAP calculation from dscribe returns the SOAP power
@@ -43,3 +43,37 @@ def fillSOAPVectorFromdscribe(
                 limited += 1
 
     return completeData.reshape((-1))
+
+
+def fillSOAPVectorFromdscribe(
+    soapFromdscribe: numpy.ndarray, l_max: int = 8, n_max: int = 8
+) -> numpy.ndarray:
+    """Given the resul of a SOAP calculation from dscribe returns the SOAP power
+        spectrum with also the symmetric part explicitly stored, see the note in https://singroup.github.io/dscribe/1.2.x/tutorials/descriptors/soap.html
+
+        No controls are implemented on the shape of the soapFromdscribe vector.
+
+    Args:
+        soapFromdscribe (numpy.ndarray): the result of the SOAP calculation from the dscribe utility
+        l_max (int, optional): the l_max specified in the calculation. Defaults to 8.
+        n_max (int, optional): the n_max specified in the calculation. Defaults to 8.
+
+    Returns:
+        numpy.ndarray: The full soap spectrum, with the symmetric part sored explicitly
+    """
+    limitedSOAPdim = int(((l_max + 1) * (n_max + 1) * n_max) / 2)
+    if soapFromdscribe.shape[-1] != limitedSOAPdim:
+        raise Exception(
+            "fillSOAPVectorFromdscribe: the given soap vector do not have the expected dimensions"
+        )
+    if len(soapFromdscribe.shape) == 1:
+        return fillsingleSOAPVectorFromdscribe(soapFromdscribe, l_max, n_max)
+
+    fullSOAPdim = (l_max + 1) * n_max * n_max
+    retdata = numpy.empty(
+        (soapFromdscribe.shape[0], fullSOAPdim), dtype=soapFromdscribe.dtype
+    )
+    for i in range(soapFromdscribe.shape[0]):
+        retdata[i] = fillsingleSOAPVectorFromdscribe(soapFromdscribe[i], l_max, n_max)
+
+    return retdata
