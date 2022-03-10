@@ -4,6 +4,7 @@
 
 - Only for Monospecies: added a small utility (fillSOAPVectorFromdscribe) that returns the correct SOAP vector from the simplified one from dscribe
 - Added a utility for normalize SOAP vectors
+- Added createReferencesFromTrajectory that creates a variables that stores SOAP references
 
 ## Changes From 0.0.2
 

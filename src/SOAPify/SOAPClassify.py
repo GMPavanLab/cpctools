@@ -1,7 +1,8 @@
+import re
 import h5py
 import numpy as np
 from .SOAPbase import SOAPdistance, simpleSOAPdistance, SOAPdistanceNormalized
-from .utils import fillSOAPVectorFromdscribe
+from .utils import fillSOAPVectorFromdscribe, normalizeArray
 from dataclasses import dataclass
 
 
@@ -124,20 +125,24 @@ def createReferencesFromTrajectory(
                         assigned to the keys must be tuples or similar with the number of
                         the chosen frame and the atom number (for example ``dict(exaple=(framenum, atomID))``)
         doNormalize (bool, optional): If True normalizes the SOAP vector before storing them. Defaults to True.
-        settingsUsedInDscribe (dscribeSettings|None, optional): If none the SOAP vector are 
-                        not preprpcessed, if not none the SOAP vectors are decompressed, 
+        settingsUsedInDscribe (dscribeSettings|None, optional): If none the SOAP vector are
+                        not preprpcessed, if not none the SOAP vectors are decompressed,
                         as dscribe omits the symmetric part of the spectra. Defaults to None.
 
     Returns:
         SOAPReferences: _description_
     """
-    nofData=len(addresses)
-    names=list(addresses.keys())
-    SOAPDim=h5SOAPDataSet.shape[2]
-    SOAPSpectra=np.empty((nofData,SOAPDim),dtype=h5SOAPDataSet.dtype)
+    nofData = len(addresses)
+    names = list(addresses.keys())
+    SOAPDim = h5SOAPDataSet.shape[2]
+    SOAPSpectra = np.empty((nofData, SOAPDim), dtype=h5SOAPDataSet.dtype)
     if settingsUsedInDscribe is not None:
-        SOAPSpectra=fillSOAPVectorFromdscribe(SOAPSpectra,)
-
+        SOAPSpectra = fillSOAPVectorFromdscribe(
+            SOAPSpectra, settingsUsedInDscribe.lmax, settingsUsedInDscribe.nmax
+        )
+    if doNormalize:
+        SOAPSpectra = normalizeArray(SOAPSpectra)
+    return SOAPReferences(names, SOAPSpectra)
 
 
 if __name__ == "__main__":
