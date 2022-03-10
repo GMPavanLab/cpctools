@@ -1,4 +1,6 @@
 import re
+from turtle import distance
+from xmlrpc.client import Boolean
 import h5py
 import numpy as np
 from .SOAPbase import SOAPdistance, simpleSOAPdistance, SOAPdistanceNormalized
@@ -21,6 +23,11 @@ class SOAPReferences:
 
     names: "list[str]"  #:: stores the names of the references
     spectra: "np.ndarray[float]"  #:: stores the SOAP vector of the references
+    lmax: int
+    nmax: int
+
+    def __len__(self) -> int:
+        return len(self.names)
 
 
 def classifyWithSOAP(
@@ -103,17 +110,12 @@ def mergeReferences(x: SOAPReferences, y: SOAPReferences) -> SOAPReferences:
     return SOAPReferences(x.names + y.names, np.concatenate((x.spectra, x.spectra)))
 
 
-@dataclass
-class dscribeSettings:
-    lmax: int
-    nmax: int
-
-
 def createReferencesFromTrajectory(
     h5SOAPDataSet: h5py.Dataset,
     addresses: dict,
+    lmax: int,
+    nmax: int,
     doNormalize=True,
-    settingsUsedInDscribe: "dscribeSettings|None" = None,
 ) -> SOAPReferences:
     """Generate a SOAPReferences object by storing the data found from h5SOAPDataSet.
     The atoms are selected trough the addresses dictionary.
@@ -135,14 +137,72 @@ def createReferencesFromTrajectory(
     nofData = len(addresses)
     names = list(addresses.keys())
     SOAPDim = h5SOAPDataSet.shape[2]
+    SOAPexpectedDim = lmax * nmax * nmax
     SOAPSpectra = np.empty((nofData, SOAPDim), dtype=h5SOAPDataSet.dtype)
-    if settingsUsedInDscribe is not None:
-        SOAPSpectra = fillSOAPVectorFromdscribe(
-            SOAPSpectra, settingsUsedInDscribe.lmax, settingsUsedInDscribe.nmax
-        )
+    if SOAPexpectedDim != SOAPDim:
+        SOAPSpectra = fillSOAPVectorFromdscribe(SOAPSpectra, lmax, nmax)
     if doNormalize:
         SOAPSpectra = normalizeArray(SOAPSpectra)
-    return SOAPReferences(names, SOAPSpectra)
+    return SOAPReferences(names, SOAPSpectra, lmax, nmax)
+
+
+def getDistanceBetween(
+    data: np.ndarray, spectra: np.ndarray, distanceCalculator: function
+) -> np.ndarray:
+    toret = np.zeros((data.shape[0], spectra.shape[0]), dtype=data.dtype)
+    for i in range(data.shape[0]):
+        for j in range(spectra.shape[0]):
+            toret[i, j] = distanceCalculator(data[i], spectra[j])
+    return toret
+
+
+def getDistancesFromRef(
+    SOAPTrajData: h5py.Dataset,
+    references: SOAPReferences,
+    distanceCalculator: function,
+    doNormalize: bool = False,
+):
+    # TODO use the dataset chunking
+    CHUNK = 100
+    # assuming shape is (nframes, natoms, nsoap)
+    currentFrame = 0
+    doconversion = SOAPTrajData.shape[-1] != references.spectra.shape[-1]
+    distanceFromReference = np.empty(
+        (SOAPTrajData.shape[0], SOAPTrajData.shape[1], len(references))
+    )
+    while SOAPTrajData.shape[0] > currentFrame + CHUNK:
+        upperFrame = max(SOAPTrajData.shape[0], currentFrame + CHUNK)
+        frames = SOAPTrajData[currentFrame:upperFrame]
+        if doconversion:
+            frames = fillSOAPVectorFromdscribe(frames, references.lmax, references.nmax)
+        if doNormalize:
+            frames = normalizeArray(frames)
+        for i, frame in enumerate(frames):
+            distanceFromReference[currentFrame + i] = getDistanceBetween(
+                frame, references.spectra, distanceCalculator
+            )
+
+    return distanceFromReference
+
+
+def getDistancesFromRefNormalized(
+    SOAPTrajData: h5py.Dataset, references: SOAPReferences
+):
+    return getDistancesFromRef(
+        SOAPTrajData, references, SOAPdistanceNormalized, doNormalize=True
+    )
+
+
+def classify(
+    SOAPTrajData: h5py.Dataset, references: SOAPReferences
+) -> SOAPclassification:
+    info = getDistancesFromRefNormalized(SOAPTrajData, references)
+    minimuDistID = np.argmin(info, axis=-1)
+    minimuDist = np.empty_like(minimuDistID, dtype=info.dtype)
+    for frame in range(minimuDist.shape[0]):
+        for atom in range(minimuDist.shape[1]):
+            minimuDist[frame, atom] = info[frame, atom, minimuDistID[frame, atom]]
+    return SOAPclassification(minimuDist, minimuDistID, references.names)
 
 
 if __name__ == "__main__":
