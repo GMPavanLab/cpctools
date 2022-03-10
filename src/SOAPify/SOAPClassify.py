@@ -197,12 +197,9 @@ def classify(
     SOAPTrajData: h5py.Dataset, references: SOAPReferences
 ) -> SOAPclassification:
     info = getDistancesFromRefNormalized(SOAPTrajData, references)
-    minimuDistID = np.argmin(info, axis=-1)
-    minimuDist = np.empty_like(minimuDistID, dtype=info.dtype)
-    for frame in range(minimuDist.shape[0]):
-        for atom in range(minimuDist.shape[1]):
-            minimuDist[frame, atom] = info[frame, atom, minimuDistID[frame, atom]]
-    return SOAPclassification(minimuDist, minimuDistID, references.names)
+    minimumDistID = np.argmin(info, axis=-1)
+    minimumDist = np.amin(info, axis=-1)    
+    return SOAPclassification(minimumDist, minimumDistID, references.names)
 
 
 if __name__ == "__main__":
