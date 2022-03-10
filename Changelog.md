@@ -1,5 +1,10 @@
 # Changelog
 
+## Changes From 0.0.2a
+
+- Only for Monospecies: added a small utility (fillSOAPVectorFromdscribe) that returns the correct SOAP vector from the simplified one from dscribe
+- Added a utility for normalize SOAP vectors
+
 ## Changes From 0.0.2
 
 - Added the possiblity to export xyz files from the hdf5 trajectories, also with extra data columns
@@ -12,5 +17,5 @@
 - Adding override option to HDF5er.MDA2HDF5
 - Added 3rd neighbours in the References
 - Added attributes to HDF5er.MDA2HDF5
-- In the referenceMaker: added the possibility tyo choose lmax and nmax for SOAP
+- In the referenceMaker: added the possibility to choose lmax and nmax for SOAP
 - Added the possibility to export to hdf5 slices of the trajectories
