@@ -194,11 +194,16 @@ def getDistancesFromRefNormalized(
 
 
 def classify(
-    SOAPTrajData: h5py.Dataset, references: SOAPReferences
+    SOAPTrajData: h5py.Dataset,
+    references: SOAPReferences,
+    distanceCalculator: function,
+    doNormalize: bool = False,
 ) -> SOAPclassification:
-    info = getDistancesFromRefNormalized(SOAPTrajData, references)
+    info = getDistancesFromRef(
+        SOAPTrajData, references, distanceCalculator, doNormalize
+    )
     minimumDistID = np.argmin(info, axis=-1)
-    minimumDist = np.amin(info, axis=-1)    
+    minimumDist = np.amin(info, axis=-1)
     return SOAPclassification(minimumDist, minimumDistID, references.names)
 
 
