@@ -38,7 +38,6 @@ def saponifyWorker(
         print(f'   and working on box chunk "{repr(chunkBox)}"')
         # load in memory a chunk of data
         atoms = HDF2ase(trajGroup, chunkTraj, chunkBox, symbols)
-
         jobchunk = min(SOAPOutputChunkDim, len(atoms))
         jobStart = 0
         jobEnd = jobStart + jobchunk
@@ -47,6 +46,7 @@ def saponifyWorker(
             frameStart = jobStart + chunkTraj[0].start
             FrameEnd = jobEnd + chunkTraj[0].start
             print(f"working on frames: [{frameStart}:{FrameEnd}]")
+            # TODO: dscribe1.2.1 return (nat,nsoap) instead of (1,nat,nsoap) if we are analysing only ! frame!
             SOAPoutDataset[frameStart:FrameEnd] = soapEngine.create(
                 atoms[jobStart:jobEnd],
                 positions=[centersMask] * jobchunk,
@@ -99,14 +99,15 @@ def saponifyGroup(
             and "Box" in trajContainers[key].keys()
         ):
             traj = trajContainers[key]
-            if soapEngine is None:
-                symbols = traj["Types"].asstr()[:]
-                centersMask = None
-                if SOAPatomMask is not None:
-                    centersMask = [
-                        i for i in range(len(symbols)) if symbols[i] in SOAPatomMask
-                    ]
+            centersMask = None
+            symbols = traj["Types"].asstr()[:]
+            if SOAPatomMask is not None:
+                centersMask = [
+                    i for i in range(len(symbols)) if symbols[i] in SOAPatomMask
+                ]
+            nCenters = len(symbols) if centersMask is None else len(centersMask)
 
+            if soapEngine is None:
                 species = list(set(symbols))
                 soapEngine = SOAP(
                     species=species,
@@ -117,7 +118,6 @@ def saponifyGroup(
                     average="off",
                 )
                 NofFeatures = soapEngine.get_number_of_features()
-                nCenters = len(symbols) if centersMask is None else len(centersMask)
 
             if key not in SOAPoutContainers.keys():
                 SOAPoutContainers.create_dataset(
