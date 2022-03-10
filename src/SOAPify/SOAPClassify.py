@@ -1,6 +1,4 @@
-import re
-from turtle import distance
-from xmlrpc.client import Boolean
+from typing import Callable
 import h5py
 import numpy as np
 from .SOAPbase import SOAPdistance, simpleSOAPdistance, SOAPdistanceNormalized
@@ -107,7 +105,39 @@ def loadRefs(
 
 
 def mergeReferences(x: SOAPReferences, y: SOAPReferences) -> SOAPReferences:
-    return SOAPReferences(x.names + y.names, np.concatenate((x.spectra, x.spectra)))
+    if x.nmax == y.nmax and x.nmax == y.lmax:
+        return SOAPReferences(
+            x.names + y.names,
+            np.concatenate((x.spectra, x.spectra)),
+            nmax=x.nmax,
+            lmax=x.lmax,
+        )
+    else:
+        raise Exception("nmax or lmax are not the same in the two references")
+
+
+def saveReferences(
+    h5position: "h5py.Group|h5py.File", targetDatasetName: str, refs: SOAPReferences
+):
+    whereToSave = h5position.require_dataset(
+        targetDatasetName,
+        shape=refs.spectra.shape,
+        dtype=refs.spectra.dtype,
+        compression="gzip",
+        compression_opts=9,
+    )
+    whereToSave[:] = refs.spectra
+    whereToSave.attrs.create("nmax", refs.nmax)
+    whereToSave.attrs.create("lmax", refs.lmax)
+    whereToSave.attrs.create("names", refs.names)
+
+
+def getReferencesFromDataset(dataset: h5py.Dataset):
+    fingerprints = dataset[:]
+    names = dataset.attrs["names"]
+    lmax = dataset.attrs["lmax"]
+    nmax = dataset.attrs["nmax"]
+    return SOAPReferences(names=names, spectra=fingerprints, lmax=lmax, nmax=nmax)
 
 
 def createReferencesFromTrajectory(
@@ -147,7 +177,7 @@ def createReferencesFromTrajectory(
 
 
 def getDistanceBetween(
-    data: np.ndarray, spectra: np.ndarray, distanceCalculator: function
+    data: np.ndarray, spectra: np.ndarray, distanceCalculator: Callable
 ) -> np.ndarray:
     toret = np.zeros((data.shape[0], spectra.shape[0]), dtype=data.dtype)
     for i in range(data.shape[0]):
@@ -159,7 +189,7 @@ def getDistanceBetween(
 def getDistancesFromRef(
     SOAPTrajData: h5py.Dataset,
     references: SOAPReferences,
-    distanceCalculator: function,
+    distanceCalculator: Callable,
     doNormalize: bool = False,
 ):
     # TODO use the dataset chunking
@@ -196,7 +226,7 @@ def getDistancesFromRefNormalized(
 def classify(
     SOAPTrajData: h5py.Dataset,
     references: SOAPReferences,
-    distanceCalculator: function,
+    distanceCalculator: Callable,
     doNormalize: bool = False,
 ) -> SOAPclassification:
     info = getDistancesFromRef(
