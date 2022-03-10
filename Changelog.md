@@ -7,6 +7,7 @@
 - Added createReferencesFromTrajectory that creates a variables that stores SOAP references
 - set up a way to classify with soap with a different method thant the original idea
 - the new references now can be loaded/unloaded on an hdf5 file
+- added a patch for hdf5 imported files: workaround for mda not loading correctly non orthogonal boxes from lammps dumps
 
 ## Changes From 0.0.2
 
