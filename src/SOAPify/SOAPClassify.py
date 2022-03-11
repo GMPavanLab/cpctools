@@ -1,7 +1,8 @@
-from ase.io.formats import F
+from typing import Callable
 import h5py
 import numpy as np
-from .SOAPbase import SOAPdistance
+from .SOAPbase import SOAPdistance, simpleSOAPdistance, SOAPdistanceNormalized
+from .utils import fillSOAPVectorFromdscribe, normalizeArray
 from dataclasses import dataclass
 
 
@@ -12,6 +13,19 @@ class SOAPclassification:
     distances: "np.ndarray[float]"  #: stores the (per frame) per atom information about the distance from the closes reference fingerprint
     references: "np.ndarray[int]"  #: stores the (per frame) per atom index of the closest reference
     legend: "list[str]"  #:: stores the references legend
+
+
+@dataclass
+class SOAPReferences:
+    """Utility class to store the information about the SOAP classification of a system."""
+
+    names: "list[str]"  #:: stores the names of the references
+    spectra: "np.ndarray[float]"  #:: stores the SOAP vector of the references
+    lmax: int
+    nmax: int
+
+    def __len__(self) -> int:
+        return len(self.names)
 
 
 def classifyWithSOAP(
@@ -90,74 +104,143 @@ def loadRefs(
     return spectra, legend
 
 
-def transitionMatrixFromSOAPClassification(
-    data: SOAPclassification, stride: int = 1
-) -> "np.ndarray[float]":
-    """Generates the unnormalized matrix of the transitions from a :func:`classifyWithSOAP`
-
-        The matrix is organized in the following way:
-        for each atom in each frame we increment by one the cell whose row is the
-        state at the frame `n-stride` and the column is the state at the frame `n`
-
-    Args:
-        data (SOAPclassification): the results of the soapClassification from :func:`classifyWithSOAP`
-        stride (int): the stride in frames between each state confrontation. Defaults to 1.
-        of the groups that contain the references in hdf5FileReference
-    Returns:
-        np.ndarray[float]: the unnormalized matrix of the transitions
-    """
-    nframes = len(data.references)
-    nat = len(data.references[0])
-    # +1 in case of errors
-    nclasses = len(data.legend) + 1
-    transMat = np.zeros((nclasses, nclasses), np.dtype(float))
-
-    for frameID in range(stride, nframes, 1):
-        for atomID in range(0, nat):
-            classFrom = data.references[frameID - stride][atomID]
-            classTo = data.references[frameID][atomID]
-            transMat[classFrom, classTo] += 1
-    return transMat
+# TODO: create a version that acceps and arbitray number of datasets
+def mergeReferences(*x: SOAPReferences) -> SOAPReferences:
+    names = []
+    for i in x:
+        names += i.names
+        if x[0].nmax != i.nmax or x[0].nmax != i.lmax:
+            raise Exception("nmax or lmax are not the same in the two references")
+    return SOAPReferences(
+        names,
+        np.concatenate([i.spectra for i in x]),
+        nmax=x[0].nmax,
+        lmax=x[0].lmax,
+    )
 
 
-def normalizeMatrix(transMat: "np.ndarray[float]") -> "np.ndarray[float]":
-    """normalizes a matrix that is an ouput of :func:`transitionMatrixFromSOAPClassification`
-
-    The matrix is normalized with the criterion that the sum of each **row** is `1`
-
-    Args:
-        np.ndarray[float]: the unnormalized matrix of the transitions
-
-    Returns:
-        np.ndarray[float]: the normalized matrix of the transitions
-    """
-    for row in range(transMat.shape[0]):
-        sum = np.sum(transMat[row, :])
-        if sum != 0:
-            transMat[row, :] /= sum
-    return transMat
+def saveReferences(
+    h5position: "h5py.Group|h5py.File", targetDatasetName: str, refs: SOAPReferences
+):
+    whereToSave = h5position.require_dataset(
+        targetDatasetName,
+        shape=refs.spectra.shape,
+        dtype=refs.spectra.dtype,
+        compression="gzip",
+        compression_opts=9,
+    )
+    whereToSave[:] = refs.spectra
+    whereToSave.attrs.create("nmax", refs.nmax)
+    whereToSave.attrs.create("lmax", refs.lmax)
+    whereToSave.attrs.create("names", refs.names)
 
 
-def transitionMatrixFromSOAPClassificationNormalized(
-    data: SOAPclassification, stride: int = 1
-) -> "np.ndarray[float]":
-    """Generates the normalized matrix of the transitions from a :func:`classifyWithSOAP` and normalize it
+def getReferencesFromDataset(dataset: h5py.Dataset):
+    fingerprints = dataset[:]
+    names = dataset.attrs["names"].tolist()
+    lmax = dataset.attrs["lmax"]
+    nmax = dataset.attrs["nmax"]
+    return SOAPReferences(names=names, spectra=fingerprints, lmax=lmax, nmax=nmax)
 
-        The matrix is organized in the following way:
-        for each atom in each frame we increment by one the cell whose row is the
-        state at the frame `n-stride` and the column is the state at the frame `n`
 
-        The matrix is normalized with the criterion that the sum of each **row** is `1`
+def createReferencesFromTrajectory(
+    h5SOAPDataSet: h5py.Dataset,
+    addresses: dict,
+    lmax: int,
+    nmax: int,
+    doNormalize=True,
+) -> SOAPReferences:
+    """Generate a SOAPReferences object by storing the data found from h5SOAPDataSet.
+    The atoms are selected trough the addresses dictionary.
 
     Args:
-        data (SOAPclassification): the results of the soapClassification from :func:`classifyWithSOAP`
-        stride (int): the stride in frames between each state confrontation. Defaults to 1.
-        of the groups that contain the references in hdf5FileReference
+        h5SOAPDataSet (h5py.Dataset): the dataset with the SOAP fingerprints
+        addresses (dict): the dictionary with the names and the addresses of the fingerprints.
+                        The keys will be used as the names of the references and the values
+                        assigned to the keys must be tuples or similar with the number of
+                        the chosen frame and the atom number (for example ``dict(exaple=(framenum, atomID))``)
+        doNormalize (bool, optional): If True normalizes the SOAP vector before storing them. Defaults to True.
+        settingsUsedInDscribe (dscribeSettings|None, optional): If none the SOAP vector are
+                        not preprpcessed, if not none the SOAP vectors are decompressed,
+                        as dscribe omits the symmetric part of the spectra. Defaults to None.
+
     Returns:
-        np.ndarray[float]: the normalized matrix of the transitions
+        SOAPReferences: _description_
     """
-    transMat = transitionMatrixFromSOAPClassification(data, stride)
-    return normalizeMatrix(transMat)
+    nofData = len(addresses)
+    names = list(addresses.keys())
+    SOAPDim = h5SOAPDataSet.shape[2]
+    SOAPexpectedDim = lmax * nmax * nmax
+    SOAPSpectra = np.empty((nofData, SOAPDim), dtype=h5SOAPDataSet.dtype)
+    for i, key in enumerate(addresses):
+        SOAPSpectra[i] = h5SOAPDataSet[addresses[key][0], addresses[key][1]]
+    if SOAPexpectedDim != SOAPDim:
+        SOAPSpectra = fillSOAPVectorFromdscribe(SOAPSpectra, lmax, nmax)
+    if doNormalize:
+        SOAPSpectra = normalizeArray(SOAPSpectra)
+    return SOAPReferences(names, SOAPSpectra, lmax, nmax)
+
+
+def getDistanceBetween(
+    data: np.ndarray, spectra: np.ndarray, distanceCalculator: Callable
+) -> np.ndarray:
+    toret = np.zeros((data.shape[0], spectra.shape[0]), dtype=data.dtype)
+    for j in range(spectra.shape[0]):
+        for i in range(data.shape[0]):
+            toret[i, j] = distanceCalculator(data[i], spectra[j])
+    return toret
+
+
+def getDistancesFromRef(
+    SOAPTrajData: h5py.Dataset,
+    references: SOAPReferences,
+    distanceCalculator: Callable,
+    doNormalize: bool = False,
+):
+    # TODO use the dataset chunking
+    CHUNK = 100
+    # assuming shape is (nframes, natoms, nsoap)
+    currentFrame = 0
+    doconversion = SOAPTrajData.shape[-1] != references.spectra.shape[-1]
+    distanceFromReference = np.zeros(
+        (SOAPTrajData.shape[0], SOAPTrajData.shape[1], len(references))
+    )
+    while SOAPTrajData.shape[0] > currentFrame:
+        upperFrame = min(SOAPTrajData.shape[0], currentFrame + CHUNK)
+        frames = SOAPTrajData[currentFrame:upperFrame]
+        if doconversion:
+            frames = fillSOAPVectorFromdscribe(frames, references.lmax, references.nmax)
+        if doNormalize:
+            frames = normalizeArray(frames)
+        for i, frame in enumerate(frames):
+            distanceFromReference[currentFrame + i] = getDistanceBetween(
+                frame, references.spectra, distanceCalculator
+            )
+        currentFrame += CHUNK
+
+    return distanceFromReference
+
+
+def getDistancesFromRefNormalized(
+    SOAPTrajData: h5py.Dataset, references: SOAPReferences
+):
+    return getDistancesFromRef(
+        SOAPTrajData, references, SOAPdistanceNormalized, doNormalize=True
+    )
+
+
+def classify(
+    SOAPTrajData: h5py.Dataset,
+    references: SOAPReferences,
+    distanceCalculator: Callable,
+    doNormalize: bool = False,
+) -> SOAPclassification:
+    info = getDistancesFromRef(
+        SOAPTrajData, references, distanceCalculator, doNormalize
+    )
+    minimumDistID = np.argmin(info, axis=-1)
+    minimumDist = np.amin(info, axis=-1)
+    return SOAPclassification(minimumDist, minimumDistID, references.names)
 
 
 if __name__ == "__main__":

@@ -1,6 +1,7 @@
 import h5py
 from sys import getsizeof
 import numpy
+from MDAnalysis import Universe as mdaUniverse
 
 # TODO need to work on type-hinting
 def exportChunk2HDF5(
@@ -32,3 +33,11 @@ def exportChunk2HDF5(
 
     trajFolder["Box"][intervalStart:intervalEnd] = boxes
     trajFolder["Trajectory"][intervalStart:intervalEnd] = coordinates
+
+
+def patchBoxFromTopology(hdf5TrajFile: str, topologyFile: str):
+    u = mdaUniverse(topologyFile, atom_style="id type x y z")
+    with h5py.File(hdf5TrajFile, "a") as workFile:
+        for key in workFile["Trajectories"]:
+            tgroup = workFile[f"Trajectories/{key}"]
+            tgroup["Box"][:] = [u.dimensions] * tgroup["Box"].shape[0]

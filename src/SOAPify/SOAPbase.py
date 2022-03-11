@@ -65,3 +65,18 @@ def SOAPdistance(x: np.ndarray, y: np.ndarray, n: int = 1) -> float:
         return np.sqrt(2.0 - 2.0 * KernelSoap(x, y, n))
     except FloatingPointError:
         return 0
+
+
+def SOAPdistanceNormalized(x: np.ndarray, y: np.ndarray) -> float:
+    """the SOAP distance between two normalized SOAP fingerprints
+    The pre-normalized vectors should net some performace over the classic kernel
+
+    Args:
+        x (np.ndarray): a normalized SOAP fingerprint
+        y (np.ndarray): a normalized SOAP fingerprint
+
+    Returns:
+        float: the distance between the two fingerprints, between 0 and 2
+    """
+
+    return np.sqrt(np.abs(2.0 - 2.0 * x.dot(y)))

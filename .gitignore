@@ -8,7 +8,7 @@
 *.xyz
 test.py
 log.lammps
-launch.json
+.vscode
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
