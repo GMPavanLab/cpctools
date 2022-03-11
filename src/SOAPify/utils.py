@@ -68,12 +68,22 @@ def fillSOAPVectorFromdscribe(
         )
     if len(soapFromdscribe.shape) == 1:
         return fillsingleSOAPVectorFromdscribe(soapFromdscribe, l_max, n_max)
-
     fullSOAPdim = (l_max + 1) * n_max * n_max
-    retdata = numpy.empty(
-        (soapFromdscribe.shape[0], fullSOAPdim), dtype=soapFromdscribe.dtype
-    )
-    for i in range(soapFromdscribe.shape[0]):
-        retdata[i] = fillsingleSOAPVectorFromdscribe(soapFromdscribe[i], l_max, n_max)
+    retShape = list(soapFromdscribe.shape)
+    retShape[-1] = fullSOAPdim
+    retdata = numpy.empty((retShape), dtype=soapFromdscribe.dtype)
+    if len(retShape) == 2:
+        for i in range(soapFromdscribe.shape[0]):
+            retdata[i] = fillsingleSOAPVectorFromdscribe(
+                soapFromdscribe[i], l_max, n_max
+            )
+    elif len(retShape) == 3:
+        for i in range(soapFromdscribe.shape[0]):
+            for j in range(soapFromdscribe.shape[1]):
+                retdata[i, j] = fillsingleSOAPVectorFromdscribe(
+                    soapFromdscribe[i, j], l_max, n_max
+                )
+    else:
+        raise Exception("fillSOAPVectorFromdscribe: cannot convert array with shape >3")
 
     return retdata

@@ -185,8 +185,8 @@ def getDistanceBetween(
     data: np.ndarray, spectra: np.ndarray, distanceCalculator: Callable
 ) -> np.ndarray:
     toret = np.zeros((data.shape[0], spectra.shape[0]), dtype=data.dtype)
-    for i in range(data.shape[0]):
-        for j in range(spectra.shape[0]):
+    for j in range(spectra.shape[0]):
+        for i in range(data.shape[0]):
             toret[i, j] = distanceCalculator(data[i], spectra[j])
     return toret
 
@@ -202,11 +202,11 @@ def getDistancesFromRef(
     # assuming shape is (nframes, natoms, nsoap)
     currentFrame = 0
     doconversion = SOAPTrajData.shape[-1] != references.spectra.shape[-1]
-    distanceFromReference = np.empty(
+    distanceFromReference = np.zeros(
         (SOAPTrajData.shape[0], SOAPTrajData.shape[1], len(references))
     )
-    while SOAPTrajData.shape[0] > currentFrame + CHUNK:
-        upperFrame = max(SOAPTrajData.shape[0], currentFrame + CHUNK)
+    while SOAPTrajData.shape[0] > currentFrame:
+        upperFrame = min(SOAPTrajData.shape[0], currentFrame + CHUNK)
         frames = SOAPTrajData[currentFrame:upperFrame]
         if doconversion:
             frames = fillSOAPVectorFromdscribe(frames, references.lmax, references.nmax)
@@ -216,6 +216,7 @@ def getDistancesFromRef(
             distanceFromReference[currentFrame + i] = getDistanceBetween(
                 frame, references.spectra, distanceCalculator
             )
+        currentFrame += CHUNK
 
     return distanceFromReference
 
