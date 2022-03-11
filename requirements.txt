@@ -1,3 +1,4 @@
+wheel
 numpy<=1.20
 ase
 mdanalysis
