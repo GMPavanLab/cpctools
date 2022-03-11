@@ -104,16 +104,19 @@ def loadRefs(
     return spectra, legend
 
 
-def mergeReferences(x: SOAPReferences, y: SOAPReferences) -> SOAPReferences:
-    if x.nmax == y.nmax and x.nmax == y.lmax:
-        return SOAPReferences(
-            x.names + y.names,
-            np.concatenate((x.spectra, x.spectra)),
-            nmax=x.nmax,
-            lmax=x.lmax,
-        )
-    else:
-        raise Exception("nmax or lmax are not the same in the two references")
+# TODO: create a version that acceps and arbitray number of datasets
+def mergeReferences(*x: SOAPReferences) -> SOAPReferences:
+    names = []
+    for i in x:
+        names += i.names
+        if x[0].nmax != i.nmax or x[0].nmax != i.lmax:
+            raise Exception("nmax or lmax are not the same in the two references")
+    return SOAPReferences(
+        names,
+        np.concatenate([i.spectra for i in x]),
+        nmax=x[0].nmax,
+        lmax=x[0].lmax,
+    )
 
 
 def saveReferences(
@@ -134,7 +137,7 @@ def saveReferences(
 
 def getReferencesFromDataset(dataset: h5py.Dataset):
     fingerprints = dataset[:]
-    names = dataset.attrs["names"]
+    names = dataset.attrs["names"].tolist()
     lmax = dataset.attrs["lmax"]
     nmax = dataset.attrs["nmax"]
     return SOAPReferences(names=names, spectra=fingerprints, lmax=lmax, nmax=nmax)
@@ -169,6 +172,8 @@ def createReferencesFromTrajectory(
     SOAPDim = h5SOAPDataSet.shape[2]
     SOAPexpectedDim = lmax * nmax * nmax
     SOAPSpectra = np.empty((nofData, SOAPDim), dtype=h5SOAPDataSet.dtype)
+    for i, key in enumerate(addresses):
+        SOAPSpectra[i] = h5SOAPDataSet[addresses[key][0], addresses[key][1]]
     if SOAPexpectedDim != SOAPDim:
         SOAPSpectra = fillSOAPVectorFromdscribe(SOAPSpectra, lmax, nmax)
     if doNormalize:

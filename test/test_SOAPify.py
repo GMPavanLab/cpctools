@@ -50,7 +50,24 @@ def test_concatenationOfSOAPreferences():
     c = SOAPify.mergeReferences(a, b)
     assert len(c.names) == 4
     assert c.spectra.shape == (4, 2)
+    assert_array_equal(a.spectra[0], c.spectra[0])
+    assert_array_equal(a.spectra[1], c.spectra[1])
+    assert_array_equal(b.spectra[0], c.spectra[2])
+    assert_array_equal(b.spectra[1], c.spectra[3])
 
+def test_concatenationOfSOAPreferencesLonger():
+    a = SOAPReferences(["a", "b"], [[0, 0], [1, 1]], 8, 8)
+    b = SOAPReferences(["c", "d"], [[2, 2], [3, 3]], 8, 8)
+    d = SOAPReferences(["e", "f"], [[4, 4], [5, 5]], 8, 8)
+    c = SOAPify.mergeReferences(a, b,d)
+    assert len(c.names) == (len(a)+len(b)+len(d))
+    assert c.spectra.shape == (6, 2)
+    assert_array_equal(a.spectra[0], c.spectra[0])
+    assert_array_equal(a.spectra[1], c.spectra[1])
+    assert_array_equal(b.spectra[0], c.spectra[2])
+    assert_array_equal(b.spectra[1], c.spectra[3])
+    assert_array_equal(d.spectra[0], c.spectra[4])
+    assert_array_equal(d.spectra[1], c.spectra[5])
 
 def test_fillSOAPVectorFromdscribeSingleVector():
     nmax = 4
