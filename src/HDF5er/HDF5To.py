@@ -76,19 +76,21 @@ def getXYZfromTrajGroup(group: h5py.Group, **additionalColumns) -> str:
         dim = shapeOfData[2] if len(shapeOfData) == 3 else 1
         if (  # wrong shape of the array
             (len(shapeOfData) != 2 and len(shapeOfData) != 3)
-            # wrong number of frames
-            or shapeOfData[0] != trajlen
+            # More data than frames
+            or shapeOfData[0] > trajlen
             # wrong number of atoms
             or shapeOfData[1] != nat
         ):
             raise ValueError(
                 'Extra data passed to "getXYZfromTrajGroup" do not has the right dimensions'
             )
+        # if there are less data htan frames this functiol will only eport the first frames
+        trajlen = min(trajlen, shapeOfData[0])
         additional += ":" + key + ":R:" + str(dim)
 
     header: str = f"{nat}\nProperties=species:S:1:pos:R:3{additional} Lattice="
     for frame in range(trajlen):
-        coord=coordGroup[frame,:]
+        coord = coordGroup[frame, :]
         data += f"{header}"
         theBox = triclinic_vectors(boxes[frame])
         data += f'"{theBox[0][0]} {theBox[0][1]} {theBox[0][2]} '
