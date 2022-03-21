@@ -2,9 +2,9 @@
 
 ## Changes From 0.0.3
 
-- `getXYZfromTrajGroup` now accept IO objects ad inputs
+- `getXYZfromTrajGroup` now accept IO objects as inputs
 - **WARNING**: broken interface for `getXYZfromTrajGroup`, now it needs 3 inputs and the first is a file-like object
-
+- `saveXYZfromTrajGroup` and `getXYZfromTrajGroup` now can export comments per frames
 
 ## Changes From 0.0.2a
 

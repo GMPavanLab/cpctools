@@ -48,7 +48,13 @@ def HDF52AseAtomsChunckedwithSymbols(
     return atoms
 
 
-def getXYZfromTrajGroup(filelike: IO, group: h5py.Group, **additionalColumns) -> str:
+def getXYZfromTrajGroup(
+    filelike: IO,
+    group: h5py.Group,
+    allFramesProperty: str = "",
+    perFrameProperties: "list[str]" = None,
+    **additionalColumns,
+) -> None:
     """generate an xyz-style string from a trajectory group in an hdf5
 
         The string generated can be then exported to a file,
@@ -60,6 +66,8 @@ def getXYZfromTrajGroup(filelike: IO, group: h5py.Group, **additionalColumns) ->
     Args:
         group (h5py.Group): the trajectory group
         additionalColumsn(): the additional columns to add to the file
+        allFramesProperty (str, optional): A comment string that will be present in all of the frames. Defaults to "".
+        perFrameProperties (list[str], optional): A list of comment. Defaults to "".
 
     Returns:
         str: the content of the xyz file
@@ -88,15 +96,24 @@ def getXYZfromTrajGroup(filelike: IO, group: h5py.Group, **additionalColumns) ->
         # if there are less data htan frames this functiol will only eport the first frames
         trajlen = min(trajlen, shapeOfData[0])
         additional += ":" + key + ":R:" + str(dim)
-
-    header: str = f"{nat}\nProperties=species:S:1:pos:R:3{additional} Lattice="
+    if perFrameProperties:
+        if len(perFrameProperties) != trajlen:
+            raise ValueError(
+                "perFrameProperties do not have the same lenght of the trajectory"
+            )
+    header: str = (
+        f"{nat}\nProperties=species:S:1:pos:R:3{additional} {allFramesProperty}"
+    )
     for frame in range(trajlen):
         coord = coordGroup[frame, :]
         data = f"{header}"
+        data += f" {perFrameProperties[frame]}" if perFrameProperties else ""
         theBox = triclinic_vectors(boxes[frame])
-        data += f'"{theBox[0][0]} {theBox[0][1]} {theBox[0][2]} '
+        data += f' Lattice="{theBox[0][0]} {theBox[0][1]} {theBox[0][2]} '
         data += f"{theBox[1][0]} {theBox[1][1]} {theBox[1][2]} "
-        data += f'{theBox[2][0]} {theBox[2][1]} {theBox[2][2]}"\n'
+        data += f'{theBox[2][0]} {theBox[2][1]} {theBox[2][2]}"'
+        data += "\n"
+
         for atomID in range(nat):
             data += f"{atomtypes[atomID]} {coord[atomID,0]} {coord[atomID,1]} {coord[atomID,2]}"
             for key in additionalColumns:
