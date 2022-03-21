@@ -1,9 +1,11 @@
+import imp
 import HDF5er
 import h5py
 import pytest
 import MDAnalysis
 import numpy
 from MDAnalysis.lib.mdamath import triclinic_vectors
+from io import StringIO
 
 
 def giveUniverse(angles: set = (90.0, 90.0, 90.0)) -> MDAnalysis.Universe:
@@ -151,11 +153,10 @@ def test_copyMDA2HDF52xyz1DData():
     HDF5er.MDA2HDF5(fourAtomsFiveFrames, "test.hdf5", "4Atoms5Frames", override=True)
     with h5py.File("test.hdf5", "r") as hdf5test:
         group = hdf5test["Trajectories/4Atoms5Frames"]
-        stringData = HDF5er.getXYZfromTrajGroup(
-            group, OneDData=OneDData
-        )  # ,TwoDData=TwoDData)
-        # print(stringData)
-        lines = stringData.splitlines()
+        stringData = StringIO()
+        HDF5er.getXYZfromTrajGroup(stringData, group, OneDData=OneDData)
+
+        lines = stringData.getvalue().splitlines()
         nat = int(lines[0])
         assert int(lines[0]) == len(fourAtomsFiveFrames.atoms)
         assert lines[2].split()[0] == fourAtomsFiveFrames.atoms.types[0]
@@ -204,8 +205,9 @@ def test_copyMDA2HDF52xyzMultiDData():
     HDF5er.MDA2HDF5(fourAtomsFiveFrames, "test.hdf5", "4Atoms5Frames", override=True)
     with h5py.File("test.hdf5", "r") as hdf5test:
         group = hdf5test["Trajectories/4Atoms5Frames"]
-        stringData = HDF5er.getXYZfromTrajGroup(group, MultiDData=MultiDData)
-        lines = stringData.splitlines()
+        stringData = StringIO()
+        HDF5er.getXYZfromTrajGroup(stringData, group, MultiDData=MultiDData)
+        lines = stringData.getvalue().splitlines()
         nat = int(lines[0])
         assert int(lines[0]) == len(fourAtomsFiveFrames.atoms)
         assert lines[2].split()[0] == fourAtomsFiveFrames.atoms.types[0]
@@ -251,7 +253,8 @@ def test_copyMDA2HDF52xyz_error1D():
     HDF5er.MDA2HDF5(fourAtomsFiveFrames, "test.hdf5", "4Atoms5Frames", override=True)
     with h5py.File("test.hdf5", "r") as hdf5test:
         group = hdf5test["Trajectories/4Atoms5Frames"]
-        stringData = HDF5er.getXYZfromTrajGroup(group, OneDData=OneDData)
+        stringData = StringIO()
+        HDF5er.getXYZfromTrajGroup(stringData, group, OneDData=OneDData)
 
 
 @pytest.mark.xfail(raises=ValueError)
@@ -274,7 +277,8 @@ def test_copyMDA2HDF52xyz_error2D():
     HDF5er.MDA2HDF5(fourAtomsFiveFrames, "test.hdf5", "4Atoms5Frames", override=True)
     with h5py.File("test.hdf5", "r") as hdf5test:
         group = hdf5test["Trajectories/4Atoms5Frames"]
-        stringData = HDF5er.getXYZfromTrajGroup(group, TwoDData=TwoDData)
+        stringData = StringIO()
+        HDF5er.getXYZfromTrajGroup(stringData, group, TwoDData=TwoDData)
 
 
 @pytest.mark.xfail(raises=ValueError)
@@ -298,7 +302,8 @@ def test_copyMDA2HDF52xyz_wrongD():
     HDF5er.MDA2HDF5(fourAtomsFiveFrames, "test.hdf5", "4Atoms5Frames", override=True)
     with h5py.File("test.hdf5", "r") as hdf5test:
         group = hdf5test["Trajectories/4Atoms5Frames"]
-        stringData = HDF5er.getXYZfromTrajGroup(group, WrongDData=WrongDData)
+        stringData = StringIO()
+        HDF5er.getXYZfromTrajGroup(stringData, group, WrongDData=WrongDData)
 
 
 @pytest.mark.xfail(raises=ValueError)
@@ -321,4 +326,5 @@ def test_copyMDA2HDF52xyz_wrongTrajlen():
     HDF5er.MDA2HDF5(fourAtomsFiveFrames, "test.hdf5", "4Atoms5Frames", override=True)
     with h5py.File("test.hdf5", "r") as hdf5test:
         group = hdf5test["Trajectories/4Atoms5Frames"]
-        stringData = HDF5er.getXYZfromTrajGroup(group, WrongDData=WrongDData)
+        stringData = StringIO()
+        HDF5er.getXYZfromTrajGroup(stringData, group, WrongDData=WrongDData)

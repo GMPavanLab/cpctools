@@ -2,6 +2,10 @@
 
 ## Changes From 0.0.3
 
+- `getXYZfromTrajGroup` now accept IO objects ad inputs
+- **WARNING**: broken interface for `getXYZfromTrajGroup`, now it needs 3 inputs and the first is a file-like object
+
+
 ## Changes From 0.0.2a
 
 - Only for Monospecies systems: added a small utility (`fillSOAPVectorFromdscribe`) that returns the complete SOAP vector from the simplified one from dscribe

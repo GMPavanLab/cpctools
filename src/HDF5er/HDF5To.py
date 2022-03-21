@@ -2,6 +2,7 @@ import h5py
 from ase import Atoms as aseAtoms
 from MDAnalysis.lib.mdamath import triclinic_vectors
 import re
+from typing import IO
 
 __all__ = [
     "getXYZfromTrajGroup",
@@ -47,7 +48,7 @@ def HDF52AseAtomsChunckedwithSymbols(
     return atoms
 
 
-def getXYZfromTrajGroup(group: h5py.Group, **additionalColumns) -> str:
+def getXYZfromTrajGroup(filelike: IO, group: h5py.Group, **additionalColumns) -> str:
     """generate an xyz-style string from a trajectory group in an hdf5
 
         The string generated can be then exported to a file,
@@ -91,7 +92,7 @@ def getXYZfromTrajGroup(group: h5py.Group, **additionalColumns) -> str:
     header: str = f"{nat}\nProperties=species:S:1:pos:R:3{additional} Lattice="
     for frame in range(trajlen):
         coord = coordGroup[frame, :]
-        data += f"{header}"
+        data = f"{header}"
         theBox = triclinic_vectors(boxes[frame])
         data += f'"{theBox[0][0]} {theBox[0][1]} {theBox[0][2]} '
         data += f"{theBox[1][0]} {theBox[1][1]} {theBox[1][2]} "
@@ -104,7 +105,7 @@ def getXYZfromTrajGroup(group: h5py.Group, **additionalColumns) -> str:
                     "( \[|\[|\])", "", str(additionalColumns[key][frame, atomID])
                 )
             data += "\n"
-    return data
+        filelike.write(data)
 
 
 # TODO: add the possibility to append
@@ -119,6 +120,5 @@ def saveXYZfromTrajGroup(filename: str, group: h5py.Group, **additionalColumns) 
         group (h5py.Group): the trajectory group
         additionalColumsn(): the additional columns to add to the file
     """
-    dataStr = getXYZfromTrajGroup(group, **additionalColumns)
     with open(filename, "w") as file:
-        file.write(dataStr)
+        getXYZfromTrajGroup(file, group, **additionalColumns)
