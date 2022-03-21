@@ -33,8 +33,8 @@ def test_norm3D():
 
 def test_Saving_loadingOfSOAPreferences():
     a = SOAPReferences(["a", "b"], numpy.array([[0, 0], [1, 1]]), 4, 8)
-    SOAPify.saveReferences(h5py.File("refSave.h5py", "w"), "testRef", a)
-    with h5py.File("refSave.h5py", "r") as saved:
+    SOAPify.saveReferences(h5py.File("refSave.hdf5", "w"), "testRef", a)
+    with h5py.File("refSave.hdf5", "r") as saved:
         bk = SOAPify.getReferencesFromDataset(saved["testRef"])
         assert len(a) == len(bk)
         assert_array_equal(bk.spectra, a.spectra)
