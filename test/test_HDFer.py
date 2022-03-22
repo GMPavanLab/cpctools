@@ -1,4 +1,3 @@
-import imp
 import HDF5er
 import h5py
 import pytest
@@ -18,7 +17,9 @@ def giveUniverse(angles: set = (90.0, 90.0, 90.0)) -> MDAnalysis.Universe:
             [[0.4, 0.4, 0.4], [1.4, 1.4, 1.4], [2.4, 2.4, 2.4], [3.4, 3.4, 3.4]],
         ]
     )
-    u = MDAnalysis.Universe.empty(4, trajectory=True)
+    u = MDAnalysis.Universe.empty(
+        4, trajectory=True, atom_resindex=[0, 0, 0, 0], residue_segindex=[0]
+    )
 
     u.add_TopologyAttr("type", ["H"] * 4)
     u.atoms.positions = traj[0]
