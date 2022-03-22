@@ -10,6 +10,7 @@ def transitionMatrixFromSOAPClassification(
         The matrix is organized in the following way:
         for each atom in each frame we increment by one the cell whose row is the
         state at the frame `n-stride` and the column is the state at the frame `n`
+        If the classification includes an error with a `-1` values the user should add an 'error' class in the legend
 
     Args:
         data (SOAPclassification): the results of the soapClassification from :func:`classifyWithSOAP`
@@ -20,8 +21,8 @@ def transitionMatrixFromSOAPClassification(
     """
     nframes = len(data.references)
     nat = len(data.references[0])
-    # +1 in case of errors
-    nclasses = len(data.legend) + 1
+
+    nclasses = len(data.legend)
     transMat = np.zeros((nclasses, nclasses), np.dtype(float))
 
     for frameID in range(stride, nframes, 1):
@@ -51,7 +52,7 @@ def normalizeMatrix(transMat: "np.ndarray[float]") -> "np.ndarray[float]":
 
 
 def transitionMatrixFromSOAPClassificationNormalized(
-    data: SOAPclassification, stride: int = 1
+    data: SOAPclassification, stride: int = 1, withErrors=False
 ) -> "np.ndarray[float]":
     """Generates the normalized matrix of the transitions from a :func:`classifyWithSOAP` and normalize it
 
@@ -68,5 +69,5 @@ def transitionMatrixFromSOAPClassificationNormalized(
     Returns:
         np.ndarray[float]: the normalized matrix of the transitions
     """
-    transMat = transitionMatrixFromSOAPClassification(data, stride)
+    transMat = transitionMatrixFromSOAPClassification(data, stride, withErrors)
     return normalizeMatrix(transMat)
