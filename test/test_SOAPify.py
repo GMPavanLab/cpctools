@@ -1,5 +1,6 @@
 import SOAPify
 import numpy
+import pytest
 from numpy.random import randint
 from numpy.testing import assert_array_equal
 from SOAPify import SOAPReferences
@@ -105,24 +106,21 @@ def test_fillSOAPVectorFromdscribeArrayOfVector():
                     limited += 1
 
 
-def test_transitionMatrixWithNoError():
-    data = SOAPify.SOAPclassification(
-        [],
-        numpy.array(
-            [
-                [0, 0, 1, 2, 2, 1],
-                [0, 0, 2, 2, 2, 2],
-                [0, 0, 2, 2, 2, 1],
-                [0, 0, 2, 2, 2, 2],
-            ]
-        ),
-        ["1", "2", "3"],
-    )
-    tmat = SOAPify.transitionMatrixFromSOAPClassification(data)
-    assert tmat.shape[0] == len(data.legend)
-    # hand calculated:
-    assert_array_equal(
-        tmat,
+@pytest.fixture
+def input_statesEvolution():
+    return (
+        SOAPify.SOAPclassification(
+            [],
+            numpy.array(
+                [
+                    [0, 0, 1, 2, 2, 1],
+                    [0, 0, 2, 2, 2, 2],
+                    [0, 0, 2, 2, 2, 1],
+                    [0, 0, 2, 2, 2, 2],
+                ]
+            ),
+            ["1", "2", "3"],
+        ),  # hand calculated:
         numpy.array(
             [
                 [6, 0, 0],
@@ -133,24 +131,21 @@ def test_transitionMatrixWithNoError():
     )
 
 
-def test_transitionMatrixWithError():
-    data = SOAPify.SOAPclassification(
-        [],
-        numpy.array(
-            [
-                [0, 0, 1, 2, 2, 1],
-                [0, 0, 2, 2, 2, 2],
-                [0, 0, 2, 2, 2, 1],
-                [0, 0, 2, 2, 2, -1],
-            ]
-        ),
-        ["1", "2", "3", "Errors"],
-    )
-    tmat = SOAPify.transitionMatrixFromSOAPClassification(data)
-    assert tmat.shape[0] == len(data.legend)
-    # hand calculated:
-    assert_array_equal(
-        tmat,
+@pytest.fixture
+def input_statesEvolutionWithErrors():
+    return (
+        SOAPify.SOAPclassification(
+            [],
+            numpy.array(
+                [
+                    [0, 0, 1, 2, 2, 1],
+                    [0, 0, 2, 2, 2, 2],
+                    [0, 0, 2, 2, 2, 1],
+                    [0, 0, 2, 2, 2, -1],
+                ]
+            ),
+            ["1", "2", "3", "Errors"],
+        ),  # hand calculated:
         numpy.array(
             [
                 [6, 0, 0, 0],
@@ -159,4 +154,25 @@ def test_transitionMatrixWithError():
                 [0, 0, 0, 0],
             ]
         ),
+    )
+
+
+def test_transitionMatrixWithNoError(input_statesEvolution):
+    data = input_statesEvolution[0]
+    expectedTmat = input_statesEvolution[1]
+    tmat = SOAPify.transitionMatrixFromSOAPClassification(data)
+    assert tmat.shape[0] == len(data.legend)
+
+    assert_array_equal(tmat, expectedTmat)
+
+
+def test_transitionMatrixWithError(input_statesEvolutionWithErrors):
+    data = input_statesEvolutionWithErrors[0]
+    expectedTmat = input_statesEvolutionWithErrors[1]
+    tmat = SOAPify.transitionMatrixFromSOAPClassification(data)
+    assert tmat.shape[0] == len(data.legend)
+
+    assert_array_equal(
+        tmat,
+        expectedTmat,
     )
