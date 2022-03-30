@@ -6,6 +6,8 @@ from numpy.testing import assert_array_equal
 from SOAPify import SOAPReferences
 import h5py
 
+from SOAPify.SOAPClassify import SOAPclassification
+
 
 def test_norm1D():
     a = numpy.array([2.0, 0.0])
@@ -158,7 +160,7 @@ def input_statesEvolutionWithErrors():
 
 
 def test_transitionMatrixWithNoError(input_statesEvolution):
-    data = input_statesEvolution[0]
+    data: SOAPclassification = input_statesEvolution[0]
     expectedTmat = input_statesEvolution[1]
     tmat = SOAPify.transitionMatrixFromSOAPClassification(data)
     assert tmat.shape[0] == len(data.legend)
@@ -167,7 +169,7 @@ def test_transitionMatrixWithNoError(input_statesEvolution):
 
 
 def test_transitionMatrixWithError(input_statesEvolutionWithErrors):
-    data = input_statesEvolutionWithErrors[0]
+    data: SOAPclassification = input_statesEvolutionWithErrors[0]
     expectedTmat = input_statesEvolutionWithErrors[1]
     tmat = SOAPify.transitionMatrixFromSOAPClassification(data)
     assert tmat.shape[0] == len(data.legend)
@@ -176,3 +178,27 @@ def test_transitionMatrixWithError(input_statesEvolutionWithErrors):
         tmat,
         expectedTmat,
     )
+
+
+def test_residenceTime(input_statesEvolution):
+    data: SOAPclassification = input_statesEvolution[0]
+    states = [[] for i in range(len(data.legend))]
+    for atomID in range(data.references.shape[1]):
+        prevState = data.references[0, atomID]
+        time = 0
+        for frame in range(data.references.shape[0]):
+            state = data.references[frame, atomID]
+            if state != prevState:
+                states[prevState].append(time)
+                time = 0
+                prevState = state
+            time += 1
+        # the last state does not have an out transition, appendig negative time to make it clear
+        states[prevState].append(-time)
+
+    for i in range(len(states)):
+        states[i] = numpy.sort(numpy.array(states[i]))
+
+    expectedResidenceTime = SOAPify.calculateResidenceTimes(data)
+    for stateID in range(len(states)):
+        assert_array_equal(expectedResidenceTime[stateID], states[stateID])

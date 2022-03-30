@@ -71,3 +71,26 @@ def transitionMatrixFromSOAPClassificationNormalized(
     """
     transMat = transitionMatrixFromSOAPClassification(data, stride, withErrors)
     return normalizeMatrix(transMat)
+
+
+def calculateResidenceTimes(classification: SOAPclassification) -> np.ndarray:
+    nofFrames = classification.references.shape[0]
+    nofAtoms = classification.references.shape[1]
+    residenceTimes = [[] for i in range(len(classification.legend))]
+    for atomID in range(nofAtoms):
+        atomTraj = classification.references[:, atomID]
+        time = 1
+        state = atomTraj[0]
+        for frame in range(1, nofFrames):
+            if atomTraj[frame] != state:
+                residenceTimes[state].append(time)
+                state = atomTraj[frame]
+                time = 0
+            time += 1
+        # the last state does not have an out transition, appendig negative time to make it clear
+        residenceTimes[state].append(-time)
+
+    for i in range(len(residenceTimes)):
+        residenceTimes[i] = np.sort(np.array(residenceTimes[i]))
+
+    return residenceTimes

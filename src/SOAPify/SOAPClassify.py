@@ -1,4 +1,5 @@
 from typing import Callable
+from weakref import ref
 import h5py
 import numpy as np
 from .SOAPbase import SOAPdistance, simpleSOAPdistance, SOAPdistanceNormalized
