@@ -108,58 +108,60 @@ def test_fillSOAPVectorFromdscribeArrayOfVector():
                     limited += 1
 
 
-@pytest.fixture
-def input_statesEvolution():
-    return (
-        SOAPify.SOAPclassification(
-            [],
+@pytest.fixture(
+    scope="module",
+    params=[
+        (
+            SOAPify.SOAPclassification(
+                [],
+                numpy.array(
+                    [
+                        [0, 0, 1, 2, 2, 1],
+                        [0, 0, 2, 2, 2, 2],
+                        [0, 0, 2, 2, 2, 1],
+                        [0, 0, 2, 2, 2, 2],
+                    ]
+                ),
+                ["1", "2", "3"],
+            ),
+            # hand calculated:
             numpy.array(
                 [
-                    [0, 0, 1, 2, 2, 1],
-                    [0, 0, 2, 2, 2, 2],
-                    [0, 0, 2, 2, 2, 1],
-                    [0, 0, 2, 2, 2, 2],
+                    [6, 0, 0],
+                    [0, 0, 3],
+                    [0, 1, 8],
                 ]
             ),
-            ["1", "2", "3"],
-        ),  # hand calculated:
-        numpy.array(
-            [
-                [6, 0, 0],
-                [0, 0, 3],
-                [0, 1, 8],
-            ]
         ),
-    )
-
-
-@pytest.fixture
-def input_statesEvolutionWithErrors():
-    return (
-        SOAPify.SOAPclassification(
-            [],
+        (
+            SOAPify.SOAPclassification(
+                [],
+                numpy.array(
+                    [
+                        [0, 0, 1, 2, 2, 1],
+                        [0, 0, 2, 2, 2, 2],
+                        [0, 0, 2, 2, 2, 1],
+                        [0, 0, 2, 2, 2, -1],
+                    ]
+                ),
+                ["1", "2", "3", "Errors"],
+            ),  # hand calculated:
             numpy.array(
                 [
-                    [0, 0, 1, 2, 2, 1],
-                    [0, 0, 2, 2, 2, 2],
-                    [0, 0, 2, 2, 2, 1],
-                    [0, 0, 2, 2, 2, -1],
+                    [6, 0, 0, 0],
+                    [0, 0, 2, 1],
+                    [0, 1, 8, 0],
+                    [0, 0, 0, 0],
                 ]
             ),
-            ["1", "2", "3", "Errors"],
-        ),  # hand calculated:
-        numpy.array(
-            [
-                [6, 0, 0, 0],
-                [0, 0, 2, 1],
-                [0, 1, 8, 0],
-                [0, 0, 0, 0],
-            ]
         ),
-    )
+    ],
+)
+def input_statesEvolution(request):
+    return request.param
 
 
-def test_transitionMatrixWithNoError(input_statesEvolution):
+def test_transitionMatrix(input_statesEvolution):
     data: SOAPclassification = input_statesEvolution[0]
     expectedTmat = input_statesEvolution[1]
     tmat = SOAPify.transitionMatrixFromSOAPClassification(data)
@@ -168,37 +170,34 @@ def test_transitionMatrixWithNoError(input_statesEvolution):
     assert_array_equal(tmat, expectedTmat)
 
 
-def test_transitionMatrixWithError(input_statesEvolutionWithErrors):
-    data: SOAPclassification = input_statesEvolutionWithErrors[0]
-    expectedTmat = input_statesEvolutionWithErrors[1]
-    tmat = SOAPify.transitionMatrixFromSOAPClassification(data)
-    assert tmat.shape[0] == len(data.legend)
-
-    assert_array_equal(
-        tmat,
-        expectedTmat,
-    )
-
-
 def test_residenceTime(input_statesEvolution):
     data: SOAPclassification = input_statesEvolution[0]
-    states = [[] for i in range(len(data.legend))]
+    expectedResidenceTimes = [[] for i in range(len(data.legend))]
     for atomID in range(data.references.shape[1]):
         prevState = data.references[0, atomID]
         time = 0
         for frame in range(data.references.shape[0]):
             state = data.references[frame, atomID]
             if state != prevState:
-                states[prevState].append(time)
+                expectedResidenceTimes[prevState].append(time)
                 time = 0
                 prevState = state
             time += 1
         # the last state does not have an out transition, appendig negative time to make it clear
-        states[prevState].append(-time)
+        expectedResidenceTimes[prevState].append(-time)
 
-    for i in range(len(states)):
-        states[i] = numpy.sort(numpy.array(states[i]))
+    for i in range(len(expectedResidenceTimes)):
+        expectedResidenceTimes[i] = numpy.sort(numpy.array(expectedResidenceTimes[i]))
 
-    expectedResidenceTime = SOAPify.calculateResidenceTimes(data)
-    for stateID in range(len(states)):
-        assert_array_equal(expectedResidenceTime[stateID], states[stateID])
+    ResidenceTimes = SOAPify.calculateResidenceTimes(data)
+    for stateID in range(len(expectedResidenceTimes)):
+        assert_array_equal(ResidenceTimes[stateID], expectedResidenceTimes[stateID])
+
+
+def test_events(input_statesEvolution):
+    data: SOAPclassification = input_statesEvolution[0]
+    # code for derermining the events
+    events = SOAPify.calculateEvents(data)
+    for event, expectedEvent in zip(events, expectedEvents):
+        assert_array_equal(event, expectedEvent)
+    pass

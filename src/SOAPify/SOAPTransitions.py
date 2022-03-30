@@ -94,3 +94,27 @@ def calculateResidenceTimes(classification: SOAPclassification) -> np.ndarray:
         residenceTimes[i] = np.sort(np.array(residenceTimes[i]))
 
     return residenceTimes
+
+
+def calculateEvents(classification: SOAPclassification) -> np.ndarray:
+    nofFrames = classification.references.shape[0]
+    nofAtoms = classification.references.shape[1]
+    events = []
+    INITSTATE = 0
+    CURSTATE = 1
+    ENDSTATE = 2
+    TIME = 3
+    for atomID in range(nofAtoms):
+        atomTraj = classification.references[:, atomID]
+        # the array is [start state, state, end state,time]
+
+        event = np.array([atomTraj[0], atomTraj[0], 0, 0], dtype=int)
+        for frame in range(1, nofFrames):
+            if atomTraj[frame] != event[1]:
+                event[ENDSTATE] = atomTraj[frame]
+                events.append(event)
+                event = np.array(
+                    [events[-1][CURSTATE], atomTraj[frame], 0, 0], dtype=int
+                )
+            event[TIME] += 1
+    return events
