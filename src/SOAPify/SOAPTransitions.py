@@ -52,7 +52,7 @@ def normalizeMatrix(transMat: "np.ndarray[float]") -> "np.ndarray[float]":
 
 
 def transitionMatrixFromSOAPClassificationNormalized(
-    data: SOAPclassification, stride: int = 1, withErrors=False
+    data: SOAPclassification, stride: int = 1
 ) -> "np.ndarray[float]":
     """Generates the normalized matrix of the transitions from a :func:`classifyWithSOAP` and normalize it
 
@@ -69,7 +69,7 @@ def transitionMatrixFromSOAPClassificationNormalized(
     Returns:
         np.ndarray[float]: the normalized matrix of the transitions
     """
-    transMat = transitionMatrixFromSOAPClassification(data, stride, withErrors)
+    transMat = transitionMatrixFromSOAPClassification(data, stride)
     return normalizeMatrix(transMat)
 
 

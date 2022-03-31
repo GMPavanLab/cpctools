@@ -176,7 +176,7 @@ def test_residenceTime(input_statesEvolution):
     for atomID in range(data.references.shape[1]):
         prevState = data.references[0, atomID]
         time = 0
-        for frame in range(1,data.references.shape[0]):
+        for frame in range(1, data.references.shape[0]):
             state = data.references[frame, atomID]
             if state != prevState:
                 expectedResidenceTimes[prevState].append(time)
@@ -234,3 +234,13 @@ def test_residenceTimesFromEvents(input_statesEvolution):
         assert_array_equal(
             residenceTimesFromEvents[stateID], expectedResidenceTimes[stateID]
         )
+
+
+def test_transitionMatrixFromEvents(input_statesEvolution):
+    data = input_statesEvolution[0]
+    events = SOAPify.calculateEvents(data)
+    transitionMatrixFromEvents = SOAPify.getTransitionMatrix(
+        data, events
+    )
+    expectedTmat = SOAPify.transitionMatrixFromSOAPClassification(data)
+    assert_array_equal(transitionMatrixFromEvents, expectedTmat)
