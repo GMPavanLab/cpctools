@@ -222,4 +222,3 @@ def test_events(input_statesEvolution):
 
     for event, expectedEvent in zip(events, expectedEvents):
         assert_array_equal(event, expectedEvent)
-    pass
