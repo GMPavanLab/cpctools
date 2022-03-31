@@ -73,29 +73,6 @@ def transitionMatrixFromSOAPClassificationNormalized(
     return normalizeMatrix(transMat)
 
 
-def calculateResidenceTimes(classification: SOAPclassification) -> np.ndarray:
-    nofFrames = classification.references.shape[0]
-    nofAtoms = classification.references.shape[1]
-    residenceTimes = [[] for i in range(len(classification.legend))]
-    for atomID in range(nofAtoms):
-        atomTraj = classification.references[:, atomID]
-        time = 1
-        state = atomTraj[0]
-        for frame in range(1, nofFrames):
-            if atomTraj[frame] != state:
-                residenceTimes[state].append(time)
-                state = atomTraj[frame]
-                time = 0
-            time += 1
-        # the last state does not have an out transition, appendig negative time to make it clear
-        residenceTimes[state].append(-time)
-
-    for i in range(len(residenceTimes)):
-        residenceTimes[i] = np.sort(np.array(residenceTimes[i]))
-
-    return residenceTimes
-
-
 EVENTS_PREVSTATE = 0
 EVENTS_CURSTATE = 1
 EVENTS_ENDSTATE = 2
@@ -136,3 +113,52 @@ def calculateEvents(classification: SOAPclassification) -> np.ndarray:
         # append the last event
         events.append(event)
     return events
+
+
+def calculateResidenceTimesFromClassification(
+    classification: SOAPclassification,
+) -> np.ndarray:
+    nofFrames = classification.references.shape[0]
+    nofAtoms = classification.references.shape[1]
+    residenceTimes = [[] for i in range(len(classification.legend))]
+    for atomID in range(nofAtoms):
+        atomTraj = classification.references[:, atomID]
+        time = 0
+        state = atomTraj[0]
+        for frame in range(1, nofFrames):
+            if atomTraj[frame] != state:
+                residenceTimes[state].append(time)
+                state = atomTraj[frame]
+                time = 0
+            time += 1
+        # the last state does not have an out transition, appendig negative time to make it clear
+        residenceTimes[state].append(-time)
+
+    for i in range(len(residenceTimes)):
+        residenceTimes[i] = np.sort(np.array(residenceTimes[i]))
+
+    return residenceTimes
+
+
+def getResidenceTimesFromEvents(
+    eventList: list, classification: SOAPclassification
+) -> np.ndarray:
+    residenceTimes = [[] for i in range(len(classification.legend))]
+    for event in eventList:
+        residenceTimes[event[EVENTS_CURSTATE]].append(
+            event[EVENTS_EVENTTIME]
+            if event[EVENTS_ENDSTATE] != event[EVENTS_CURSTATE]
+            else -event[EVENTS_EVENTTIME]
+        )
+    for i in range(len(residenceTimes)):
+        residenceTimes[i] = np.sort(np.array(residenceTimes[i]))
+    return residenceTimes
+
+
+def calculateResidenceTimes(
+    data: SOAPclassification, events: np.ndarray = None
+) -> np.ndarray:
+    if not events:
+        return calculateResidenceTimesFromClassification(data)
+    else:
+        return getResidenceTimesFromEvents(events, data)

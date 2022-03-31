@@ -176,7 +176,7 @@ def test_residenceTime(input_statesEvolution):
     for atomID in range(data.references.shape[1]):
         prevState = data.references[0, atomID]
         time = 0
-        for frame in range(data.references.shape[0]):
+        for frame in range(1,data.references.shape[0]):
             state = data.references[frame, atomID]
             if state != prevState:
                 expectedResidenceTimes[prevState].append(time)
@@ -199,7 +199,7 @@ def test_events(input_statesEvolution):
     # code for derermining the events
     CURSTATE = SOAPify.EVENTS_CURSTATE
     ENDSTATE = SOAPify.EVENTS_ENDSTATE
-    TIME = SOAPify.EVENTS_TIME
+    TIME = SOAPify.EVENTS_EVENTTIME
     expectedEvents = []
     for atomID in range(data.references.shape[1]):
         atomTraj = data.references[:, atomID]
@@ -222,3 +222,15 @@ def test_events(input_statesEvolution):
 
     for event, expectedEvent in zip(events, expectedEvents):
         assert_array_equal(event, expectedEvent)
+
+
+def test_residenceTimesFromEvents(input_statesEvolution):
+    data = input_statesEvolution[0]
+    events = SOAPify.calculateEvents(data)
+    residenceTimesFromEvents = SOAPify.calculateResidenceTimes(data, events)
+    expectedResidenceTimes = SOAPify.calculateResidenceTimes(data)
+
+    for stateID in range(len(expectedResidenceTimes)):
+        assert_array_equal(
+            residenceTimesFromEvents[stateID], expectedResidenceTimes[stateID]
+        )
