@@ -197,7 +197,30 @@ def test_residenceTime(input_statesEvolution):
 def test_events(input_statesEvolution):
     data: SOAPclassification = input_statesEvolution[0]
     # code for derermining the events
+    INITSTATE = 0
+    CURSTATE = 1
+    ENDSTATE = 2
+    TIME = 3
+    expectedEvents = []
+    for atomID in range(data.references.shape[1]):
+        atomTraj = data.references[:, atomID]
+        # the array is [start state, state, end state,time]
+        # wg
+        event = numpy.array([atomTraj[0], atomTraj[0], atomTraj[0], 0], dtype=int)
+        for frame in range(1, data.references.shape[0]):
+            if atomTraj[frame] != event[CURSTATE]:
+                event[ENDSTATE] = atomTraj[frame]
+                expectedEvents.append(event)
+                event = numpy.array(
+                    [expectedEvents[-1][CURSTATE], atomTraj[frame], atomTraj[frame], 0],
+                    dtype=int,
+                )
+            event[TIME] += 1
+        # append the last event
+        expectedEvents.append(event)
+
     events = SOAPify.calculateEvents(data)
+
     for event, expectedEvent in zip(events, expectedEvents):
         assert_array_equal(event, expectedEvent)
     pass

@@ -100,21 +100,25 @@ def calculateEvents(classification: SOAPclassification) -> np.ndarray:
     nofFrames = classification.references.shape[0]
     nofAtoms = classification.references.shape[1]
     events = []
-    INITSTATE = 0
+    #should I use a dedicated class?
+    PREVSTATE = 0
     CURSTATE = 1
     ENDSTATE = 2
-    TIME = 3
+    EVENTTIME = 3
     for atomID in range(nofAtoms):
         atomTraj = classification.references[:, atomID]
         # the array is [start state, state, end state,time]
-
-        event = np.array([atomTraj[0], atomTraj[0], 0, 0], dtype=int)
+        # when PREVSTATE and CURSTATE are the same the event is the first event for the atom in the simulation
+        # when ENDSTATE and CURSTATE are the same the event is the last event for the atom in the simulation
+        event = np.array([atomTraj[0], atomTraj[0], atomTraj[0], 0], dtype=int)
         for frame in range(1, nofFrames):
-            if atomTraj[frame] != event[1]:
+            if atomTraj[frame] != event[CURSTATE]:
                 event[ENDSTATE] = atomTraj[frame]
                 events.append(event)
                 event = np.array(
-                    [events[-1][CURSTATE], atomTraj[frame], 0, 0], dtype=int
+                    [events[-1][CURSTATE], atomTraj[frame], atomTraj[frame], 0], dtype=int
                 )
-            event[TIME] += 1
+            event[EVENTTIME] += 1
+        #append the last event
+        events.append(event)
     return events
