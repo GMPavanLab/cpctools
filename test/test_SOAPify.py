@@ -197,10 +197,9 @@ def test_residenceTime(input_statesEvolution):
 def test_events(input_statesEvolution):
     data: SOAPclassification = input_statesEvolution[0]
     # code for derermining the events
-    INITSTATE = 0
-    CURSTATE = 1
-    ENDSTATE = 2
-    TIME = 3
+    CURSTATE = SOAPify.EVENTS_CURSTATE
+    ENDSTATE = SOAPify.EVENTS_ENDSTATE
+    TIME = SOAPify.EVENTS_TIME
     expectedEvents = []
     for atomID in range(data.references.shape[1]):
         atomTraj = data.references[:, atomID]

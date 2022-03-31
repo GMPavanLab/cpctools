@@ -96,29 +96,43 @@ def calculateResidenceTimes(classification: SOAPclassification) -> np.ndarray:
     return residenceTimes
 
 
+EVENTS_PREVSTATE = 0
+EVENTS_CURSTATE = 1
+EVENTS_ENDSTATE = 2
+EVENTS_EVENTTIME = 3
+
+
+def _createEvent(
+    prevState: int, curState: int, endState: int, eventTime: int = 0
+) -> np.ndarray:
+    return np.array([prevState, curState, endState, eventTime], dtype=int)
+
+
 def calculateEvents(classification: SOAPclassification) -> np.ndarray:
     nofFrames = classification.references.shape[0]
     nofAtoms = classification.references.shape[1]
     events = []
-    #should I use a dedicated class?
-    PREVSTATE = 0
-    CURSTATE = 1
-    ENDSTATE = 2
-    EVENTTIME = 3
+    # should I use a dedicated class?
     for atomID in range(nofAtoms):
         atomTraj = classification.references[:, atomID]
+        # TODO: this can be made concurrent per atom
+
         # the array is [start state, state, end state,time]
         # when PREVSTATE and CURSTATE are the same the event is the first event for the atom in the simulation
         # when ENDSTATE and CURSTATE are the same the event is the last event for the atom in the simulation
-        event = np.array([atomTraj[0], atomTraj[0], atomTraj[0], 0], dtype=int)
+        event = _createEvent(
+            prevState=atomTraj[0], curState=atomTraj[0], endState=atomTraj[0]
+        )
         for frame in range(1, nofFrames):
-            if atomTraj[frame] != event[CURSTATE]:
-                event[ENDSTATE] = atomTraj[frame]
+            if atomTraj[frame] != event[EVENTS_CURSTATE]:
+                event[EVENTS_ENDSTATE] = atomTraj[frame]
                 events.append(event)
-                event = np.array(
-                    [events[-1][CURSTATE], atomTraj[frame], atomTraj[frame], 0], dtype=int
+                event = _createEvent(
+                    prevState=event[EVENTS_CURSTATE],
+                    curState=atomTraj[frame],
+                    endState=atomTraj[frame],
                 )
-            event[EVENTTIME] += 1
-        #append the last event
+            event[EVENTS_EVENTTIME] += 1
+        # append the last event
         events.append(event)
     return events
