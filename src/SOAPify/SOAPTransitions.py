@@ -112,6 +112,7 @@ def trackStates(classification: SOAPclassification) -> np.ndarray:
                     curState=atomTraj[frame],
                     endState=atomTraj[frame],
                 )
+
             stateTracker[TRACK_EVENTTIME] += 1
         # append the last event
         stateHistory.append(stateTracker)
@@ -173,10 +174,15 @@ def transitionMatrixFromStateTracker(
     nclasses = len(legend)
     transMat = np.zeros((nclasses, nclasses), np.dtype(float))
     for event in statesTracker:
-        transMat[event[TRACK_CURSTATE], event[TRACK_CURSTATE]] += event[TRACK_EVENTTIME]
 
-        if event[TRACK_ENDSTATE] != event[TRACK_CURSTATE]:
-            transMat[event[TRACK_CURSTATE], event[TRACK_ENDSTATE]] += 1
+        transMat[event[TRACK_CURSTATE], event[TRACK_CURSTATE]] += (
+            event[TRACK_EVENTTIME] - 1
+        )
+
+        # the transition matrix is genetated with:
+        #   classFrom = data.references[frameID - stride][atomID]
+        #   classTo = data.references[frameID][atomID]
+        transMat[event[TRACK_PREVSTATE], event[TRACK_CURSTATE]] += 1
     return transMat
 
 
