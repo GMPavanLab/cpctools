@@ -194,12 +194,12 @@ def test_residenceTime(input_statesEvolution):
         assert_array_equal(ResidenceTimes[stateID], expectedResidenceTimes[stateID])
 
 
-def test_events(input_statesEvolution):
+def test_stateTracker(input_statesEvolution):
     data: SOAPclassification = input_statesEvolution[0]
     # code for derermining the events
-    CURSTATE = SOAPify.EVENTS_CURSTATE
-    ENDSTATE = SOAPify.EVENTS_ENDSTATE
-    TIME = SOAPify.EVENTS_EVENTTIME
+    CURSTATE = SOAPify.TRACK_CURSTATE
+    ENDSTATE = SOAPify.TRACK_ENDSTATE
+    TIME = SOAPify.TRACK_EVENTTIME
     expectedEvents = []
     for atomID in range(data.references.shape[1]):
         atomTraj = data.references[:, atomID]
@@ -218,29 +218,31 @@ def test_events(input_statesEvolution):
         # append the last event
         expectedEvents.append(event)
 
-    events = SOAPify.calculateEvents(data)
+    events = SOAPify.trackStates(data)
 
     for event, expectedEvent in zip(events, expectedEvents):
         assert_array_equal(event, expectedEvent)
 
 
-def test_residenceTimesFromEvents(input_statesEvolution):
+def test_residenceTimesFromTracking(input_statesEvolution):
     data = input_statesEvolution[0]
-    events = SOAPify.calculateEvents(data)
-    residenceTimesFromEvents = SOAPify.calculateResidenceTimes(data, events)
+    events = SOAPify.trackStates(data)
+    residenceTimesFromTracking = SOAPify.calculateResidenceTimes(data, events)
     expectedResidenceTimes = SOAPify.calculateResidenceTimes(data)
 
     for stateID in range(len(expectedResidenceTimes)):
         assert_array_equal(
-            residenceTimesFromEvents[stateID], expectedResidenceTimes[stateID]
+            residenceTimesFromTracking[stateID], expectedResidenceTimes[stateID]
         )
 
 
-def test_transitionMatrixFromEvents(input_statesEvolution):
+def test_transitionMatrixFromTracking(input_statesEvolution):
     data = input_statesEvolution[0]
-    events = SOAPify.calculateEvents(data)
-    transitionMatrixFromEvents = SOAPify.getTransitionMatrix(
-        data, events
+    events = SOAPify.trackStates(data)
+    for event in events:
+        print(event)
+    transitionMatrixFromTracking = SOAPify.calculateTransitionMatrix(
+        data, stride=1, statesTracker=events
     )
-    expectedTmat = SOAPify.transitionMatrixFromSOAPClassification(data)
-    assert_array_equal(transitionMatrixFromEvents, expectedTmat)
+    expectedTmat = SOAPify.transitionMatrixFromSOAPClassification(data, stride=1)
+    assert_array_equal(transitionMatrixFromTracking, expectedTmat)
