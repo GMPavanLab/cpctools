@@ -111,67 +111,60 @@ def test_fillSOAPVectorFromdscribeArrayOfVector():
 @pytest.fixture(
     scope="module",
     params=[
-        (
-            SOAPify.SOAPclassification(
-                [],
-                numpy.array(
-                    [
-                        [0, 0, 1, 2, 2, 1],
-                        [0, 0, 2, 2, 2, 2],
-                        [0, 0, 2, 2, 2, 1],
-                        [0, 0, 2, 2, 2, 2],
-                    ]
-                ),
-                ["1", "2", "3"],
-            ),
-            # hand calculated:
+        SOAPify.SOAPclassification(  # small "simulation"
+            [],
             numpy.array(
                 [
-                    [6, 0, 0],
-                    [0, 0, 3],
-                    [0, 1, 8],
+                    [0, 0, 1, 2, 2, 1],
+                    [0, 0, 2, 2, 2, 2],
+                    [0, 0, 2, 2, 2, 1],
+                    [0, 0, 2, 2, 2, 2],
                 ]
             ),
+            ["state0", "state1", "state2"],
         ),
-        (
-            SOAPify.SOAPclassification(
-                [],
-                numpy.array(
-                    [
-                        [0, 0, 1, 2, 2, 1],
-                        [0, 0, 2, 2, 2, 2],
-                        [0, 0, 2, 2, 2, 1],
-                        [0, 0, 2, 2, 2, -1],
-                    ]
-                ),
-                ["1", "2", "3", "Errors"],
-            ),  # hand calculated:
+        SOAPify.SOAPclassification(  # small  "simulation" with errors
+            [],
             numpy.array(
                 [
-                    [6, 0, 0, 0],
-                    [0, 0, 2, 1],
-                    [0, 1, 8, 0],
-                    [0, 0, 0, 0],
+                    [0, 0, 1, 2, 2, 1],
+                    [0, 0, 2, 2, 2, 2],
+                    [0, 0, 2, 2, 2, 1],
+                    [0, 0, 2, 2, 2, -1],
                 ]
             ),
+            ["state0", "state1", "state2", "Errors"],
+        ),
+        SOAPify.SOAPclassification(  # big random "simulation"
+            [],
+            randint(0, high=4, size=(1000, 309)),
+            ["state0", "state1", "state2", "state3"],
         ),
     ],
 )
-def input_statesEvolution(request):
+def input_mockedTrajectoryClassification(request):
     return request.param
 
 
-def test_transitionMatrix(input_statesEvolution):
-    data: SOAPclassification = input_statesEvolution[0]
-    expectedTmat = input_statesEvolution[1]
-    tmat = SOAPify.transitionMatrixFromSOAPClassification(data)
+def test_transitionMatrix(input_mockedTrajectoryClassification):
+    data: SOAPclassification = input_mockedTrajectoryClassification
+    expectedTmat = numpy.zeros((len(data.legend), len(data.legend)))
+    stride = 1
+    for atomID in range(data.references.shape[1]):
+        for frame in range(stride, data.references.shape[0]):
+            expectedTmat[
+                data.references[frame - stride, atomID],
+                data.references[frame, atomID],
+            ] += 1
+
+    tmat = SOAPify.transitionMatrixFromSOAPClassification(data, stride=stride)
     assert tmat.shape[0] == len(data.legend)
 
     assert_array_equal(tmat, expectedTmat)
 
 
-def test_residenceTime(input_statesEvolution):
-    data: SOAPclassification = input_statesEvolution[0]
+def test_residenceTime(input_mockedTrajectoryClassification):
+    data: SOAPclassification = input_mockedTrajectoryClassification
     expectedResidenceTimes = [[] for i in range(len(data.legend))]
     for atomID in range(data.references.shape[1]):
         prevState = data.references[0, atomID]
@@ -194,8 +187,8 @@ def test_residenceTime(input_statesEvolution):
         assert_array_equal(ResidenceTimes[stateID], expectedResidenceTimes[stateID])
 
 
-def test_stateTracker(input_statesEvolution):
-    data: SOAPclassification = input_statesEvolution[0]
+def test_stateTracker(input_mockedTrajectoryClassification):
+    data: SOAPclassification = input_mockedTrajectoryClassification
     # code for derermining the events
     CURSTATE = SOAPify.TRACK_CURSTATE
     ENDSTATE = SOAPify.TRACK_ENDSTATE
@@ -224,8 +217,8 @@ def test_stateTracker(input_statesEvolution):
         assert_array_equal(event, expectedEvent)
 
 
-def test_residenceTimesFromTracking(input_statesEvolution):
-    data = input_statesEvolution[0]
+def test_residenceTimesFromTracking(input_mockedTrajectoryClassification):
+    data = input_mockedTrajectoryClassification
     events = SOAPify.trackStates(data)
     residenceTimesFromTracking = SOAPify.calculateResidenceTimes(data, events)
     expectedResidenceTimes = SOAPify.calculateResidenceTimes(data)
@@ -236,8 +229,8 @@ def test_residenceTimesFromTracking(input_statesEvolution):
         )
 
 
-def test_transitionMatrixFromTracking(input_statesEvolution):
-    data = input_statesEvolution[0]
+def test_transitionMatrixFromTracking(input_mockedTrajectoryClassification):
+    data = input_mockedTrajectoryClassification
     events = SOAPify.trackStates(data)
     for event in events:
         print(event)
