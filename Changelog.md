@@ -8,6 +8,7 @@
 - `transitionMatrixFromSOAPClassification` now creates matrix with shape  `(n,n)` and no more `(n+1,n+1)`, where `n` is the lenght of the legend. The user will now need to address the errors in classification, if needed
 - added `calculateResidenceTimesFromClassification` for calculating the residence times of the states during the MD
 - added `trackStates` for calculating the history of the evolution of the states in the MD
+- the result of `trackStates` can be used for calculating the residence times and the transiotion matrices
 
 ## Changes From 0.0.2a
 

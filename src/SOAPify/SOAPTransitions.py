@@ -85,6 +85,7 @@ def _createStateTracker(
     return np.array([prevState, curState, endState, eventTime], dtype=int)
 
 
+# TODO add stride here
 def trackStates(classification: SOAPclassification) -> np.ndarray:
     nofFrames = classification.references.shape[0]
     nofAtoms = classification.references.shape[1]
@@ -119,6 +120,7 @@ def trackStates(classification: SOAPclassification) -> np.ndarray:
     return stateHistory
 
 
+# TODO add stride here
 def calculateResidenceTimesFromClassification(
     classification: SOAPclassification,
 ) -> np.ndarray:
