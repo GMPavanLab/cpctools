@@ -1,4 +1,3 @@
-import imp
 import HDF5er
 import h5py
 import pytest

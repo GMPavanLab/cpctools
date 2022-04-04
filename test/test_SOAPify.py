@@ -206,6 +206,7 @@ def test_stateTracker(input_mockedTrajectoryClassification):
     TIME = SOAPify.TRACK_EVENTTIME
     expectedEvents = []
     for atomID in range(data.references.shape[1]):
+        eventsperAtom = []
         atomTraj = data.references[:, atomID]
         # the array is [start state, state, end state,time]
         # wg
@@ -213,19 +214,20 @@ def test_stateTracker(input_mockedTrajectoryClassification):
         for frame in range(1, data.references.shape[0]):
             if atomTraj[frame] != event[CURSTATE]:
                 event[ENDSTATE] = atomTraj[frame]
-                expectedEvents.append(event)
+                eventsperAtom.append(event)
                 event = numpy.array(
-                    [expectedEvents[-1][CURSTATE], atomTraj[frame], atomTraj[frame], 0],
+                    [eventsperAtom[-1][CURSTATE], atomTraj[frame], atomTraj[frame], 0],
                     dtype=int,
                 )
             event[TIME] += 1
         # append the last event
-        expectedEvents.append(event)
+        eventsperAtom.append(event)
+        expectedEvents.append(eventsperAtom)
 
     events = SOAPify.trackStates(data)
-
-    for event, expectedEvent in zip(events, expectedEvents):
-        assert_array_equal(event, expectedEvent)
+    for atomID in range(data.references.shape[1]):
+        for event, expectedEvent in zip(events[atomID], expectedEvents[atomID]):
+            assert_array_equal(event, expectedEvent)
 
 
 def test_residenceTimesFromTracking(input_mockedTrajectoryClassification):
@@ -238,6 +240,7 @@ def test_residenceTimesFromTracking(input_mockedTrajectoryClassification):
         assert_array_equal(
             residenceTimesFromTracking[stateID], expectedResidenceTimes[stateID]
         )
+    assert isinstance(events[0], list)
 
 
 def test_transitionMatrixFromTracking(input_mockedTrajectoryClassification):
@@ -250,3 +253,22 @@ def test_transitionMatrixFromTracking(input_mockedTrajectoryClassification):
     )
     expectedTmat = SOAPify.transitionMatrixFromSOAPClassification(data, stride=1)
     assert_array_equal(transitionMatrixFromTracking, expectedTmat)
+    assert isinstance(events[0], list)
+
+
+def test_RemoveAtomIdentityFromEventTracker(input_mockedTrajectoryClassification):
+    data = input_mockedTrajectoryClassification
+    events = SOAPify.trackStates(data)
+    newevents = SOAPify.RemoveAtomIdentityFromEventTracker(events)
+    # verify that nothing is changed:
+    assert isinstance(events[0], list)
+    assert isinstance(events, list)
+    assert isinstance(events[0][0], numpy.ndarray)
+    # verify that the copy is correct:
+    assert isinstance(newevents, list)
+    count = 0
+    for atomID in range(data.references.shape[1]):
+        for event in events[atomID]:
+            assert_array_equal(event, newevents[count])
+            assert isinstance(newevents[atomID], numpy.ndarray)
+            count += 1

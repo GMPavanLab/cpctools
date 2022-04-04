@@ -86,12 +86,13 @@ def _createStateTracker(
 
 
 # TODO add stride here
-def trackStates(classification: SOAPclassification) -> np.ndarray:
+def trackStates(classification: SOAPclassification) -> list:
     nofFrames = classification.references.shape[0]
     nofAtoms = classification.references.shape[1]
     stateHistory = []
     # should I use a dedicated class?
     for atomID in range(nofAtoms):
+        statesPerAtom = []
         atomTraj = classification.references[:, atomID]
         # TODO: this can be made concurrent per atom
 
@@ -107,7 +108,7 @@ def trackStates(classification: SOAPclassification) -> np.ndarray:
         for frame in range(1, nofFrames):
             if atomTraj[frame] != stateTracker[TRACK_CURSTATE]:
                 stateTracker[TRACK_ENDSTATE] = atomTraj[frame]
-                stateHistory.append(stateTracker)
+                statesPerAtom.append(stateTracker)
                 stateTracker = _createStateTracker(
                     prevState=stateTracker[TRACK_CURSTATE],
                     curState=atomTraj[frame],
@@ -116,7 +117,8 @@ def trackStates(classification: SOAPclassification) -> np.ndarray:
 
             stateTracker[TRACK_EVENTTIME] += 1
         # append the last event
-        stateHistory.append(stateTracker)
+        statesPerAtom.append(stateTracker)
+        stateHistory.append(statesPerAtom)
     return stateHistory
 
 
@@ -146,11 +148,20 @@ def calculateResidenceTimesFromClassification(
     return residenceTimes
 
 
-def getResidenceTimesFromStateTracker(
-    statesTracker: list, legend: "list"
-) -> np.ndarray:
+def RemoveAtomIdentityFromEventTracker(statesTracker: list) -> list:
+    if isinstance(statesTracker[0], list):
+        t = []
+        for tracks in statesTracker:
+            t += tracks
+        statesTracker = t
+    return statesTracker
+
+
+def getResidenceTimesFromStateTracker(statesTracker: list, legend: list) -> np.ndarray:
+    states = RemoveAtomIdentityFromEventTracker(statesTracker)
+
     residenceTimes = [[] for i in range(len(legend))]
-    for event in statesTracker:
+    for event in states:
         residenceTimes[event[TRACK_CURSTATE]].append(
             event[TRACK_EVENTTIME]
             if event[TRACK_ENDSTATE] != event[TRACK_CURSTATE]
@@ -162,7 +173,7 @@ def getResidenceTimesFromStateTracker(
 
 
 def calculateResidenceTimes(
-    data: SOAPclassification, statesTracker: np.ndarray = None
+    data: SOAPclassification, statesTracker: list = None
 ) -> np.ndarray:
     if not statesTracker:
         return calculateResidenceTimesFromClassification(data)
@@ -170,12 +181,13 @@ def calculateResidenceTimes(
         return getResidenceTimesFromStateTracker(statesTracker, data.legend)
 
 
-def transitionMatrixFromStateTracker(
-    statesTracker: np.ndarray, legend: list
-) -> np.ndarray:
+def transitionMatrixFromStateTracker(statesTracker: list, legend: list) -> np.ndarray:
+    states = RemoveAtomIdentityFromEventTracker(statesTracker)
+
     nclasses = len(legend)
     transMat = np.zeros((nclasses, nclasses), np.dtype(float))
-    for event in statesTracker:
+    # print(len(states), states[0], file=sys.stderr)
+    for event in states:
 
         transMat[event[TRACK_CURSTATE], event[TRACK_CURSTATE]] += (
             event[TRACK_EVENTTIME] - 1
@@ -189,7 +201,7 @@ def transitionMatrixFromStateTracker(
 
 
 def calculateTransitionMatrix(
-    data: SOAPclassification, stride: int = 1, statesTracker: np.ndarray = None
+    data: SOAPclassification, stride: int = 1, statesTracker: list = None
 ) -> np.ndarray:
     if not statesTracker:
         return transitionMatrixFromSOAPClassification(data, stride)
