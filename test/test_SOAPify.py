@@ -111,26 +111,37 @@ def test_fillSOAPVectorFromdscribeArrayOfVector():
 @pytest.fixture(
     scope="module",
     params=[
-        SOAPify.SOAPclassification(  # small "simulation"
+        SOAPify.SOAPclassification(
             [],
             numpy.array(
+                # 0 never changes state
+                # 1 change stare ad first frame
+                # 2 alternates two states
                 [
-                    [0, 0, 1, 2, 2, 1],
-                    [0, 0, 2, 2, 2, 2],
-                    [0, 0, 2, 2, 2, 1],
-                    [0, 0, 2, 2, 2, 2],
+                    [0, 1, 1],
+                    [0, 2, 2],
+                    [0, 2, 1],
+                    [0, 2, 2],
+                    [0, 2, 1],
+                    [0, 2, 2],
                 ]
             ),
             ["state0", "state1", "state2"],
         ),
-        SOAPify.SOAPclassification(  # small  "simulation" with errors
+        SOAPify.SOAPclassification(
             [],
             numpy.array(
+                # 0 never changes state
+                # 1 change stare ad first frame
+                # 2 alternates two states
+                # 3 as an error at some point
                 [
-                    [0, 0, 1, 2, 2, 1],
-                    [0, 0, 2, 2, 2, 2],
-                    [0, 0, 2, 2, 2, 1],
-                    [0, 0, 2, 2, 2, -1],
+                    [0, 1, 1, 1],
+                    [0, 2, 2, 2],
+                    [0, 2, 1, 1],
+                    [0, 2, 2, -1],
+                    [0, 2, 1, 1],
+                    [0, 2, 2, 2],
                 ]
             ),
             ["state0", "state1", "state2", "Errors"],
