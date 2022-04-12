@@ -10,6 +10,7 @@ test.py
 log.lammps
 .vscode
 refSave.hdf5
+.secrets
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
