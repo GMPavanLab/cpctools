@@ -1,6 +1,4 @@
 import h5py
-import numpy as np
-from ase import Atoms as aseAtoms
 from dscribe.descriptors import SOAP
 from HDF5er import HDF52AseAtomsChunckedwithSymbols as HDF2ase
 import time

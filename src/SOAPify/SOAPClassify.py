@@ -1,7 +1,7 @@
 from typing import Callable
 import h5py
 import numpy as np
-from .SOAPbase import SOAPdistance, simpleSOAPdistance, SOAPdistanceNormalized
+from .SOAPbase import SOAPdistance, SOAPdistanceNormalized
 from .utils import fillSOAPVectorFromdscribe, normalizeArray
 from dataclasses import dataclass
 
