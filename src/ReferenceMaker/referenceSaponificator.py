@@ -1,13 +1,17 @@
 import h5py
-from h5py._hl.group import Group
 import numpy
 from MDAnalysis import Universe as mdaUniverse
 from MDAnalysis import AtomGroup as mdaAtomGroup
 from dscribe.descriptors import SOAP as dscribeSOAP
 from ase import Atoms as aseAtoms
-from .ico5083 import *
-from .th4116 import *
-from .dhfat3049 import *
+from .ico5083 import (
+    maskVertexes_ico,
+    maskEdges_ico,
+    maskFace111_ico,
+    maskFiveFoldedAxis_ico,
+)
+from .th4116 import maskFace111_th, maskFace001_th, maskVertexes_th, maskEdges_th
+from .dhfat3049 import maskConcave_dh, maskFiveFoldedAxis_dh
 from dataclasses import dataclass
 
 # __all__ = ["fingerprintMaker", "referenceSaponificator"]
