@@ -115,7 +115,7 @@ def test_fillSOAPVectorFromdscribeArrayOfVector():
             [],
             numpy.array(
                 # 0 never changes state
-                # 1 change stare ad first frame
+                # 1 change stare at first frame
                 # 2 alternates two states
                 [
                     [0, 1, 1],
@@ -132,7 +132,7 @@ def test_fillSOAPVectorFromdscribeArrayOfVector():
             [],
             numpy.array(
                 # 0 never changes state
-                # 1 change stare ad first frame
+                # 1 change stare at first frame
                 # 2 alternates two states
                 # 3 as an error at some point
                 [

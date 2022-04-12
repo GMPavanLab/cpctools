@@ -122,7 +122,7 @@ def trackStates(classification: SOAPclassification) -> list:
     return stateHistory
 
 
-# TODO add stride here
+# TODO add stride here?
 def calculateResidenceTimesFromClassification(
     classification: SOAPclassification,
 ) -> np.ndarray:
