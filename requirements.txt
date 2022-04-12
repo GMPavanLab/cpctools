@@ -2,5 +2,5 @@ wheel
 ase
 mdanalysis
 h5py
-dscribe!=1.1.0
+dscribe>=1.2.0
 seaborn
