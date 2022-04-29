@@ -2,6 +2,8 @@
 
 ## Changes From 0.0.3
 
+- Now when appliyng soap, the created dataset will be given attributes that describe the parameters used for its creation
+
 ## Changes From 0.0.2a
 
 - Only for Monospecies systems: added a small utility (`fillSOAPVectorFromdscribe`) that returns the complete SOAP vector from the simplified one from dscribe

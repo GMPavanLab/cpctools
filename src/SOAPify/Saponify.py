@@ -31,6 +31,18 @@ def saponifyWorker(
         (option passed to dscribe's SOAP). Defaults to 1.
     """
     symbols = trajGroup["Types"].asstr()[:]
+    SOAPoutDataset.attrs["l_max"] = soapEngine._lmax
+    SOAPoutDataset.attrs["n_max"] = soapEngine._nmax
+    SOAPoutDataset.attrs["r_cut"] = soapEngine._rcut
+    nspecies = len(soapEngine.species)
+    for i in range(nspecies):
+        for j in range(nspecies):
+            temp = soapEngine.get_location(
+                (soapEngine.species[i], soapEngine.species[j])
+            )
+            SOAPoutDataset.attrs[
+                f"species_location_{soapEngine.species[i]},{soapEngine.species[j]}"
+            ] = (temp.start, temp.stop)
 
     for chunkTraj in trajGroup["Trajectory"].iter_chunks():
         chunkBox = (chunkTraj[0], slice(0, 6, 1))
