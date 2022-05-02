@@ -74,12 +74,12 @@ def saponifyWorker(
 def saponifyGroup(
     trajContainers: "h5py.Group|h5py.File",
     SOAPoutContainers: "h5py.Group|h5py.File",
+    SOAPrcut: float,
+    SOAPnmax: int,
+    SOAPlmax: int,
     SOAPOutputChunkDim: int = 100,
     SOAPnJobs: int = 1,
     SOAPatomMask: str = None,
-    SOAPrcut: float = 8.0,
-    SOAPnmax: int = 8,
-    SOAPlmax: int = 8,
     SOAP_respectPBC: bool = True,
 ):
     """From a trajectory stored in a group calculates and stores the SOAP
@@ -152,12 +152,12 @@ def saponify(
     trajectoryGroupPath: str,
     outputFname: str,
     exportDatasetName: str,
+    SOAPrcut: float,
+    SOAPnmax: int,
+    SOAPlmax: int,
     SOAPOutputChunkDim: int = 100,
     SOAPnJobs: int = 1,
     SOAPatomMask: str = None,
-    SOAPrcut: float = 8.0,
-    SOAPnmax: int = 8,
-    SOAPlmax: int = 8,
     SOAP_respectPBC: bool = True,
 ):
     """Calculates the SOAP fingerprints for each atom in a given hdf5 trajectory

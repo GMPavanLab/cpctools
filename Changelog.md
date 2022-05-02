@@ -3,6 +3,7 @@
 ## Changes From 0.0.3
 
 - Now when appliyng soap, the created dataset will be given attributes that describe the parameters used for its creation
+- Removed some default values in function from Saponify and fillSOAPVectorFromdscribe
 
 ## Changes From 0.0.2a
 
