@@ -12,7 +12,7 @@ def saponifyWorker(
     trajGroup: h5py.Group,
     SOAPoutDataset: h5py.Dataset,
     soapEngine: SOAP,
-    centersMask: list,
+    centersMask: "list|None" = None,
     SOAPOutputChunkDim: int = 100,
     SOAPnJobs: int = 1,
 ):
@@ -34,6 +34,16 @@ def saponifyWorker(
     SOAPoutDataset.attrs["l_max"] = soapEngine._lmax
     SOAPoutDataset.attrs["n_max"] = soapEngine._nmax
     SOAPoutDataset.attrs["r_cut"] = soapEngine._rcut
+    SOAPoutDataset.attrs["species"] = soapEngine.species
+    if centersMask is None:
+        if "centersIndexes" in SOAPoutDataset.attrs:
+            del centersMask.attrs["centersIndexes"]
+    else:
+        SOAPoutDataset.attrs.create("centersIndexes", centersMask)
+        print(centersMask)
+        print(SOAPoutDataset.attrs["centersIndexes"])
+        print(type(SOAPoutDataset.attrs["centersIndexes"]))
+
     nspecies = len(soapEngine.species)
     for i in range(nspecies):
         for j in range(nspecies):
@@ -79,7 +89,7 @@ def saponifyGroup(
     SOAPlmax: int,
     SOAPOutputChunkDim: int = 100,
     SOAPnJobs: int = 1,
-    SOAPatomMask: str = None,
+    SOAPatomMask: "None|str" = None,
     SOAP_respectPBC: bool = True,
 ):
     """From a trajectory stored in a group calculates and stores the SOAP
