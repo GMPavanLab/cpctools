@@ -1,4 +1,3 @@
-wheel
 ase
 mdanalysis
 h5py

@@ -108,6 +108,63 @@ def test_fillSOAPVectorFromdscribeArrayOfVector():
                     limited += 1
 
 
+def test_fillSOAPVectorFromdscribeArrayOfVectorMultiSpecies():
+    species = ["H", "O"]
+
+    ncomb = 3
+    nmax = 4
+    lmax = 3
+    nfeats = (lmax + 1) * nmax * nmax
+    nfeatsreduced = int(((lmax + 1) * (nmax + 1) * nmax) / 2)
+    a = randint(
+        0,
+        10,
+        size=(
+            5,
+            nfeats + 2 * nfeatsreduced,
+        ),
+    )
+    speciesSlices = {
+        "HH": slice(0, nfeatsreduced),
+        "HO": slice(nfeatsreduced, nfeatsreduced + nfeats),
+        "OO": slice(nfeatsreduced + nfeats, nfeats + 2 * nfeatsreduced),
+    }
+    b = SOAPify.fillSOAPVectorFromdscribe(a, lmax, nmax, species, speciesSlices)
+    assert b.shape[1] == ncomb * nfeats
+    slices = [
+        slice(0, nfeats),
+        slice(nfeats, 2 * nfeats),
+        slice(2 * nfeats, 3 * nfeats),
+    ]
+
+    for i in range(a.shape[0]):
+        limited = 0
+
+        c = b[i][slices[0]].reshape((lmax + 1, nmax, nmax))
+
+        for l in range(lmax + 1):
+            for n in range(nmax):
+                for np in range(n, nmax):
+                    assert c[l, n, np] == a[i, limited]
+                    assert c[l, np, n] == a[i, limited]
+                    limited += 1
+
+        c = b[i][slices[1]].reshape((lmax + 1, nmax, nmax))
+        for l in range(lmax + 1):
+            for n in range(nmax):
+                for np in range(nmax):
+                    assert c[l, n, np] == a[i, limited]
+                    limited += 1
+
+        c = b[i][slices[2]].reshape((lmax + 1, nmax, nmax))
+        for l in range(lmax + 1):
+            for n in range(nmax):
+                for np in range(n, nmax):
+                    assert c[l, n, np] == a[i, limited]
+                    assert c[l, np, n] == a[i, limited]
+                    limited += 1
+
+
 @pytest.fixture(
     scope="module",
     params=[

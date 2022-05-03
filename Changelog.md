@@ -9,6 +9,9 @@
 - added `calculateResidenceTimesFromClassification` for calculating the residence times of the states during the MD
 - added `trackStates` for calculating the history of the evolution of the states in the MD
 - the result of `trackStates` can be used for calculating the residence times and the transition matrices
+- Now when appliyng soap, the created dataset will be given attributes that describe the parameters used for its creation
+- Removed some default values in function from Saponify and fillSOAPVectorFromdscribe
+- fillSOAPVectorFromdscribe now can fill soap vectors from multispecies calculations
 
 ## Changes From 0.0.2a
 

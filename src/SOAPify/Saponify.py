@@ -10,7 +10,7 @@ def saponifyWorker(
     trajGroup: h5py.Group,
     SOAPoutDataset: h5py.Dataset,
     soapEngine: SOAP,
-    centersMask: list,
+    centersMask: "list|None" = None,
     SOAPOutputChunkDim: int = 100,
     SOAPnJobs: int = 1,
 ):
@@ -29,6 +29,28 @@ def saponifyWorker(
         (option passed to dscribe's SOAP). Defaults to 1.
     """
     symbols = trajGroup["Types"].asstr()[:]
+    SOAPoutDataset.attrs["l_max"] = soapEngine._lmax
+    SOAPoutDataset.attrs["n_max"] = soapEngine._nmax
+    SOAPoutDataset.attrs["r_cut"] = soapEngine._rcut
+    SOAPoutDataset.attrs["species"] = soapEngine.species
+    if centersMask is None:
+        if "centersIndexes" in SOAPoutDataset.attrs:
+            del centersMask.attrs["centersIndexes"]
+    else:
+        SOAPoutDataset.attrs.create("centersIndexes", centersMask)
+        print(centersMask)
+        print(SOAPoutDataset.attrs["centersIndexes"])
+        print(type(SOAPoutDataset.attrs["centersIndexes"]))
+
+    nspecies = len(soapEngine.species)
+    for i in range(nspecies):
+        for j in range(nspecies):
+            temp = soapEngine.get_location(
+                (soapEngine.species[i], soapEngine.species[j])
+            )
+            SOAPoutDataset.attrs[
+                f"species_location_{soapEngine.species[i]}-{soapEngine.species[j]}"
+            ] = (temp.start, temp.stop)
 
     for chunkTraj in trajGroup["Trajectory"].iter_chunks():
         chunkBox = (chunkTraj[0], slice(0, 6, 1))
@@ -60,12 +82,12 @@ def saponifyWorker(
 def saponifyGroup(
     trajContainers: "h5py.Group|h5py.File",
     SOAPoutContainers: "h5py.Group|h5py.File",
+    SOAPrcut: float,
+    SOAPnmax: int,
+    SOAPlmax: int,
     SOAPOutputChunkDim: int = 100,
     SOAPnJobs: int = 1,
-    SOAPatomMask: str = None,
-    SOAPrcut: float = 8.0,
-    SOAPnmax: int = 8,
-    SOAPlmax: int = 8,
+    SOAPatomMask: "None|str" = None,
     SOAP_respectPBC: bool = True,
 ):
     """From a trajectory stored in a group calculates and stores the SOAP
@@ -138,12 +160,12 @@ def saponify(
     trajectoryGroupPath: str,
     outputFname: str,
     exportDatasetName: str,
+    SOAPrcut: float,
+    SOAPnmax: int,
+    SOAPlmax: int,
     SOAPOutputChunkDim: int = 100,
     SOAPnJobs: int = 1,
     SOAPatomMask: str = None,
-    SOAPrcut: float = 8.0,
-    SOAPnmax: int = 8,
-    SOAPlmax: int = 8,
     SOAP_respectPBC: bool = True,
 ):
     """Calculates the SOAP fingerprints for each atom in a given hdf5 trajectory
