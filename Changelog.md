@@ -2,6 +2,13 @@
 
 ## Changes From 0.0.3
 
+- `getXYZfromTrajGroup` now accept IO objects as inputs
+- **WARNING**: broken interface for `getXYZfromTrajGroup`, now it needs 3 inputs and the first is a file-like object
+- `saveXYZfromTrajGroup` and `getXYZfromTrajGroup` now can export comments per frames
+- `transitionMatrixFromSOAPClassification` now creates matrix with shape  `(n,n)` and no more `(n+1,n+1)`, where `n` is the lenght of the legend. The user will now need to address the errors in classification, if needed
+- added `calculateResidenceTimesFromClassification` for calculating the residence times of the states during the MD
+- added `trackStates` for calculating the history of the evolution of the states in the MD
+- the result of `trackStates` can be used for calculating the residence times and the transition matrices
 - Now when appliyng soap, the created dataset will be given attributes that describe the parameters used for its creation
 - Removed some default values in function from Saponify and fillSOAPVectorFromdscribe
 - fillSOAPVectorFromdscribe now can fill soap vectors from multispecies calculations

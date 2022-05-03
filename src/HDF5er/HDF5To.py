@@ -2,6 +2,7 @@ import h5py
 from ase import Atoms as aseAtoms
 from MDAnalysis.lib.mdamath import triclinic_vectors
 import re
+from typing import IO
 
 __all__ = [
     "getXYZfromTrajGroup",
@@ -47,7 +48,13 @@ def HDF52AseAtomsChunckedwithSymbols(
     return atoms
 
 
-def getXYZfromTrajGroup(group: h5py.Group, **additionalColumns) -> str:
+def getXYZfromTrajGroup(
+    filelike: IO,
+    group: h5py.Group,
+    allFramesProperty: str = "",
+    perFrameProperties: "list[str]" = None,
+    **additionalColumns,
+) -> None:
     """generate an xyz-style string from a trajectory group in an hdf5
 
         The string generated can be then exported to a file,
@@ -59,6 +66,8 @@ def getXYZfromTrajGroup(group: h5py.Group, **additionalColumns) -> str:
     Args:
         group (h5py.Group): the trajectory group
         additionalColumsn(): the additional columns to add to the file
+        allFramesProperty (str, optional): A comment string that will be present in all of the frames. Defaults to "".
+        perFrameProperties (list[str], optional): A list of comment. Defaults to None.
 
     Returns:
         str: the content of the xyz file
@@ -76,24 +85,35 @@ def getXYZfromTrajGroup(group: h5py.Group, **additionalColumns) -> str:
         dim = shapeOfData[2] if len(shapeOfData) == 3 else 1
         if (  # wrong shape of the array
             (len(shapeOfData) != 2 and len(shapeOfData) != 3)
-            # wrong number of frames
-            or shapeOfData[0] != trajlen
+            # More data than frames
+            or shapeOfData[0] > trajlen
             # wrong number of atoms
             or shapeOfData[1] != nat
         ):
             raise ValueError(
                 'Extra data passed to "getXYZfromTrajGroup" do not has the right dimensions'
             )
+        # if there are less data htan frames this functiol will only eport the first frames
+        trajlen = min(trajlen, shapeOfData[0])
         additional += ":" + key + ":R:" + str(dim)
-
-    header: str = f"{nat}\nProperties=species:S:1:pos:R:3{additional} Lattice="
+    if perFrameProperties:
+        if len(perFrameProperties) != trajlen:
+            raise ValueError(
+                "perFrameProperties do not have the same lenght of the trajectory"
+            )
+    header: str = (
+        f"{nat}\nProperties=species:S:1:pos:R:3{additional} {allFramesProperty}"
+    )
     for frame in range(trajlen):
-        coord=coordGroup[frame,:]
-        data += f"{header}"
+        coord = coordGroup[frame, :]
+        data = f"{header}"
+        data += f" {perFrameProperties[frame]}" if perFrameProperties else ""
         theBox = triclinic_vectors(boxes[frame])
-        data += f'"{theBox[0][0]} {theBox[0][1]} {theBox[0][2]} '
+        data += f' Lattice="{theBox[0][0]} {theBox[0][1]} {theBox[0][2]} '
         data += f"{theBox[1][0]} {theBox[1][1]} {theBox[1][2]} "
-        data += f'{theBox[2][0]} {theBox[2][1]} {theBox[2][2]}"\n'
+        data += f'{theBox[2][0]} {theBox[2][1]} {theBox[2][2]}"'
+        data += "\n"
+
         for atomID in range(nat):
             data += f"{atomtypes[atomID]} {coord[atomID,0]} {coord[atomID,1]} {coord[atomID,2]}"
             for key in additionalColumns:
@@ -102,13 +122,19 @@ def getXYZfromTrajGroup(group: h5py.Group, **additionalColumns) -> str:
                     "( \[|\[|\])", "", str(additionalColumns[key][frame, atomID])
                 )
             data += "\n"
-    return data
+        filelike.write(data)
 
 
 # TODO: add the possibility to append
 # TODO: add the possibility to pass a file handler
 # TODO: it is slow with huge files
-def saveXYZfromTrajGroup(filename: str, group: h5py.Group, **additionalColumns) -> None:
+def saveXYZfromTrajGroup(
+    filename: str,
+    group: h5py.Group,
+    allFramesProperty: str = "",
+    perFrameProperties: "list[str]" = None,
+    **additionalColumns,
+) -> None:
     """Saves "filename" as an xyz file see
        saveXYZfromTrajGroup this calls getXYZfromTrajGroup and treats the inputs in the same way
 
@@ -116,7 +142,10 @@ def saveXYZfromTrajGroup(filename: str, group: h5py.Group, **additionalColumns) 
         filename (str): name of the file
         group (h5py.Group): the trajectory group
         additionalColumsn(): the additional columns to add to the file
+        allFramesProperty (str, optional): A comment string that will be present in all of the frames. Defaults to "".
+        perFrameProperties (list[str], optional): A list of comment. Defaults to None.
     """
-    dataStr = getXYZfromTrajGroup(group, **additionalColumns)
     with open(filename, "w") as file:
-        file.write(dataStr)
+        getXYZfromTrajGroup(
+            file, group, allFramesProperty, perFrameProperties, **additionalColumns
+        )
