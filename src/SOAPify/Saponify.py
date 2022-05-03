@@ -51,7 +51,7 @@ def saponifyWorker(
                 (soapEngine.species[i], soapEngine.species[j])
             )
             SOAPoutDataset.attrs[
-                f"species_location_{soapEngine.species[i]},{soapEngine.species[j]}"
+                f"species_location_{soapEngine.species[i]}-{soapEngine.species[j]}"
             ] = (temp.start, temp.stop)
 
     for chunkTraj in trajGroup["Trajectory"].iter_chunks():

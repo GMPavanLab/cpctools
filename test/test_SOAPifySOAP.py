@@ -101,4 +101,28 @@ def test_MultiAtomicSoap():
         assert_array_equal(
             soapGroup["testH2O"].attrs["centersIndexes"], [i * 3 for i in range(nMol)]
         )
-        HDF5er.saveXYZfromTrajGroup("testH2O.xyz", f["Trajectories/testH2O"])
+
+
+def test_slices():
+    nMol = 1
+    u = getUniverseWithWaterMolecules(nMol)
+    HDF5er.MDA2HDF5(u, "testH2O.hdf5", "testH2O", override=True)
+    n_max = 4
+    l_max = 4
+    rcut = 10.0
+    with h5py.File("testH2O.hdf5", "a") as f:
+        soapGroup = f.require_group("SOAP")
+        SOAPify.saponifyGroup(f["Trajectories"], soapGroup, rcut, n_max, l_max)
+        species, slices = SOAPify.getSlicesFromAttrs(f["SOAP/testH2O"].attrs)
+        assert "O" in species
+        assert "H" in species
+        upperDiag = int((l_max + 1) * (n_max) * (n_max + 1) / 2)
+        fullmat = n_max * n_max * (l_max + 1)
+        assert slices["H" + "H"] == slice(0, upperDiag)
+        assert slices["H" + "O"] == slice(upperDiag, upperDiag + fullmat)
+        assert slices["O" + "H"] == slice(upperDiag, upperDiag + fullmat)  # redundant
+        assert slices["O" + "O"] == slice(upperDiag + fullmat, 2 * upperDiag + fullmat)
+        fullSpectrum = SOAPify.fillSOAPVectorFromdscribe(
+            f["SOAP/testH2O"][:], l_max, n_max, species, slices
+        )
+        assert fullSpectrum.shape[-1] == 3 * fullmat
