@@ -2,12 +2,17 @@
 
 # SOAPify, HDF5er and ReferenceMaker
 
-This sequence of commands will setup the environment:
+To setup the environ ment just run in the repository folder:
 
 ```bash
 python3 -m venv ./venv --prompt SOAPenv
 source ./venv/bin/activate
+pip install --upgrade pip wheel
 pip install -r requirements
+```
+and then you can install the package with:
+```bash
+pip install .
 ```
 
 ## SOAPify
