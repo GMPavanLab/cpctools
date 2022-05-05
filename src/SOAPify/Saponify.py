@@ -89,6 +89,7 @@ def saponifyGroup(
     SOAPnJobs: int = 1,
     SOAPatomMask: "None|str" = None,
     SOAP_respectPBC: bool = True,
+    **kwargs
 ):
     """From a trajectory stored in a group calculates and stores the SOAP
     descriptor in the given group/file
@@ -135,7 +136,7 @@ def saponifyGroup(
                     rcut=SOAPrcut,
                     nmax=SOAPnmax,
                     lmax=SOAPlmax,
-                    average="off",
+                    **kwargs
                 )
                 NofFeatures = soapEngine.get_number_of_features()
 
@@ -167,6 +168,7 @@ def saponify(
     SOAPnJobs: int = 1,
     SOAPatomMask: str = None,
     SOAP_respectPBC: bool = True,
+    **kwargs
 ):
     """Calculates the SOAP fingerprints for each atom in a given hdf5 trajectory
 
@@ -212,7 +214,7 @@ def saponify(
             rcut=SOAPrcut,
             nmax=SOAPnmax,
             lmax=SOAPlmax,
-            average="off",
+            **kwargs
         )
 
         NofFeatures = soapEngine.get_number_of_features()
