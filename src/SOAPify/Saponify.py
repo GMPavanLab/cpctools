@@ -2,6 +2,7 @@ import h5py
 from dscribe.descriptors import SOAP
 from HDF5er import HDF52AseAtomsChunckedwithSymbols as HDF2ase
 import time
+from typing import Iterable
 
 __all__ = ["saponify", "saponifyGroup"]
 
@@ -87,7 +88,8 @@ def saponifyGroup(
     SOAPlmax: int,
     SOAPOutputChunkDim: int = 100,
     SOAPnJobs: int = 1,
-    SOAPatomMask: "None|str" = None,
+    SOAPatomMask: str = None,
+    centersMask: Iterable = None,  # TODO: document this
     SOAP_respectPBC: bool = True,
 ):
     """From a trajectory stored in a group calculates and stores the SOAP
@@ -119,8 +121,12 @@ def saponifyGroup(
             and "Box" in trajContainers[key].keys()
         ):
             traj = trajContainers[key]
-            centersMask = None
             symbols = traj["Types"].asstr()[:]
+            # TODO: unify the soap initialization with saponify
+            if SOAPatomMask is not None and centersMask is not None:
+                raise Exception(
+                    f"saponifyGroup: You can't use both SOAPatomMask and centersMask"
+                )
             if SOAPatomMask is not None:
                 centersMask = [
                     i for i in range(len(symbols)) if symbols[i] in SOAPatomMask
@@ -201,7 +207,10 @@ def saponify(
         traj = trajLoader[f"Trajectories/{trajectoryGroupPath}"]
 
         symbols = traj["Types"].asstr()[:]
-        centersMask = None
+        if SOAPatomMask is not None and centersMask is not None:
+            raise Exception(
+                f"saponify: You can't use both SOAPatomMask and centersMask"
+            )
         if SOAPatomMask is not None:
             centersMask = [i for i in range(len(symbols)) if symbols[i] in SOAPatomMask]
 
