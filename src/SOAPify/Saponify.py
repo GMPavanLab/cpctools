@@ -2,6 +2,7 @@ import h5py
 from dscribe.descriptors import SOAP
 from HDF5er import HDF52AseAtomsChunckedwithSymbols as HDF2ase
 import time
+from typing import Iterable
 
 __all__ = ["saponify", "saponifyGroup"]
 
@@ -89,7 +90,7 @@ def saponifyGroup(
     SOAPnJobs: int = 1,
     SOAPatomMask: "None|str" = None,
     SOAP_respectPBC: bool = True,
-    **kwargs
+    SOAPkwargs: dict = {},
 ):
     """From a trajectory stored in a group calculates and stores the SOAP
     descriptor in the given group/file
@@ -130,14 +131,16 @@ def saponifyGroup(
 
             if soapEngine is None:
                 species = list(set(symbols))
-                soapEngine = SOAP(
-                    species=species,
-                    periodic=SOAP_respectPBC,
-                    rcut=SOAPrcut,
-                    nmax=SOAPnmax,
-                    lmax=SOAPlmax,
-                    **kwargs
+                SOAPkwargs.update(
+                    dict(
+                        species=species,
+                        periodic=SOAP_respectPBC,
+                        rcut=SOAPrcut,
+                        nmax=SOAPnmax,
+                        lmax=SOAPlmax,
+                    )
                 )
+                soapEngine = SOAP(**SOAPkwargs)
                 NofFeatures = soapEngine.get_number_of_features()
 
             if key not in SOAPoutContainers.keys():
@@ -168,7 +171,7 @@ def saponify(
     SOAPnJobs: int = 1,
     SOAPatomMask: str = None,
     SOAP_respectPBC: bool = True,
-    **kwargs
+    SOAPkwargs: dict = {},
 ):
     """Calculates the SOAP fingerprints for each atom in a given hdf5 trajectory
 
@@ -203,18 +206,21 @@ def saponify(
         traj = trajLoader[f"Trajectories/{trajectoryGroupPath}"]
 
         symbols = traj["Types"].asstr()[:]
-        centersMask = None
         if SOAPatomMask is not None:
             centersMask = [i for i in range(len(symbols)) if symbols[i] in SOAPatomMask]
 
         species = list(set(symbols))
+        SOAPkwargs.update(
+            dict(
+                species=species,
+                periodic=SOAP_respectPBC,
+                rcut=SOAPrcut,
+                nmax=SOAPnmax,
+                lmax=SOAPlmax,
+            )
+        )
         soapEngine = SOAP(
-            species=species,
-            periodic=SOAP_respectPBC,
-            rcut=SOAPrcut,
-            nmax=SOAPnmax,
-            lmax=SOAPlmax,
-            **kwargs
+            **SOAPkwargs,
         )
 
         NofFeatures = soapEngine.get_number_of_features()
