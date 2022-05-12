@@ -46,12 +46,13 @@ def saponifyWorker(
     nspecies = len(soapEngine.species)
     for i in range(nspecies):
         for j in range(nspecies):
-            temp = soapEngine.get_location(
-                (soapEngine.species[i], soapEngine.species[j])
-            )
-            SOAPoutDataset.attrs[
-                f"species_location_{soapEngine.species[i]}-{soapEngine.species[j]}"
-            ] = (temp.start, temp.stop)
+            if soapEngine.crossover or (i == j):
+                temp = soapEngine.get_location(
+                    (soapEngine.species[i], soapEngine.species[j])
+                )
+                SOAPoutDataset.attrs[
+                    f"species_location_{soapEngine.species[i]}-{soapEngine.species[j]}"
+                ] = (temp.start, temp.stop)
 
     for chunkTraj in trajGroup["Trajectory"].iter_chunks():
         chunkBox = (chunkTraj[0], slice(0, 6, 1))
