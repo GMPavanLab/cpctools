@@ -1,8 +1,8 @@
+import warnings
 import h5py
 from dscribe.descriptors import SOAP
 from HDF5er import HDF52AseAtomsChunckedwithSymbols as HDF2ase
 import time
-from typing import Iterable
 
 __all__ = ["saponify", "saponifyGroup"]
 
@@ -113,6 +113,7 @@ def saponifyGroup(
         (option passed to dscribe's SOAP). Defaults to 8.
         SOAP_respectPBC (bool, optional): Determines whether the system is
         considered to be periodic (option passed to dscribe's SOAP). Defaults to True.
+        SOAPkwargs (dict, optional): additional keyword arguments to be passed to the SOAP engine. Defaults to {}.
     """
     soapEngine = None
     for key in trajContainers.keys():
@@ -141,6 +142,12 @@ def saponifyGroup(
                         lmax=SOAPlmax,
                     )
                 )
+                if "sparse" in SOAPkwargs.keys():
+                    if SOAPkwargs["sparse"]:
+                        SOAPkwargs["sparse"] = False
+                        warnings.warn(
+                            "sparse output is not supported yet, switching to dense"
+                        )
                 soapEngine = SOAP(**SOAPkwargs)
                 NofFeatures = soapEngine.get_number_of_features()
 
@@ -199,6 +206,7 @@ def saponify(
         (option passed to dscribe's SOAP). Defaults to 8.
         SOAP_respectPBC (bool, optional): Determines whether the system is
         considered to be periodic (option passed to dscribe's SOAP). Defaults to True.
+        SOAPkwargs (dict, optional): additional keyword arguments to be passed to the SOAP engine. Defaults to {}.
     """
 
     with h5py.File(trajFname, "r") as trajLoader, h5py.File(
@@ -220,6 +228,10 @@ def saponify(
                 lmax=SOAPlmax,
             )
         )
+        if "sparse" in SOAPkwargs.keys():
+            if SOAPkwargs["sparse"]:
+                SOAPkwargs["sparse"] = False
+                warnings.warn("sparse output is not supported yet, switching to dense")
         soapEngine = SOAP(
             **SOAPkwargs,
         )
