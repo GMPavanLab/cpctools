@@ -2,7 +2,7 @@ import h5py
 from ase import Atoms as aseAtoms
 from MDAnalysis.lib.mdamath import triclinic_vectors
 import re
-from typing import IO
+from typing import IO, List
 
 __all__ = [
     "getXYZfromTrajGroup",
@@ -51,6 +51,7 @@ def HDF52AseAtomsChunckedwithSymbols(
 def getXYZfromTrajGroup(
     filelike: IO,
     group: h5py.Group,
+    framesToExport: "List or slice or None" = None,
     allFramesProperty: str = "",
     perFrameProperties: "list[str]" = None,
     **additionalColumns,
@@ -65,20 +66,21 @@ def getXYZfromTrajGroup(
 
     Args:
         group (h5py.Group): the trajectory group
-        additionalColumsn(): the additional columns to add to the file
+        frames (List or slice or None, optional): the frames to export. Defaults to None.
         allFramesProperty (str, optional): A comment string that will be present in all of the frames. Defaults to "".
         perFrameProperties (list[str], optional): A list of comment. Defaults to None.
-
+        additionalColumns(): the additional columns to add to the file
     Returns:
         str: the content of the xyz file
     """
     data = ""
     atomtypes = group["Types"].asstr()
 
-    boxes = group["Box"]
-    coordGroup = group["Trajectory"]
-    trajlen = coordGroup.shape[0]
-    nat = coordGroup.shape[1]
+    boxes: h5py.Dataset = group["Box"]
+    coordData: h5py.Dataset = group["Trajectory"][:] if framesToExport is None else group["Trajectory"][framesToExport]
+    
+    trajlen: int = coordData.shape[0]
+    nat: int = coordData.shape[1]
     additional = ""
     for key in additionalColumns:
         shapeOfData = additionalColumns[key].shape
@@ -105,7 +107,7 @@ def getXYZfromTrajGroup(
         f"{nat}\nProperties=species:S:1:pos:R:3{additional} {allFramesProperty}"
     )
     for frame in range(trajlen):
-        coord = coordGroup[frame, :]
+        coord = coordData[frame, :]
         data = f"{header}"
         data += f" {perFrameProperties[frame]}" if perFrameProperties else ""
         theBox = triclinic_vectors(boxes[frame])
