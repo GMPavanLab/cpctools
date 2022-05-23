@@ -34,43 +34,24 @@ def giveUniverse(angles: set = (90.0, 90.0, 90.0)) -> MDAnalysis.Universe:
     return u
 
 
-def test_MDA2HDF5():
+@pytest.fixture(
+    scope="module",
+    params=[
+        slice(None, None, None),  # no slice
+        slice(1, None, 2),  # classic slice
+        [0, 4],  # list-like slice
+    ],
+)
+def input_framesSlice(request):
+    return request.param
+
+
+def test_MDA2HDF5(input_framesSlice):
     # Given an MDA Universe :
     fourAtomsFiveFrames = giveUniverse()
     attributes = {"ts": "1ps", "anotherAttr": "anotherAttrVal"}
-    HDF5er.MDA2HDF5(
-        fourAtomsFiveFrames,
-        "test.hdf5",
-        "4Atoms5Frames",
-        override=True,
-        attrs=attributes,
-    )
-    # verify:
-    with h5py.File("test.hdf5", "r") as hdf5test:
-        # this checks also that the group has been created
-        group = hdf5test["Trajectories/4Atoms5Frames"]
-        for key in attributes.keys():
-            assert group.attrs[key] == attributes[key]
-        # this checks also that the dataset has been created
-        nat = len(group["Types"])
-        assert len(group["Trajectory"]) == len(fourAtomsFiveFrames.trajectory)
-        assert len(group["Trajectory"]) == 5
-        for i, f in enumerate(fourAtomsFiveFrames.trajectory):
-            assert nat == len(fourAtomsFiveFrames.atoms)
-            for atomID in range(nat):
-                for coord in range(3):
-                    assert (
-                        group["Trajectory"][i, atomID, coord]
-                        - fourAtomsFiveFrames.atoms.positions[atomID, coord]
-                        < 1e-8
-                    )
-
-
-def test_MDA2HDF5Sliced():
-    # Given an MDA Universe :
-    fourAtomsFiveFrames = giveUniverse()
-    attributes = {"ts": "1ps", "anotherAttr": "anotherAttrVal"}
-    sl = slice(0, None, 2)
+    # sl = slice(0, None, 2)
+    sl = input_framesSlice
     HDF5er.MDA2HDF5(
         fourAtomsFiveFrames,
         "test.hdf5",
@@ -86,7 +67,7 @@ def test_MDA2HDF5Sliced():
             assert group.attrs[key] == attributes[key]
         # this checks also that the dataset has been created
         nat = len(group["Types"])
-        assert len(group["Trajectory"]) == 3
+        assert len(group["Trajectory"]) == len(fourAtomsFiveFrames.trajectory[sl])
         for i, f in enumerate(fourAtomsFiveFrames.trajectory[sl]):
             assert nat == len(fourAtomsFiveFrames.atoms)
             for atomID in range(nat):
@@ -141,27 +122,34 @@ def test_MDA2HDF5Box():
                     assert aseTraj[0].cell[j][i] - d < 1e-7
 
 
-def test_copyMDA2HDF52xyz1DData():
+def test_copyMDA2HDF52xyz1DData(input_framesSlice):
+
     angles = (75.0, 60.0, 90.0)
     fourAtomsFiveFrames = giveUniverse(angles)
     latticeVector = triclinic_vectors(
         [6.0, 6.0, 6.0, angles[0], angles[1], angles[2]]
     ).flatten()
     rng = numpy.random.default_rng(12345)
-    OneDData = rng.integers(
+    OneDDataOrig = rng.integers(
         0, 7, size=(len(fourAtomsFiveFrames.trajectory), len(fourAtomsFiveFrames.atoms))
     )
+    OneDData = OneDDataOrig[input_framesSlice]
     HDF5er.MDA2HDF5(fourAtomsFiveFrames, "test.hdf5", "4Atoms5Frames", override=True)
     with h5py.File("test.hdf5", "r") as hdf5test:
         group = hdf5test["Trajectories/4Atoms5Frames"]
         stringData = StringIO()
-        HDF5er.getXYZfromTrajGroup(stringData, group, OneDData=OneDData)
+        HDF5er.getXYZfromTrajGroup(
+            stringData,
+            group,
+            framesToExport=input_framesSlice,
+            OneDData=OneDData,
+        )
 
         lines = stringData.getvalue().splitlines()
         nat = int(lines[0])
         assert int(lines[0]) == len(fourAtomsFiveFrames.atoms)
         assert lines[2].split()[0] == fourAtomsFiveFrames.atoms.types[0]
-        for frame, traj in enumerate(fourAtomsFiveFrames.trajectory):
+        for frame, traj in enumerate(fourAtomsFiveFrames.trajectory[input_framesSlice]):
             frameID = frame * (nat + 2)
             assert int(lines[frameID]) == nat
             t = lines[frameID + 1].split(" Lattice=")
@@ -186,7 +174,64 @@ def test_copyMDA2HDF52xyz1DData():
                     )
 
 
-def test_copyMDA2HDF52xyzAllFrameProperty():
+def test_copyMDA2HDF52xyzMultiDData(input_framesSlice):
+    angles = (75.0, 60.0, 90.0)
+    fourAtomsFiveFrames = giveUniverse(angles)
+    latticeVector = triclinic_vectors(
+        [6.0, 6.0, 6.0, angles[0], angles[1], angles[2]]
+    ).flatten()
+    rng = numpy.random.default_rng(12345)
+    dataDim = rng.integers(2, 15)
+    MultiDData_original = rng.integers(
+        0,
+        7,
+        size=(
+            len(fourAtomsFiveFrames.trajectory),
+            len(fourAtomsFiveFrames.atoms),
+            dataDim,
+        ),
+    )
+    MultiDData = MultiDData_original[input_framesSlice]
+    HDF5er.MDA2HDF5(fourAtomsFiveFrames, "test.hdf5", "4Atoms5Frames", override=True)
+    with h5py.File("test.hdf5", "r") as hdf5test:
+        group = hdf5test["Trajectories/4Atoms5Frames"]
+        stringData = StringIO()
+        HDF5er.getXYZfromTrajGroup(
+            stringData,
+            group,
+            framesToExport=input_framesSlice,
+            MultiDData=MultiDData,
+        )
+        lines = stringData.getvalue().splitlines()
+        nat = int(lines[0])
+        assert int(lines[0]) == len(fourAtomsFiveFrames.atoms)
+        assert lines[2].split()[0] == fourAtomsFiveFrames.atoms.types[0]
+        for frame, traj in enumerate(fourAtomsFiveFrames.trajectory[input_framesSlice]):
+            frameID = frame * (nat + 2)
+            assert int(lines[frameID]) == nat
+            t = lines[frameID + 1].split(" Lattice=")
+            Lattice = t[1].replace('"', "").split()
+            Properties = t[0].split(":")
+            assert "MultiDData" in Properties
+            for original, control in zip(latticeVector, Lattice):
+                assert (original - float(control)) < 1e-7
+            for atomID in range(len(fourAtomsFiveFrames.atoms)):
+                thisline = frameID + 2 + atomID
+                assert (
+                    lines[thisline].split()[0]
+                    == fourAtomsFiveFrames.atoms.types[atomID]
+                )
+                assert len(lines[thisline].split()) == (4 + dataDim)
+                for i, d in enumerate(MultiDData[frame, atomID]):
+                    assert int((lines[thisline].split()[4 + i])) == d
+                for i in range(3):
+                    assert (
+                        float(lines[thisline].split()[i + 1])
+                        == fourAtomsFiveFrames.atoms.positions[atomID][i]
+                    )
+
+
+def test_copyMDA2HDF52xyzAllFrameProperty(input_framesSlice):
     angles = (75.0, 60.0, 90.0)
     fourAtomsFiveFrames = giveUniverse(angles)
     latticeVector = triclinic_vectors(
@@ -197,14 +242,17 @@ def test_copyMDA2HDF52xyzAllFrameProperty():
         group = hdf5test["Trajectories/4Atoms5Frames"]
         stringData = StringIO()
         HDF5er.getXYZfromTrajGroup(
-            stringData, group, allFramesProperty='Origin="-1 -1 -1"'
+            stringData,
+            group,
+            framesToExport=input_framesSlice,
+            allFramesProperty='Origin="-1 -1 -1"',
         )
 
         lines = stringData.getvalue().splitlines()
         nat = int(lines[0])
         assert int(lines[0]) == len(fourAtomsFiveFrames.atoms)
         assert lines[2].split()[0] == fourAtomsFiveFrames.atoms.types[0]
-        for frame, traj in enumerate(fourAtomsFiveFrames.trajectory):
+        for frame, traj in enumerate(fourAtomsFiveFrames.trajectory[input_framesSlice]):
             frameID = frame * (nat + 2)
             assert int(lines[frameID]) == nat
             t = lines[frameID + 1].split(" Lattice=")
@@ -229,34 +277,41 @@ def test_copyMDA2HDF52xyzAllFrameProperty():
                     )
 
 
-def test_copyMDA2HDF52xyzPerFrameProperty():
+def test_copyMDA2HDF52xyzPerFrameProperty(input_framesSlice):
     angles = (75.0, 60.0, 90.0)
     fourAtomsFiveFrames = giveUniverse(angles)
     latticeVector = triclinic_vectors(
         [6.0, 6.0, 6.0, angles[0], angles[1], angles[2]]
     ).flatten()
     HDF5er.MDA2HDF5(fourAtomsFiveFrames, "test.hdf5", "4Atoms5Frames", override=True)
-    perFrameProperties = [f'Originpf="-{i} -{i} -{i}"' for i in range(5)]
+    perFrameProperties = numpy.array([f'Originpf="-{i} -{i} -{i}"' for i in range(5)])[
+        input_framesSlice
+    ]
+
     with h5py.File("test.hdf5", "r") as hdf5test:
         group = hdf5test["Trajectories/4Atoms5Frames"]
         stringData = StringIO()
         HDF5er.getXYZfromTrajGroup(
-            stringData, group, perFrameProperties=perFrameProperties
+            stringData,
+            group,
+            framesToExport=input_framesSlice,
+            perFrameProperties=perFrameProperties,
         )
 
         lines = stringData.getvalue().splitlines()
         nat = int(lines[0])
         assert int(lines[0]) == len(fourAtomsFiveFrames.atoms)
         assert lines[2].split()[0] == fourAtomsFiveFrames.atoms.types[0]
-        for frame, traj in enumerate(fourAtomsFiveFrames.trajectory):
+        for frame, traj in enumerate(fourAtomsFiveFrames.trajectory[input_framesSlice]):
             frameID = frame * (nat + 2)
             assert int(lines[frameID]) == nat
             t = lines[frameID + 1].split(" Lattice=")
             Lattice = t[1].replace('"', "").split()
             assert "Originpf" in lines[frameID + 1]
             t = lines[frameID + 1].split(" Originpf=")[1].split('"')[1]
-            for v in t.split(" "):
-                assert int(v) == -frame
+            to = perFrameProperties[frame].split("Originpf=")[1].split('"')[1]
+            for saved, orig in zip(t.split(" "), to.split(" ")):
+                assert int(saved) == int(orig)
             for original, control in zip(latticeVector, Lattice):
                 assert (original - float(control)) < 1e-7
             for atomID in range(len(fourAtomsFiveFrames.atoms)):
@@ -266,57 +321,6 @@ def test_copyMDA2HDF52xyzPerFrameProperty():
                     == fourAtomsFiveFrames.atoms.types[atomID]
                 )
                 assert len(lines[thisline].split()) == 4
-                for i in range(3):
-                    assert (
-                        float(lines[thisline].split()[i + 1])
-                        == fourAtomsFiveFrames.atoms.positions[atomID][i]
-                    )
-
-
-def test_copyMDA2HDF52xyzMultiDData():
-    angles = (75.0, 60.0, 90.0)
-    fourAtomsFiveFrames = giveUniverse(angles)
-    latticeVector = triclinic_vectors(
-        [6.0, 6.0, 6.0, angles[0], angles[1], angles[2]]
-    ).flatten()
-    rng = numpy.random.default_rng(12345)
-    dataDim = rng.integers(2, 15)
-    MultiDData = rng.integers(
-        0,
-        7,
-        size=(
-            len(fourAtomsFiveFrames.trajectory),
-            len(fourAtomsFiveFrames.atoms),
-            dataDim,
-        ),
-    )
-    HDF5er.MDA2HDF5(fourAtomsFiveFrames, "test.hdf5", "4Atoms5Frames", override=True)
-    with h5py.File("test.hdf5", "r") as hdf5test:
-        group = hdf5test["Trajectories/4Atoms5Frames"]
-        stringData = StringIO()
-        HDF5er.getXYZfromTrajGroup(stringData, group, MultiDData=MultiDData)
-        lines = stringData.getvalue().splitlines()
-        nat = int(lines[0])
-        assert int(lines[0]) == len(fourAtomsFiveFrames.atoms)
-        assert lines[2].split()[0] == fourAtomsFiveFrames.atoms.types[0]
-        for frame, traj in enumerate(fourAtomsFiveFrames.trajectory):
-            frameID = frame * (nat + 2)
-            assert int(lines[frameID]) == nat
-            t = lines[frameID + 1].split(" Lattice=")
-            Lattice = t[1].replace('"', "").split()
-            Properties = t[0].split(":")
-            assert "MultiDData" in Properties
-            for original, control in zip(latticeVector, Lattice):
-                assert (original - float(control)) < 1e-7
-            for atomID in range(len(fourAtomsFiveFrames.atoms)):
-                thisline = frameID + 2 + atomID
-                assert (
-                    lines[thisline].split()[0]
-                    == fourAtomsFiveFrames.atoms.types[atomID]
-                )
-                assert len(lines[thisline].split()) == (4 + dataDim)
-                for i, d in enumerate(MultiDData[frame, atomID]):
-                    assert int((lines[thisline].split()[4 + i])) == d
                 for i in range(3):
                     assert (
                         float(lines[thisline].split()[i + 1])
