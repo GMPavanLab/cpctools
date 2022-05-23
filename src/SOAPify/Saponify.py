@@ -1,3 +1,4 @@
+import warnings
 import h5py
 from dscribe.descriptors import SOAP
 from HDF5er import HDF52AseAtomsChunckedwithSymbols as HDF2ase
@@ -46,12 +47,13 @@ def saponifyWorker(
     nspecies = len(soapEngine.species)
     for i in range(nspecies):
         for j in range(nspecies):
-            temp = soapEngine.get_location(
-                (soapEngine.species[i], soapEngine.species[j])
-            )
-            SOAPoutDataset.attrs[
-                f"species_location_{soapEngine.species[i]}-{soapEngine.species[j]}"
-            ] = (temp.start, temp.stop)
+            if soapEngine.crossover or (i == j):
+                temp = soapEngine.get_location(
+                    (soapEngine.species[i], soapEngine.species[j])
+                )
+                SOAPoutDataset.attrs[
+                    f"species_location_{soapEngine.species[i]}-{soapEngine.species[j]}"
+                ] = (temp.start, temp.stop)
 
     for chunkTraj in trajGroup["Trajectory"].iter_chunks():
         chunkBox = (chunkTraj[0], slice(0, 6, 1))
@@ -91,6 +93,7 @@ def saponifyGroup(
     SOAPatomMask: str = None,
     centersMask: Iterable = None,  # TODO: document this
     SOAP_respectPBC: bool = True,
+    SOAPkwargs: dict = {},
 ):
     """From a trajectory stored in a group calculates and stores the SOAP
     descriptor in the given group/file
@@ -112,6 +115,7 @@ def saponifyGroup(
         (option passed to dscribe's SOAP). Defaults to 8.
         SOAP_respectPBC (bool, optional): Determines whether the system is
         considered to be periodic (option passed to dscribe's SOAP). Defaults to True.
+        SOAPkwargs (dict, optional): additional keyword arguments to be passed to the SOAP engine. Defaults to {}.
     """
     soapEngine = None
     for key in trajContainers.keys():
@@ -135,14 +139,22 @@ def saponifyGroup(
 
             if soapEngine is None:
                 species = list(set(symbols))
-                soapEngine = SOAP(
-                    species=species,
-                    periodic=SOAP_respectPBC,
-                    rcut=SOAPrcut,
-                    nmax=SOAPnmax,
-                    lmax=SOAPlmax,
-                    average="off",
+                SOAPkwargs.update(
+                    dict(
+                        species=species,
+                        periodic=SOAP_respectPBC,
+                        rcut=SOAPrcut,
+                        nmax=SOAPnmax,
+                        lmax=SOAPlmax,
+                    )
                 )
+                if "sparse" in SOAPkwargs.keys():
+                    if SOAPkwargs["sparse"]:
+                        SOAPkwargs["sparse"] = False
+                        warnings.warn(
+                            "sparse output is not supported yet, switching to dense"
+                        )
+                soapEngine = SOAP(**SOAPkwargs)
                 NofFeatures = soapEngine.get_number_of_features()
 
             if key not in SOAPoutContainers.keys():
@@ -173,6 +185,7 @@ def saponify(
     SOAPnJobs: int = 1,
     SOAPatomMask: str = None,
     SOAP_respectPBC: bool = True,
+    SOAPkwargs: dict = {},
 ):
     """Calculates the SOAP fingerprints for each atom in a given hdf5 trajectory
 
@@ -199,6 +212,7 @@ def saponify(
         (option passed to dscribe's SOAP). Defaults to 8.
         SOAP_respectPBC (bool, optional): Determines whether the system is
         considered to be periodic (option passed to dscribe's SOAP). Defaults to True.
+        SOAPkwargs (dict, optional): additional keyword arguments to be passed to the SOAP engine. Defaults to {}.
     """
 
     with h5py.File(trajFname, "r") as trajLoader, h5py.File(
@@ -215,13 +229,21 @@ def saponify(
             centersMask = [i for i in range(len(symbols)) if symbols[i] in SOAPatomMask]
 
         species = list(set(symbols))
+        SOAPkwargs.update(
+            dict(
+                species=species,
+                periodic=SOAP_respectPBC,
+                rcut=SOAPrcut,
+                nmax=SOAPnmax,
+                lmax=SOAPlmax,
+            )
+        )
+        if "sparse" in SOAPkwargs.keys():
+            if SOAPkwargs["sparse"]:
+                SOAPkwargs["sparse"] = False
+                warnings.warn("sparse output is not supported yet, switching to dense")
         soapEngine = SOAP(
-            species=species,
-            periodic=SOAP_respectPBC,
-            rcut=SOAPrcut,
-            nmax=SOAPnmax,
-            lmax=SOAPlmax,
-            average="off",
+            **SOAPkwargs,
         )
 
         NofFeatures = soapEngine.get_number_of_features()

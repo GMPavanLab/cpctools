@@ -33,10 +33,11 @@ def getSlicesFromAttrs(attrs: dict) -> "tuple(list,dict)":
     slices = {}
     for s1 in species:
         for s2 in species:
-            slices[s1 + s2] = slice(
-                attrs[f"species_location_{s1}-{s2}"][0],
-                attrs[f"species_location_{s1}-{s2}"][1],
-            )
+            if (f"species_location_{s1}-{s2}") in attrs:
+                slices[s1 + s2] = slice(
+                    attrs[f"species_location_{s1}-{s2}"][0],
+                    attrs[f"species_location_{s1}-{s2}"][1],
+                )
 
     return species, slices
 

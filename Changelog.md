@@ -12,7 +12,9 @@
 - Now when appliyng soap, the created dataset will be given attributes that describe the parameters used for its creation
 - Removed some default values in function from Saponify and fillSOAPVectorFromdscribe
 - fillSOAPVectorFromdscribe now can fill soap vectors from multispecies calculations
+- changed slightly `saponifyGroup` and `saponifyGroup`: now they accept dscribe SOAP options as a dictionary, but not the sparse option
 - Now HDFTo.getXYZfromTrajGroup accepts slices as an option to export the trajectory
+
 
 ## Changes From 0.0.2a
 
