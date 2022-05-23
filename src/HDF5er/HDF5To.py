@@ -103,7 +103,7 @@ def getXYZfromTrajGroup(
         # if there are less data htan frames this functiol will only eport the first frames
         # trajlen = min(trajlen, shapeOfData[0])
         additional += ":" + key + ":R:" + str(dim)
-    if perFrameProperties:
+    if perFrameProperties is not None:
         if len(perFrameProperties) != trajlen:
             raise ValueError(
                 "perFrameProperties do not have the same lenght of the trajectory"
@@ -114,7 +114,9 @@ def getXYZfromTrajGroup(
     for frame in range(trajlen):
         coord = coordData[frame, :]
         data = f"{header}"
-        data += f" {perFrameProperties[frame]}" if perFrameProperties else ""
+        data += (
+            f" {perFrameProperties[frame]}" if perFrameProperties is not None else ""
+        )
         theBox = triclinic_vectors(boxes[frame])
         data += f' Lattice="{theBox[0][0]} {theBox[0][1]} {theBox[0][2]} '
         data += f"{theBox[1][0]} {theBox[1][1]} {theBox[1][2]} "
