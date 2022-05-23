@@ -77,8 +77,12 @@ def getXYZfromTrajGroup(
     atomtypes = group["Types"].asstr()
 
     boxes: h5py.Dataset = group["Box"]
-    coordData: h5py.Dataset = group["Trajectory"][:] if framesToExport is None else group["Trajectory"][framesToExport]
-    
+    coordData: h5py.Dataset = (
+        group["Trajectory"][:]
+        if framesToExport is None
+        else group["Trajectory"][framesToExport]
+    )
+
     trajlen: int = coordData.shape[0]
     nat: int = coordData.shape[1]
     additional = ""
@@ -95,8 +99,9 @@ def getXYZfromTrajGroup(
             raise ValueError(
                 'Extra data passed to "getXYZfromTrajGroup" do not has the right dimensions'
             )
+        # Removing this functionality, it was a workaround while waiting for 'framesToExport' to be implemented
         # if there are less data htan frames this functiol will only eport the first frames
-        trajlen = min(trajlen, shapeOfData[0])
+        # trajlen = min(trajlen, shapeOfData[0])
         additional += ":" + key + ":R:" + str(dim)
     if perFrameProperties:
         if len(perFrameProperties) != trajlen:
@@ -133,6 +138,7 @@ def getXYZfromTrajGroup(
 def saveXYZfromTrajGroup(
     filename: str,
     group: h5py.Group,
+    framesToExport: "List or slice or None" = None,
     allFramesProperty: str = "",
     perFrameProperties: "list[str]" = None,
     **additionalColumns,
@@ -149,5 +155,10 @@ def saveXYZfromTrajGroup(
     """
     with open(filename, "w") as file:
         getXYZfromTrajGroup(
-            file, group, allFramesProperty, perFrameProperties, **additionalColumns
+            file,
+            group,
+            framesToExport,
+            allFramesProperty,
+            perFrameProperties,
+            **additionalColumns,
         )
