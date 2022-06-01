@@ -1,7 +1,7 @@
 import warnings
 import h5py
 from dscribe.descriptors import SOAP
-from HDF5er import HDF52AseAtomsChunckedwithSymbols as HDF2ase
+from HDF5er import HDF52AseAtomsChunckedwithSymbols as HDF2ase, isTrajectoryGroup
 import time
 from typing import Iterable
 
@@ -40,9 +40,9 @@ def saponifyWorker(
             del centersMask.attrs["centersIndexes"]
     else:
         SOAPoutDataset.attrs.create("centersIndexes", centersMask)
-        print(centersMask)
-        print(SOAPoutDataset.attrs["centersIndexes"])
-        print(type(SOAPoutDataset.attrs["centersIndexes"]))
+        # print(centersMask)
+        # print(SOAPoutDataset.attrs["centersIndexes"])
+        # print(type(SOAPoutDataset.attrs["centersIndexes"]))
 
     nspecies = len(soapEngine.species)
     for i in range(nspecies):
@@ -111,6 +111,40 @@ def getSoapEngine(
     return SOAP(**SOAPkwargs)
 
 
+def applySOAP(
+    trajContainer: h5py.Group,
+    SOAPoutContainer: h5py.Group,
+    key: str,
+    soapEngine: SOAP,
+    centersMask: "list|None" = None,
+    SOAPOutputChunkDim: int = 100,
+    SOAPnJobs: int = 1,
+):
+    NofFeatures = soapEngine.get_number_of_features()
+    symbols = trajContainer["Types"].asstr()[:]
+    nCenters = len(symbols) if centersMask is None else len(centersMask)
+
+    if key not in SOAPoutContainer.keys():
+        SOAPoutContainer.create_dataset(
+            key,
+            (0, nCenters, NofFeatures),
+            compression="gzip",
+            compression_opts=9,
+            chunks=(SOAPOutputChunkDim, nCenters, NofFeatures),
+            maxshape=(None, nCenters, NofFeatures),
+        )
+    SOAPout = SOAPoutContainer[key]
+    SOAPout.resize((len(trajContainer["Trajectory"]), nCenters, NofFeatures))
+    saponifyWorker(
+        trajContainer,
+        SOAPout,
+        soapEngine,
+        centersMask,
+        SOAPOutputChunkDim,
+        SOAPnJobs,
+    )
+
+
 def saponifyGroup(
     trajContainers: "h5py.Group|h5py.File",
     SOAPoutContainers: "h5py.Group|h5py.File",
@@ -148,12 +182,7 @@ def saponifyGroup(
     """
     soapEngine = None
     for key in trajContainers.keys():
-        if (
-            "Trajectory" in trajContainers[key].keys()
-            and "Types" in trajContainers[key].keys()
-            and "Box" in trajContainers[key].keys()
-        ):
-            # then the group is a trajectory-group
+        if isTrajectoryGroup(trajContainers[key]):
             traj = trajContainers[key]
             symbols = traj["Types"].asstr()[:]
             # TODO: unify the soap initialization with saponify
@@ -165,8 +194,6 @@ def saponifyGroup(
                 centersMask = [
                     i for i in range(len(symbols)) if symbols[i] in SOAPatomMask
                 ]
-            nCenters = len(symbols) if centersMask is None else len(centersMask)
-
             if soapEngine is None:
                 soapEngine = getSoapEngine(
                     species=list(set(symbols)),
@@ -176,21 +203,14 @@ def saponifyGroup(
                     SOAP_respectPBC=SOAP_respectPBC,
                     SOAPkwargs=SOAPkwargs,
                 )
-                NofFeatures = soapEngine.get_number_of_features()
-
-            if key not in SOAPoutContainers.keys():
-                SOAPoutContainers.create_dataset(
-                    key,
-                    (0, nCenters, NofFeatures),
-                    compression="gzip",
-                    compression_opts=9,
-                    chunks=(100, nCenters, NofFeatures),
-                    maxshape=(None, nCenters, NofFeatures),
-                )
-            SOAPout = SOAPoutContainers[key]
-            SOAPout.resize((len(traj["Trajectory"]), nCenters, NofFeatures))
-            saponifyWorker(
-                traj, SOAPout, soapEngine, centersMask, SOAPOutputChunkDim, SOAPnJobs
+            applySOAP(
+                traj,
+                SOAPoutContainers,
+                key,
+                soapEngine,
+                centersMask,
+                SOAPOutputChunkDim,
+                SOAPnJobs,
             )
 
 
@@ -234,12 +254,7 @@ def saponify(
         considered to be periodic (option passed to dscribe's SOAP). Defaults to True.
         SOAPkwargs (dict, optional): additional keyword arguments to be passed to the SOAP engine. Defaults to {}.
     """
-    if (
-        "Trajectory" in trajContainer.keys()
-        and "Types" in trajContainer.keys()
-        and "Box" in trajContainer.keys()
-    ):
-        # then the group is a trajectory-group
+    if isTrajectoryGroup(trajContainer):
         symbols = trajContainer["Types"].asstr()[:]
         if SOAPatomMask is not None and centersMask is not None:
             raise Exception(
@@ -247,7 +262,6 @@ def saponify(
             )
         if SOAPatomMask is not None:
             centersMask = [i for i in range(len(symbols)) if symbols[i] in SOAPatomMask]
-        nCenters = len(symbols) if centersMask is None else len(centersMask)
         soapEngine = getSoapEngine(
             species=list(set(symbols)),
             SOAPrcut=SOAPrcut,
@@ -256,28 +270,18 @@ def saponify(
             SOAP_respectPBC=SOAP_respectPBC,
             SOAPkwargs=SOAPkwargs,
         )
-        NofFeatures = soapEngine.get_number_of_features()
         exportDatasetName = trajContainer.name.split("/")[-1]
-        print(exportDatasetName)
-        if exportDatasetName not in SOAPoutContainer.keys():
-            SOAPoutContainer.create_dataset(
-                exportDatasetName,
-                (0, nCenters, NofFeatures),
-                compression="gzip",
-                compression_opts=9,
-                chunks=(100, nCenters, NofFeatures),
-                maxshape=(None, nCenters, NofFeatures),
-            )
-        SOAPout = SOAPoutContainer[exportDatasetName]
-        SOAPout.resize((len(trajContainer["Trajectory"]), nCenters, NofFeatures))
-        saponifyWorker(
+        applySOAP(
             trajContainer,
-            SOAPout,
+            SOAPoutContainer,
+            exportDatasetName,
             soapEngine,
             centersMask,
             SOAPOutputChunkDim,
             SOAPnJobs,
         )
+    else:
+        raise Exception(f"saponify: The input object is not a trajectory group.")
 
 
 if __name__ == "__main__":

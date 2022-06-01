@@ -46,6 +46,29 @@ def input_framesSlice(request):
     return request.param
 
 
+def test_istTrajectoryGroupCheck():
+    # Given an HDF5 group
+    with h5py.File("test.hdf5", "w") as hdf5test:
+        group = hdf5test.create_group("Trajectories/4Atoms3Frames")
+        # empty group
+        assert not HDF5er.isTrajectoryGroup(group)
+        group.create_dataset("Trajectory", data=numpy.zeros((5, 4, 3)))
+        assert not HDF5er.isTrajectoryGroup(group)
+        group.create_dataset("Types", data=numpy.zeros((4)))
+        assert not HDF5er.isTrajectoryGroup(group)
+        group.create_dataset("Box", data=numpy.zeros((5, 3)))
+        assert HDF5er.isTrajectoryGroup(group)
+    with h5py.File("test.hdf5", "w") as hdf5test:
+        group = hdf5test.create_group("Trajectories/4Atoms3Frames")
+        # empty group
+        assert not HDF5er.isTrajectoryGroup(group)
+        # now trajectory is set as a group
+        group.create_group("Trajectory")
+        group.create_dataset("Types", data=numpy.zeros((4)))
+        group.create_dataset("Box", data=numpy.zeros((5, 3)))
+        assert not HDF5er.isTrajectoryGroup(group)
+
+
 def test_MDA2HDF5(input_framesSlice):
     # Given an MDA Universe :
     fourAtomsFiveFrames = giveUniverse()
@@ -63,6 +86,7 @@ def test_MDA2HDF5(input_framesSlice):
     with h5py.File("test.hdf5", "r") as hdf5test:
         # this checks also that the group has been created
         group = hdf5test["Trajectories/4Atoms3Frames"]
+        assert HDF5er.isTrajectoryGroup(group)
         for key in attributes.keys():
             assert group.attrs[key] == attributes[key]
         # this checks also that the dataset has been created
