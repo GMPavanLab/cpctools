@@ -82,6 +82,35 @@ def saponifyWorker(
             print(f"delta create= {t2-t1}")
 
 
+def getSoapEngine(
+    species: "list[str]",
+    SOAPrcut: float,
+    SOAPnmax: int,
+    SOAPlmax: int,
+    SOAP_respectPBC: bool = True,
+    SOAPkwargs: dict = {},
+) -> SOAP:
+    """Returns a soap engine already set up
+
+    Returns:
+        SOAP: the soap engine already set up
+    """
+    SOAPkwargs.update(
+        dict(
+            species=species,
+            periodic=SOAP_respectPBC,
+            rcut=SOAPrcut,
+            nmax=SOAPnmax,
+            lmax=SOAPlmax,
+        )
+    )
+    if "sparse" in SOAPkwargs.keys():
+        if SOAPkwargs["sparse"]:
+            SOAPkwargs["sparse"] = False
+            warnings.warn("sparse output is not supported yet, switching to dense")
+    return SOAP(**SOAPkwargs)
+
+
 def saponifyGroup(
     trajContainers: "h5py.Group|h5py.File",
     SOAPoutContainers: "h5py.Group|h5py.File",
@@ -138,23 +167,14 @@ def saponifyGroup(
             nCenters = len(symbols) if centersMask is None else len(centersMask)
 
             if soapEngine is None:
-                species = list(set(symbols))
-                SOAPkwargs.update(
-                    dict(
-                        species=species,
-                        periodic=SOAP_respectPBC,
-                        rcut=SOAPrcut,
-                        nmax=SOAPnmax,
-                        lmax=SOAPlmax,
-                    )
+                soapEngine = getSoapEngine(
+                    species=list(set(symbols)),
+                    SOAPrcut=SOAPrcut,
+                    SOAPnmax=SOAPnmax,
+                    SOAPlmax=SOAPlmax,
+                    SOAP_respectPBC=SOAP_respectPBC,
+                    SOAPkwargs=SOAPkwargs,
                 )
-                if "sparse" in SOAPkwargs.keys():
-                    if SOAPkwargs["sparse"]:
-                        SOAPkwargs["sparse"] = False
-                        warnings.warn(
-                            "sparse output is not supported yet, switching to dense"
-                        )
-                soapEngine = SOAP(**SOAPkwargs)
                 NofFeatures = soapEngine.get_number_of_features()
 
             if key not in SOAPoutContainers.keys():
@@ -227,23 +247,13 @@ def saponify(
             )
         if SOAPatomMask is not None:
             centersMask = [i for i in range(len(symbols)) if symbols[i] in SOAPatomMask]
-
-        species = list(set(symbols))
-        SOAPkwargs.update(
-            dict(
-                species=species,
-                periodic=SOAP_respectPBC,
-                rcut=SOAPrcut,
-                nmax=SOAPnmax,
-                lmax=SOAPlmax,
-            )
-        )
-        if "sparse" in SOAPkwargs.keys():
-            if SOAPkwargs["sparse"]:
-                SOAPkwargs["sparse"] = False
-                warnings.warn("sparse output is not supported yet, switching to dense")
-        soapEngine = SOAP(
-            **SOAPkwargs,
+        soapEngine = getSoapEngine(
+            species=list(set(symbols)),
+            SOAPrcut=SOAPrcut,
+            SOAPnmax=SOAPnmax,
+            SOAPlmax=SOAPlmax,
+            SOAP_respectPBC=SOAP_respectPBC,
+            SOAPkwargs=SOAPkwargs,
         )
 
         NofFeatures = soapEngine.get_number_of_features()
@@ -264,32 +274,6 @@ def saponify(
         saponifyWorker(
             traj, SOAPout, soapEngine, centersMask, SOAPOutputChunkDim, SOAPnJobs
         )
-        return
-        for chunkTraj in traj["Trajectory"].iter_chunks():
-            chunkBox = (chunkTraj[0], slice(0, 6, 1))
-            print(f'working on trajectory chunk "{chunkTraj}"')
-            print(f'   and working on box chunk "{repr(chunkBox)}"')
-            # load in memory a chunk of data
-            atoms = HDF2ase(traj, chunkTraj, chunkBox, symbols)
-
-            jobchunk = min(SOAPOutputChunkDim, len(atoms))
-            jobStart = 0
-            jobEnd = jobStart + jobchunk
-            while jobStart < len(atoms):
-                t1 = time.time()
-                frameStart = jobStart + chunkTraj[0].start
-                FrameEnd = jobEnd + chunkTraj[0].start
-                print(f"working on frames: [{frameStart}:{FrameEnd}]")
-                SOAPout[frameStart:FrameEnd] = soapEngine.create(
-                    atoms[jobStart:jobEnd],
-                    positions=[centersMask] * jobchunk,
-                    n_jobs=SOAPnJobs,
-                )
-                t2 = time.time()
-                jobchunk = min(SOAPOutputChunkDim, len(atoms) - jobEnd)
-                jobStart = jobEnd
-                jobEnd = jobStart + jobchunk
-                print(f"delta create= {t2-t1}")
 
 
 if __name__ == "__main__":
