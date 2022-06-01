@@ -3,3 +3,4 @@ mdanalysis
 h5py
 dscribe>=1.2.0
 seaborn
+quippy-ase
