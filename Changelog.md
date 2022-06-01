@@ -14,7 +14,7 @@
 - fillSOAPVectorFromdscribe now can fill soap vectors from multispecies calculations
 - changed slightly `saponifyGroup` and `saponifyGroup`: now they accept dscribe SOAP options as a dictionary, but not the sparse option
 - Now HDFTo.getXYZfromTrajGroup accepts slices as an option to export the trajectory
-
+- Broken interface for saponify
 
 ## Changes From 0.0.2a
 

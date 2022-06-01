@@ -153,6 +153,7 @@ def saponifyGroup(
             and "Types" in trajContainers[key].keys()
             and "Box" in trajContainers[key].keys()
         ):
+            # then the group is a trajectory-group
             traj = trajContainers[key]
             symbols = traj["Types"].asstr()[:]
             # TODO: unify the soap initialization with saponify
@@ -194,16 +195,15 @@ def saponifyGroup(
 
 
 def saponify(
-    trajFname: str,
-    trajectoryGroupPath: str,
-    outputFname: str,
-    exportDatasetName: str,
+    trajContainer: "h5py.Group|h5py.File",
+    SOAPoutContainer: "h5py.Group|h5py.File",
     SOAPrcut: float,
     SOAPnmax: int,
     SOAPlmax: int,
     SOAPOutputChunkDim: int = 100,
     SOAPnJobs: int = 1,
     SOAPatomMask: str = None,
+    centersMask: Iterable = None,  # TODO: document this
     SOAP_respectPBC: bool = True,
     SOAPkwargs: dict = {},
 ):
@@ -234,19 +234,20 @@ def saponify(
         considered to be periodic (option passed to dscribe's SOAP). Defaults to True.
         SOAPkwargs (dict, optional): additional keyword arguments to be passed to the SOAP engine. Defaults to {}.
     """
-
-    with h5py.File(trajFname, "r") as trajLoader, h5py.File(
-        outputFname, "a"
-    ) as soapOffloader:
-        traj = trajLoader[f"Trajectories/{trajectoryGroupPath}"]
-
-        symbols = traj["Types"].asstr()[:]
+    if (
+        "Trajectory" in trajContainer.keys()
+        and "Types" in trajContainer.keys()
+        and "Box" in trajContainer.keys()
+    ):
+        # then the group is a trajectory-group
+        symbols = trajContainer["Types"].asstr()[:]
         if SOAPatomMask is not None and centersMask is not None:
             raise Exception(
                 f"saponify: You can't use both SOAPatomMask and centersMask"
             )
         if SOAPatomMask is not None:
             centersMask = [i for i in range(len(symbols)) if symbols[i] in SOAPatomMask]
+        nCenters = len(symbols) if centersMask is None else len(centersMask)
         soapEngine = getSoapEngine(
             species=list(set(symbols)),
             SOAPrcut=SOAPrcut,
@@ -255,13 +256,11 @@ def saponify(
             SOAP_respectPBC=SOAP_respectPBC,
             SOAPkwargs=SOAPkwargs,
         )
-
         NofFeatures = soapEngine.get_number_of_features()
-
-        soapDir = soapOffloader.require_group("SOAP")
-        nCenters = len(symbols) if centersMask is None else len(centersMask)
-        if exportDatasetName not in soapDir.keys():
-            soapDir.create_dataset(
+        exportDatasetName = trajContainer.name.split("/")[-1]
+        print(exportDatasetName)
+        if exportDatasetName not in SOAPoutContainer.keys():
+            SOAPoutContainer.create_dataset(
                 exportDatasetName,
                 (0, nCenters, NofFeatures),
                 compression="gzip",
@@ -269,22 +268,28 @@ def saponify(
                 chunks=(100, nCenters, NofFeatures),
                 maxshape=(None, nCenters, NofFeatures),
             )
-        SOAPout = soapDir[exportDatasetName]
-        SOAPout.resize((len(traj["Trajectory"]), nCenters, NofFeatures))
+        SOAPout = SOAPoutContainer[exportDatasetName]
+        SOAPout.resize((len(trajContainer["Trajectory"]), nCenters, NofFeatures))
         saponifyWorker(
-            traj, SOAPout, soapEngine, centersMask, SOAPOutputChunkDim, SOAPnJobs
+            trajContainer,
+            SOAPout,
+            soapEngine,
+            centersMask,
+            SOAPOutputChunkDim,
+            SOAPnJobs,
         )
 
 
 if __name__ == "__main__":
     # this is an example script for Applying the SOAP analysis on a trajectory saved on an
     # HDF5 file formatted with our HDF5er and save the result in another HDF5 file
-    saponify(
-        "Water.hdf5",
-        "1ns",
-        "WaterSOAP.hdf5",
-        "1nSOAP",
-        SOAPatomMask="O",
-        SOAPOutputChunkDim=100,
-        SOAPnJobs=12,
-    )
+    with h5py.File("Water.hdf5", "r") as trajLoader, h5py.File(
+        "WaterSOAP.hdf5", "a"
+    ) as soapOffloader:
+        saponify(
+            trajLoader[f"Trajectories/1ns"],
+            soapOffloader.require_group("SOAP"),
+            SOAPatomMask="O",
+            SOAPOutputChunkDim=100,
+            SOAPnJobs=12,
+        )

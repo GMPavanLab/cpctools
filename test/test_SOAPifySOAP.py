@@ -71,6 +71,42 @@ def getUniverseWithWaterMolecules(n_residues=10):
     return sol
 
 
+def test_MultiAtomicSoapify():
+    nMol = 27
+    u = getUniverseWithWaterMolecules(nMol)
+    HDF5er.MDA2HDF5(u, "testH2O.hdf5", "testH2O", override=True)
+    n_max = 4
+    l_max = 4
+    rcut = 10.0
+    with h5py.File("testH2O.hdf5", "a") as f:
+        soapGroup = f.require_group("SOAP")
+        SOAPify.saponify(f["Trajectories/testH2O"], soapGroup, rcut, n_max, l_max)
+        assert soapGroup["testH2O"].attrs["n_max"] == n_max
+        assert soapGroup["testH2O"].attrs["l_max"] == l_max
+        assert "O" in soapGroup["testH2O"].attrs["species"]
+        assert "H" in soapGroup["testH2O"].attrs["species"]
+        assert numpy.abs(soapGroup["testH2O"].attrs["r_cut"] - rcut) < 1e-8
+        assert "centersIndexes" not in soapGroup["testH2O"].attrs
+        assert (
+            soapGroup[f"testH2O"].shape[-1]
+            == (1 + l_max) * n_max * n_max
+            + 2 * (1 + l_max) * ((n_max + 1) * n_max) // 2
+        )
+
+        soapGroup = f.require_group("SOAPOxygen")
+        SOAPify.saponifyGroup(
+            f["Trajectories"], soapGroup, 10.0, n_max, l_max, SOAPatomMask=["O"]
+        )
+        assert soapGroup["testH2O"].attrs["n_max"] == n_max
+        assert soapGroup["testH2O"].attrs["l_max"] == l_max
+        assert "O" in soapGroup["testH2O"].attrs["species"]
+        assert "H" in soapGroup["testH2O"].attrs["species"]
+        assert numpy.abs(soapGroup["testH2O"].attrs["r_cut"] - rcut) < 1e-8
+        assert_array_equal(
+            soapGroup["testH2O"].attrs["centersIndexes"], [i * 3 for i in range(nMol)]
+        )
+
+
 def test_MultiAtomicSoap():
     nMol = 27
     u = getUniverseWithWaterMolecules(nMol)
