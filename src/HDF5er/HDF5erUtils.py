@@ -1,7 +1,31 @@
+from tabnanny import check
 import h5py
 from sys import getsizeof
 import numpy
 from MDAnalysis import Universe as mdaUniverse
+
+
+def isTrajectoryGroup(trajGroup: h5py.Group) -> bool:
+    """Checks if the given group is a trajectory group
+
+    Args:
+        trajGroup (h5py.Group): the group to check
+
+    Returns:
+        bool: True if the group is a trajectory group, False otherwise
+    """
+
+    if (
+        "Trajectory" in trajGroup.keys()
+        and "Types" in trajGroup.keys()
+        and "Box" in trajGroup.keys()
+    ):
+        check = True
+        for key in ["Trajectory", "Types", "Box"]:
+            check &= isinstance(trajGroup[key], h5py.Dataset)
+        return check
+    return False
+
 
 # TODO need to work on type-hinting
 def exportChunk2HDF5(
