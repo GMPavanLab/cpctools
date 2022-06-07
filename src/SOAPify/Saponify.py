@@ -1,10 +1,18 @@
 import warnings
 import h5py
-from dscribe.descriptors import SOAP
-from HDF5er import HDF52AseAtomsChunckedwithSymbols as HDF2ase, isTrajectoryGroup
-import time
-from typing import Iterable
 import abc
+
+import time
+import numpy
+from typing import Iterable
+from dscribe.descriptors import SOAP
+from quippy.descriptors import Descriptor
+from ase.data import atomic_numbers
+import ase
+from HDF5er import (
+    HDF52AseAtomsChunckedwithSymbols as HDF2ase,
+    isTrajectoryGroup,
+)
 
 __all__ = ["saponify", "saponifyGroup"]
 
@@ -118,33 +126,139 @@ class quippySOAPengineContainer(SOAPengineContainer):
 
     @property
     def features(self):
-        return self.SOAPengine.get_number_of_features()
+        return self.SOAPengine.dimensions() - 1
 
     @property
     def nmax(self):
-        return self.SOAPengine._nmax
+        return self.SOAPengine._quip_descriptor.n_max
 
     @property
     def lmax(self):
-        return self.SOAPengine._lmax
+        return self.SOAPengine._quip_descriptor.l_max
 
     @property
     def rcut(self):
-        return self.SOAPengine._rcut
+        return self.SOAPengine._quip_descriptor.cutoff
 
     @property
     def species(self):
-        return self.SOAPengine.species
+        return self.SOAPengine._quip_descriptor.species_z
 
     @property
     def crossover(self) -> bool:
-        return self.SOAPengine.crossover
+        return True
 
     def get_location(self, specie1, specie2):
         return self.SOAPengine.get_location((specie1, specie2))
 
+    def calculate(self, atoms: ase.Atoms):
+        d = self.SOAPengine.calc(atoms)
+        return d["data"][:-1]
+
     def __call__(self, atoms, **kwargs):
-        return self.SOAPengine.create(atoms, **kwargs)
+        if isinstance(atoms, ase.Atoms):
+            atoms = [atoms]
+
+        toret = []
+        for frame in atoms:
+            toret.append(self.calculate(frame))
+        return numpy.array(toret)
+
+
+def getSoapEngine(
+    species: "list[str]",
+    SOAPrcut: float,
+    SOAPnmax: int,
+    SOAPlmax: int,
+    SOAP_respectPBC: bool = True,
+    SOAPkwargs: dict = {},
+    useSoapFrom: "str" = "dscribe",
+) -> SOAPengineContainer:
+    """Returns a soap engine already set up
+
+    Returns:
+        SOAP: the soap engine already set up
+    """
+    if useSoapFrom == "dscribe":
+        SOAPkwargs.update(
+            dict(
+                species=species,
+                periodic=SOAP_respectPBC,
+                rcut=SOAPrcut,
+                nmax=SOAPnmax,
+                lmax=SOAPlmax,
+            )
+        )
+        if "sparse" in SOAPkwargs.keys():
+            if SOAPkwargs["sparse"]:
+                SOAPkwargs["sparse"] = False
+                warnings.warn("sparse output is not supported yet, switching to dense")
+        return dscribeSOAPengineContainer(SOAP(**SOAPkwargs))
+    if useSoapFrom == "quippy":
+        """//from quippy.module_descriptors <-
+        ============================= ===== =============== ===================================================
+        Name                          Type  Value           Doc
+        ============================= ===== =============== ===================================================
+        cutoff                        None  PARAM_MANDATORY Cutoff for soap-type descriptors
+        cutoff_transition_width       float 0.50            Cutoff transition width for soap-type descriptors
+        cutoff_dexp                   int   0               Cutoff decay exponent
+        cutoff_scale                  float 1.0             Cutoff decay scale
+        cutoff_rate                   float 1.0             Inverse cutoff decay rate
+        l_max                         None  PARAM_MANDATORY L_max(spherical harmonics basis band limit) for
+                                                            soap-type descriptors
+        n_max                         None  PARAM_MANDATORY N_max(number of radial basis functions) for
+                                                            soap-type descriptors
+        atom_gaussian_width           None  PARAM_MANDATORY Width of atomic Gaussians for soap-type
+                                                            descriptors
+        central_weight                float 1.0             Weight of central atom in environment
+        central_reference_all_species bool  F               Place a Gaussian reference for all atom species
+                                                            densities.
+        average                       bool  F               Whether to calculate averaged SOAP - one
+                                                            descriptor per atoms object. If false(default)
+                                                            atomic SOAP is returned.
+        diagonal_radial               bool  F               Only return the n1=n2 elements of the power
+                                                            spectrum.
+        covariance_sigma0             float 0.0             sigma_0 parameter in polynomial covariance
+                                                            function
+        normalise                     bool  T               Normalise descriptor so magnitude is 1. In this
+                                                            case the kernel of two equivalent environments is
+                                                            1.
+        basis_error_exponent          float 10.0            10^(-basis_error_exponent) is the max difference
+                                                            between the target and the expanded function
+        n_Z                           int   1               How many different types of central atoms to
+                                                            consider
+        n_species                     int   1               Number of species for the descriptor
+        species_Z                     None                  Atomic number of species
+        xml_version                   int   1426512068      Version of GAP the XML potential file was created
+        species_Z                     None  //MANDATORY//   Atomic number of species
+        Z                             None  //MANDATORY//   Atomic numbers to be considered for central atom,
+                                                            must be a list
+        ============================= ===== =============== ===================================================
+        """
+        SOAPkwargs.update(
+            dict(
+                # species=species,
+                # periodic=SOAP_respectPBC,
+                cutoff=SOAPrcut,
+                n_max=SOAPnmax,
+                l_max=SOAPlmax,
+            )
+        )
+        if "atom_sigma" not in SOAPkwargs:
+            SOAPkwargs["atom_sigma"] = 0.5
+        species_z = [atomic_numbers[specie] for specie in species]
+        thesp = str(species_z[0])
+        for sp in species_z[1:]:
+            thesp += ", " + str(sp)
+
+        settings = f"soap"
+        for key, value in SOAPkwargs.items():
+            settings += f" {key}={value}"
+        settings += f" n_species={len(species_z)} species_Z={{{thesp}}}"
+        settings += f" n_Z={len(species_z)} Z={{{thesp}}}"
+        return quippySOAPengineContainer(Descriptor(settings))
+    else:
+        raise NotImplementedError(f"{useSoapFrom} is not implemented yet")
 
 
 def saponifyWorker(
@@ -219,41 +333,6 @@ def saponifyWorker(
             jobStart = jobEnd
             jobEnd = jobStart + jobchunk
             print(f"delta create= {t2-t1}")
-
-
-def getSoapEngine(
-    species: "list[str]",
-    SOAPrcut: float,
-    SOAPnmax: int,
-    SOAPlmax: int,
-    SOAP_respectPBC: bool = True,
-    SOAPkwargs: dict = {},
-    useSoapFrom: "str" = "dscribe",
-) -> SOAPengineContainer:
-    """Returns a soap engine already set up
-
-    Returns:
-        SOAP: the soap engine already set up
-    """
-    if useSoapFrom == "dscribe":
-        SOAPkwargs.update(
-            dict(
-                species=species,
-                periodic=SOAP_respectPBC,
-                rcut=SOAPrcut,
-                nmax=SOAPnmax,
-                lmax=SOAPlmax,
-            )
-        )
-        if "sparse" in SOAPkwargs.keys():
-            if SOAPkwargs["sparse"]:
-                SOAPkwargs["sparse"] = False
-                warnings.warn("sparse output is not supported yet, switching to dense")
-        return dscribeSOAPengineContainer(SOAP(**SOAPkwargs))
-    if useSoapFrom == "quippy":
-        return quippySOAPengineContainer(SOAP(**SOAPkwargs))
-    else:
-        raise NotImplementedError(f"{useSoapFrom} is not implemented yet")
 
 
 def applySOAP(
