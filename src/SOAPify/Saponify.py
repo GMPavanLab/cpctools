@@ -4,14 +4,153 @@ from dscribe.descriptors import SOAP
 from HDF5er import HDF52AseAtomsChunckedwithSymbols as HDF2ase, isTrajectoryGroup
 import time
 from typing import Iterable
+import abc
 
 __all__ = ["saponify", "saponifyGroup"]
+
+
+class SOAPengineContainer(abc.ABC):
+    """A container for the SOAP engine
+
+    Attributes:
+        SOAPengine (SOAP): the soap engine already set up
+
+    """
+
+    def __init__(self, SOAPengine):
+        self.SOAPengine = SOAPengine
+
+    @property
+    def engine(self):
+        return self.SOAPengine
+
+    @property
+    @abc.abstractmethod
+    def features(self):
+        pass
+
+    @property
+    @abc.abstractmethod
+    def nmax(self):
+        pass
+
+    @property
+    @abc.abstractmethod
+    def lmax(self):
+        pass
+
+    @property
+    @abc.abstractmethod
+    def rcut(self):
+        pass
+
+    @property
+    @abc.abstractmethod
+    def species(self) -> list:
+        pass
+
+    @property
+    @abc.abstractmethod
+    def crossover(self) -> bool:
+        pass
+
+    @abc.abstractmethod
+    def get_location(self, specie1, specie2):
+        pass
+
+    @abc.abstractmethod
+    def __call__(self, atoms, **kwargs):
+        pass
+
+
+class dscribeSOAPengineContainer(SOAPengineContainer):
+    """A container for the SOAP engine from dscribe
+
+    Attributes:
+        SOAPengine (SOAP): the soap engine already set up
+
+    """
+
+    def __init__(self, SOAPengine):
+        super().__init__(SOAPengine)
+
+    @property
+    def features(self):
+        return self.SOAPengine.get_number_of_features()
+
+    @property
+    def nmax(self):
+        return self.SOAPengine._nmax
+
+    @property
+    def lmax(self):
+        return self.SOAPengine._lmax
+
+    @property
+    def rcut(self):
+        return self.SOAPengine._rcut
+
+    @property
+    def species(self):
+        return self.SOAPengine.species
+
+    @property
+    def crossover(self) -> bool:
+        return self.SOAPengine.crossover
+
+    def get_location(self, specie1, specie2):
+        return self.SOAPengine.get_location((specie1, specie2))
+
+    def __call__(self, atoms, **kwargs):
+        return self.SOAPengine.create(atoms, **kwargs)
+
+
+class quippySOAPengineContainer(SOAPengineContainer):
+    """A container for the SOAP engine from quippy
+
+    Attributes:
+        SOAPengine (SOAP): the soap engine already set up
+
+    """
+
+    def __init__(self, SOAPengine):
+        super().__init__(SOAPengine)
+
+    @property
+    def features(self):
+        return self.SOAPengine.get_number_of_features()
+
+    @property
+    def nmax(self):
+        return self.SOAPengine._nmax
+
+    @property
+    def lmax(self):
+        return self.SOAPengine._lmax
+
+    @property
+    def rcut(self):
+        return self.SOAPengine._rcut
+
+    @property
+    def species(self):
+        return self.SOAPengine.species
+
+    @property
+    def crossover(self) -> bool:
+        return self.SOAPengine.crossover
+
+    def get_location(self, specie1, specie2):
+        return self.SOAPengine.get_location((specie1, specie2))
+
+    def __call__(self, atoms, **kwargs):
+        return self.SOAPengine.create(atoms, **kwargs)
 
 
 def saponifyWorker(
     trajGroup: h5py.Group,
     SOAPoutDataset: h5py.Dataset,
-    soapEngine: SOAP,
+    soapEngine: SOAPengineContainer,
     centersMask: "list|None" = None,
     SOAPOutputChunkDim: int = 100,
     SOAPnJobs: int = 1,
@@ -31,9 +170,9 @@ def saponifyWorker(
         (option passed to dscribe's SOAP). Defaults to 1.
     """
     symbols = trajGroup["Types"].asstr()[:]
-    SOAPoutDataset.attrs["l_max"] = soapEngine._lmax
-    SOAPoutDataset.attrs["n_max"] = soapEngine._nmax
-    SOAPoutDataset.attrs["r_cut"] = soapEngine._rcut
+    SOAPoutDataset.attrs["l_max"] = soapEngine.lmax
+    SOAPoutDataset.attrs["n_max"] = soapEngine.nmax
+    SOAPoutDataset.attrs["r_cut"] = soapEngine.rcut
     SOAPoutDataset.attrs["species"] = soapEngine.species
     if centersMask is None:
         if "centersIndexes" in SOAPoutDataset.attrs:
@@ -49,7 +188,7 @@ def saponifyWorker(
         for j in range(nspecies):
             if soapEngine.crossover or (i == j):
                 temp = soapEngine.get_location(
-                    (soapEngine.species[i], soapEngine.species[j])
+                    soapEngine.species[i], soapEngine.species[j]
                 )
                 SOAPoutDataset.attrs[
                     f"species_location_{soapEngine.species[i]}-{soapEngine.species[j]}"
@@ -70,7 +209,7 @@ def saponifyWorker(
             FrameEnd = jobEnd + chunkTraj[0].start
             print(f"working on frames: [{frameStart}:{FrameEnd}]")
             # TODO: dscribe1.2.1 return (nat,nsoap) instead of (1,nat,nsoap) if we are analysing only ! frame!
-            SOAPoutDataset[frameStart:FrameEnd] = soapEngine.create(
+            SOAPoutDataset[frameStart:FrameEnd] = soapEngine(
                 atoms[jobStart:jobEnd],
                 positions=[centersMask] * jobchunk,
                 n_jobs=SOAPnJobs,
@@ -90,7 +229,7 @@ def getSoapEngine(
     SOAP_respectPBC: bool = True,
     SOAPkwargs: dict = {},
     useSoapFrom: "str" = "dscribe",
-) -> SOAP:
+) -> SOAPengineContainer:
     """Returns a soap engine already set up
 
     Returns:
@@ -110,8 +249,10 @@ def getSoapEngine(
             if SOAPkwargs["sparse"]:
                 SOAPkwargs["sparse"] = False
                 warnings.warn("sparse output is not supported yet, switching to dense")
-        return SOAP(**SOAPkwargs)
-    else :
+        return dscribeSOAPengineContainer(SOAP(**SOAPkwargs))
+    if useSoapFrom == "quippy":
+        return quippySOAPengineContainer(SOAP(**SOAPkwargs))
+    else:
         raise NotImplementedError(f"{useSoapFrom} is not implemented yet")
 
 
@@ -119,12 +260,12 @@ def applySOAP(
     trajContainer: h5py.Group,
     SOAPoutContainer: h5py.Group,
     key: str,
-    soapEngine: SOAP,
+    soapEngine: SOAPengineContainer,
     centersMask: "list|None" = None,
     SOAPOutputChunkDim: int = 100,
     SOAPnJobs: int = 1,
 ):
-    NofFeatures = soapEngine.get_number_of_features()
+    NofFeatures = soapEngine.features
     symbols = trajContainer["Types"].asstr()[:]
     nCenters = len(symbols) if centersMask is None else len(centersMask)
 
@@ -161,7 +302,7 @@ def saponifyGroup(
     centersMask: Iterable = None,  # TODO: document this
     SOAP_respectPBC: bool = True,
     SOAPkwargs: dict = {},
-    useSoapFrom:str="dscribe",
+    useSoapFrom: str = "dscribe",
 ):
     """From a trajectory stored in a group calculates and stores the SOAP
     descriptor in the given group/file
@@ -232,7 +373,7 @@ def saponify(
     centersMask: Iterable = None,  # TODO: document this
     SOAP_respectPBC: bool = True,
     SOAPkwargs: dict = {},
-    useSoapFrom:str="dscribe",
+    useSoapFrom: str = "dscribe",
 ):
     """Calculates the SOAP fingerprints for each atom in a given hdf5 trajectory
 

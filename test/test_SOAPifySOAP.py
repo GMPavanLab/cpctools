@@ -6,6 +6,7 @@ import MDAnalysis as mda
 import HDF5er
 from testSupport import getUniverseWithWaterMolecules
 
+
 def test_MultiAtomicSoapify():
     nMol = 27
     u = getUniverseWithWaterMolecules(nMol)
@@ -15,7 +16,10 @@ def test_MultiAtomicSoapify():
     rcut = 10.0
     with h5py.File("testH2O.hdf5", "a") as f:
         soapGroup = f.require_group("SOAP")
-        SOAPify.saponify(f["Trajectories/testH2O"], soapGroup, rcut, n_max, l_max)
+        trajGroup = f["Trajectories/testH2O"]
+        SOAPify.saponify(
+            trajGroup, soapGroup, rcut, n_max, l_max, useSoapFrom="dscribe"
+        )
         assert soapGroup["testH2O"].attrs["n_max"] == n_max
         assert soapGroup["testH2O"].attrs["l_max"] == l_max
         assert "O" in soapGroup["testH2O"].attrs["species"]
@@ -30,7 +34,13 @@ def test_MultiAtomicSoapify():
 
         soapGroup = f.require_group("SOAPOxygen")
         SOAPify.saponifyGroup(
-            f["Trajectories"], soapGroup, 10.0, n_max, l_max, SOAPatomMask=["O"]
+            f["Trajectories"],
+            soapGroup,
+            10.0,
+            n_max,
+            l_max,
+            SOAPatomMask=["O"],
+            useSoapFrom="dscribe",
         )
         assert soapGroup["testH2O"].attrs["n_max"] == n_max
         assert soapGroup["testH2O"].attrs["l_max"] == l_max
@@ -51,7 +61,9 @@ def test_MultiAtomicSoap():
     rcut = 10.0
     with h5py.File("testH2O.hdf5", "a") as f:
         soapGroup = f.require_group("SOAP")
-        SOAPify.saponifyGroup(f["Trajectories"], soapGroup, rcut, n_max, l_max)
+        SOAPify.saponifyGroup(
+            f["Trajectories"], soapGroup, rcut, n_max, l_max, useSoapFrom="dscribe"
+        )
         assert soapGroup["testH2O"].attrs["n_max"] == n_max
         assert soapGroup["testH2O"].attrs["l_max"] == l_max
         assert "O" in soapGroup["testH2O"].attrs["species"]
@@ -66,7 +78,13 @@ def test_MultiAtomicSoap():
 
         soapGroup = f.require_group("SOAPOxygen")
         SOAPify.saponifyGroup(
-            f["Trajectories"], soapGroup, 10.0, n_max, l_max, SOAPatomMask=["O"]
+            f["Trajectories"],
+            soapGroup,
+            10.0,
+            n_max,
+            l_max,
+            SOAPatomMask=["O"],
+            useSoapFrom="dscribe",
         )
         assert soapGroup["testH2O"].attrs["n_max"] == n_max
         assert soapGroup["testH2O"].attrs["l_max"] == l_max
@@ -89,7 +107,9 @@ def test_slicesNo():
     rcut = 10.0
     with h5py.File("testH2O.hdf5", "a") as f:
         soapGroup = f.require_group("SOAP")
-        SOAPify.saponifyGroup(f["Trajectories"], soapGroup, rcut, n_max, l_max)
+        SOAPify.saponifyGroup(
+            f["Trajectories"], soapGroup, rcut, n_max, l_max, useSoapFrom="dscribe"
+        )
         species, slices = SOAPify.getSlicesFromAttrs(f["SOAP/testH2O"].attrs)
         assert "O" in species
         assert "H" in species
@@ -121,6 +141,7 @@ def test_MultiAtomicSoapkwargs():
             n_max,
             l_max,
             SOAPkwargs={"crossover": False},
+            useSoapFrom="dscribe",
         )
         assert soapGroup["testH2O"].attrs["n_max"] == n_max
         assert soapGroup["testH2O"].attrs["l_max"] == l_max
@@ -149,6 +170,7 @@ def test_MultiAtomicSoapkwargs():
                 n_max,
                 l_max,
                 SOAPkwargs=args,
+                useSoapFrom="dscribe",
             )
             assert soapGroup["testH2O"].attrs["n_max"] == n_max
             assert soapGroup["testH2O"].attrs["l_max"] == l_max
@@ -179,6 +201,7 @@ def test_MultiAtomicSoapkwargs():
             n_max,
             l_max,
             SOAPkwargs={"sparse": True},
+            useSoapFrom="dscribe",
         )
         assert soapGroup["testH2O"].attrs["n_max"] == n_max
         assert soapGroup["testH2O"].attrs["l_max"] == l_max
@@ -199,7 +222,13 @@ def test_MultiAtomicSoapkwargs():
 
         soapGroup = f.require_group("SOAPOxygen")
         SOAPify.saponifyGroup(
-            f["Trajectories"], soapGroup, 10.0, n_max, l_max, SOAPatomMask=["O"]
+            f["Trajectories"],
+            soapGroup,
+            10.0,
+            n_max,
+            l_max,
+            SOAPatomMask=["O"],
+            useSoapFrom="dscribe",
         )
         assert soapGroup["testH2O"].attrs["n_max"] == n_max
         assert soapGroup["testH2O"].attrs["l_max"] == l_max
