@@ -7,7 +7,7 @@ import numpy
 from typing import Iterable
 from dscribe.descriptors import SOAP
 from quippy.descriptors import Descriptor
-from ase.data import atomic_numbers
+from ase.data import atomic_numbers,chemical_symbols
 import ase
 from HDF5er import (
     HDF52AseAtomsChunckedwithSymbols as HDF2ase,
@@ -130,19 +130,21 @@ class quippySOAPengineContainer(SOAPengineContainer):
 
     @property
     def nmax(self):
-        return self.SOAPengine._quip_descriptor.n_max
+        return self.SOAPengine._quip_descriptor.descriptor_soap.n_max
 
     @property
     def lmax(self):
-        return self.SOAPengine._quip_descriptor.l_max
+        return self.SOAPengine._quip_descriptor.descriptor_soap.l_max
 
     @property
     def rcut(self):
-        return self.SOAPengine._quip_descriptor.cutoff
+        return self.SOAPengine._quip_descriptor.descriptor_soap.cutoff
 
     @property
     def species(self):
-        return self.SOAPengine._quip_descriptor.species_z
+        Z=self.SOAPengine._quip_descriptor.descriptor_soap.species_z
+        return [chemical_symbols[i] for i in Z]
+        return 
 
     @property
     def crossover(self) -> bool:
