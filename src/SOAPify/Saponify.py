@@ -89,26 +89,30 @@ def getSoapEngine(
     SOAPlmax: int,
     SOAP_respectPBC: bool = True,
     SOAPkwargs: dict = {},
+    useSoapFrom: "str" = "dscribe",
 ) -> SOAP:
     """Returns a soap engine already set up
 
     Returns:
         SOAP: the soap engine already set up
     """
-    SOAPkwargs.update(
-        dict(
-            species=species,
-            periodic=SOAP_respectPBC,
-            rcut=SOAPrcut,
-            nmax=SOAPnmax,
-            lmax=SOAPlmax,
+    if useSoapFrom == "dscribe":
+        SOAPkwargs.update(
+            dict(
+                species=species,
+                periodic=SOAP_respectPBC,
+                rcut=SOAPrcut,
+                nmax=SOAPnmax,
+                lmax=SOAPlmax,
+            )
         )
-    )
-    if "sparse" in SOAPkwargs.keys():
-        if SOAPkwargs["sparse"]:
-            SOAPkwargs["sparse"] = False
-            warnings.warn("sparse output is not supported yet, switching to dense")
-    return SOAP(**SOAPkwargs)
+        if "sparse" in SOAPkwargs.keys():
+            if SOAPkwargs["sparse"]:
+                SOAPkwargs["sparse"] = False
+                warnings.warn("sparse output is not supported yet, switching to dense")
+        return SOAP(**SOAPkwargs)
+    else :
+        raise NotImplementedError(f"{useSoapFrom} is not implemented yet")
 
 
 def applySOAP(
@@ -157,6 +161,7 @@ def saponifyGroup(
     centersMask: Iterable = None,  # TODO: document this
     SOAP_respectPBC: bool = True,
     SOAPkwargs: dict = {},
+    useSoapFrom:str="dscribe",
 ):
     """From a trajectory stored in a group calculates and stores the SOAP
     descriptor in the given group/file
@@ -202,6 +207,7 @@ def saponifyGroup(
                     SOAPlmax=SOAPlmax,
                     SOAP_respectPBC=SOAP_respectPBC,
                     SOAPkwargs=SOAPkwargs,
+                    useSoapFrom=useSoapFrom,
                 )
             applySOAP(
                 traj,
@@ -226,6 +232,7 @@ def saponify(
     centersMask: Iterable = None,  # TODO: document this
     SOAP_respectPBC: bool = True,
     SOAPkwargs: dict = {},
+    useSoapFrom:str="dscribe",
 ):
     """Calculates the SOAP fingerprints for each atom in a given hdf5 trajectory
 
@@ -269,6 +276,7 @@ def saponify(
             SOAPlmax=SOAPlmax,
             SOAP_respectPBC=SOAP_respectPBC,
             SOAPkwargs=SOAPkwargs,
+            useSoapFrom=useSoapFrom,
         )
         exportDatasetName = trajContainer.name.split("/")[-1]
         applySOAP(

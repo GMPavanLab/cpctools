@@ -5,33 +5,7 @@ import MDAnalysis
 import numpy
 from MDAnalysis.lib.mdamath import triclinic_vectors
 from io import StringIO
-
-
-def giveUniverse(angles: set = (90.0, 90.0, 90.0)) -> MDAnalysis.Universe:
-    traj = numpy.array(
-        [
-            [[0.0, 0.0, 0.0], [1.0, 1.0, 1.0], [2.0, 2.0, 2.0], [3.0, 3.0, 3.0]],
-            [[0.1, 0.1, 0.1], [1.1, 1.1, 1.1], [2.1, 2.1, 2.1], [3.1, 3.1, 3.1]],
-            [[0.2, 0.2, 0.2], [1.2, 1.2, 1.2], [2.2, 2.2, 2.2], [3.2, 3.2, 3.2]],
-            [[0.3, 0.3, 0.3], [1.3, 1.3, 1.3], [2.3, 2.3, 2.3], [3.3, 3.3, 3.3]],
-            [[0.4, 0.4, 0.4], [1.4, 1.4, 1.4], [2.4, 2.4, 2.4], [3.4, 3.4, 3.4]],
-        ]
-    )
-    u = MDAnalysis.Universe.empty(
-        4, trajectory=True, atom_resindex=[0, 0, 0, 0], residue_segindex=[0]
-    )
-
-    u.add_TopologyAttr("type", ["H"] * 4)
-    u.atoms.positions = traj[0]
-    u.trajectory = MDAnalysis.coordinates.memory.MemoryReader(
-        traj,
-        order="fac",
-        # this tests the non orthogonality of the box
-        dimensions=numpy.array(
-            [[6.0, 6.0, 6.0, angles[0], angles[1], angles[2]]] * traj.shape[0]
-        ),
-    )
-    return u
+from testSupport import giveUniverse
 
 
 @pytest.fixture(

@@ -10,7 +10,9 @@ source ./venv/bin/activate
 pip install --upgrade pip wheel
 pip install -r requirements
 ```
+
 and then you can install the package with:
+
 ```bash
 pip install .
 ```
