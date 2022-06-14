@@ -5,8 +5,17 @@ from numpy.random import randint
 from numpy.testing import assert_array_equal
 from SOAPify import SOAPReferences
 import h5py
-
+from ase.data import atomic_numbers
 from SOAPify.SOAPClassify import SOAPclassification
+
+
+def test_atomicnumberOredring():
+    species = ["O", "H"]
+    assert SOAPify.orderByZ(species) == ["H", "O"]
+    species = ["Au", "H", "C", "W", "O"]
+    ordSpecies = SOAPify.orderByZ(species)
+    for i in range(len(ordSpecies) - 1):
+        assert atomic_numbers[ordSpecies[i]] < atomic_numbers[ordSpecies[i + 1]]
 
 
 def test_norm1D():

@@ -7,7 +7,6 @@ import MDAnalysis as mda
 import HDF5er
 from testSupport import getUniverseWithWaterMolecules
 import pytest
-from ase.data import atomic_numbers
 
 
 @pytest.fixture(
@@ -33,25 +32,12 @@ def species_fixture(request):
     return request.param
 
 
-def orderByZ(species):
-    return sorted(species, key=lambda x: atomic_numbers[x])
-
-
-def test_atomicnumberOredring():
-    species = ["O", "H"]
-    assert orderByZ(species) == ["H", "O"]
-    species = ["Au", "H", "C", "W", "O"]
-    ordSpecies = orderByZ(species)
-    for i in range(len(ordSpecies) - 1):
-        assert atomic_numbers[ordSpecies[i]] < atomic_numbers[ordSpecies[i + 1]]
-
-
 def test_askEngine(engineKind_fixture, species_fixture):
     nMol = 1
     SOAPrcut = 10.0
     n_max = 4
     l_max = 4
-    species = orderByZ(species_fixture)
+    species = SOAPify.orderByZ(species_fixture)
     engine = getSoapEngine(
         species=species,
         SOAPrcut=SOAPrcut,
@@ -74,6 +60,27 @@ def test_askEngine(engineKind_fixture, species_fixture):
     if engineKind_fixture == "dscribe":
         # check if the engine is accessible
         assert engine.engine._nmax == n_max
+    if engineKind_fixture == "quippy":
+        keys = list(engine._addresses.keys())
+        for i in range(len(species)):
+            for j in range(i, len(species)):
+                key = species[i] + species[j]
+                assert key in keys
+                assert len(engine._addresses[key]) == upperDiag if i == j else fullmat
+                assert len(engine._addresses[key]) == len(
+                    numpy.unique(engine._addresses[key])
+                )
+
+        assert len(keys) == nsp + mixes
+        for i in range(len(keys)):
+            for j in range(i, len(keys)):
+                # check if the engine that the addresses id are not repeated
+                assert numpy.isin(
+                    engine._addresses[keys[i]],
+                    engine._addresses[keys[j]],
+                    invert=i != j,
+                ).all()
+
     prev = 0
     next = 0
     # the engine wrapper must return the same slice for every engine

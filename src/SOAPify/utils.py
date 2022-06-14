@@ -4,6 +4,10 @@ from ase.data import atomic_numbers
 from itertools import combinations_with_replacement
 
 
+def orderByZ(species):
+    return sorted(species, key=lambda x: atomic_numbers[x])
+
+
 def normalizeArray(a: numpy.ndarray) -> numpy.ndarray:
     """Normalizes the futher axis of the given array
 
