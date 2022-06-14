@@ -4,7 +4,15 @@ from ase.data import atomic_numbers
 from itertools import combinations_with_replacement
 
 
-def orderByZ(species):
+def orderByZ(species: "list[str]") -> "list[str]":
+    """Orders the list of species by their atomic number
+
+    Args:
+        species (list[str]): the list of atomic species to be ordered
+
+    Returns:
+        list[str]: the ordered list of atomic species
+    """
     return sorted(species, key=lambda x: atomic_numbers[x])
 
 
@@ -220,6 +228,8 @@ def fillSOAPVectorFromdscribe(
                     soapFromdscribe[i, j], l_max, n_max, atomTypes, atomicSlices
                 )
     else:
-        raise Exception("fillSOAPVectorFromdscribe: cannot convert array with shape >3")
+        raise Exception(
+            "fillSOAPVectorFromdscribe: cannot convert array with len(shape) >=3"
+        )
 
     return retdata

@@ -166,6 +166,7 @@ class quippySOAPengineContainer(SOAPengineContainer):
                     next = prev + fullmat
                 slices[key] = slice(prev, next)
                 prev = next
+
         """
         i_pow = 0
         do ia = 1, this%n_species*this%n_max
