@@ -7,7 +7,7 @@ import numpy
 from typing import Iterable
 from dscribe.descriptors import SOAP
 from quippy.descriptors import Descriptor
-from ase.data import atomic_numbers,chemical_symbols
+from ase.data import atomic_numbers, chemical_symbols
 import ase
 from HDF5er import (
     HDF52AseAtomsChunckedwithSymbols as HDF2ase,
@@ -142,16 +142,79 @@ class quippySOAPengineContainer(SOAPengineContainer):
 
     @property
     def species(self):
-        Z=self.SOAPengine._quip_descriptor.descriptor_soap.species_z
+        Z = self.SOAPengine._quip_descriptor.descriptor_soap.species_z
         return [chemical_symbols[i] for i in Z]
-        return 
 
     @property
     def crossover(self) -> bool:
         return True
 
     def get_location(self, specie1, specie2):
-        return self.SOAPengine.get_location((specie1, specie2))
+        """knowing this:
+        allocate(rs_index(2,this%n_max*this%n_species))
+        i = 0
+        do i_species = 1, this%n_species
+           do a = 1, this%n_max
+              i = i + 1
+              rs_index(:,i) = (/a,i_species/)
+           enddo
+        enddo
+        i_pow = 0
+        do ia = 1, this%n_species*this%n_max
+           a = rs_index(1,ia)
+           i_species = rs_index(2,ia)
+           do jb = 1, ia
+              b = rs_index(1,jb)
+              j_species = rs_index(2,jb)
+
+              if(this%diagonal_radial .and. a /= b) cycle
+
+              do l = 0, this%l_max
+                 i_pow = i_pow + 1
+                 !SPEED descriptor_i(i_pow) = real( dot_product(fourier_so3(l,a,i_species)%m, fourier_so3(l,b,j_species)%m) )
+                 descriptor_i(i_pow) = dot_product(fourier_so3_r(l,a,i_species)%m, fourier_so3_r(l,b,j_species)%m) + dot_product(fourier_so3_i(l,a,i_species)%m, fourier_so3_i(l,b,j_species)%m)
+                 if(do_two_l_plus_one) descriptor_i(i_pow) = descriptor_i(i_pow) / sqrt(2.0_dp * l + 1.0_dp)
+                 if( ia /= jb ) descriptor_i(i_pow) = descriptor_i(i_pow) * SQRT_TWO
+              enddo !l
+           enddo !jb
+        enddo !ia
+        """
+        # a and b are n, _species is the specie index
+        species = self.species
+        idspecies1 = species.index(specie1)
+        idspecies2 = species.index(specie2)
+        rs_index = numpy.zeros((2, self.nmax * len(species)), dtype=numpy.int32)
+        i = 0
+        for i_species in range(len(species)):
+            for a in range(self.nmax):
+                rs_index[:, i] = a, i_species
+                i = i + 1
+        addDim = (self.lmax + 1) * (
+            self.nmax * self.nmax
+            if specie1 != specie2
+            else ((self.nmax + 1) * self.nmax) // 2
+        )
+        addresses = numpy.zeros((addDim), dtype=numpy.int32)
+        i_pow = 0
+        curAdd = 0
+        for ia in range(len(species) * self.nmax):
+            a = rs_index[0, ia]
+            i_species = rs_index[1, ia]
+            for jb in range(ia):
+                b = rs_index[0, jb]
+                j_species = rs_index[1, jb]
+
+                # if(this%diagonal_radial .and. a /= b) cycle
+                for l in range(self.lmax):
+                    if [i_species, j_species] == [idspecies1, idspecies2] or [
+                        j_species,
+                        i_species,
+                    ] == [idspecies1, idspecies2]:
+                        addresses[curAdd] = i_pow
+                        curAdd += 1
+                    i_pow = i_pow + 1
+
+        return addresses
 
     def calculate(self, atoms: ase.Atoms):
         d = self.SOAPengine.calc(atoms)

@@ -7,6 +7,7 @@ import MDAnalysis as mda
 import HDF5er
 from testSupport import getUniverseWithWaterMolecules
 import pytest
+from ase.data import atomic_numbers
 
 
 @pytest.fixture(
@@ -20,12 +21,37 @@ def engineKind_fixture(request):
     return request.param
 
 
-def test_askEngine(engineKind_fixture):
+@pytest.fixture(
+    scope="module",
+    params=[
+        ["C", "O", "H", "N"],
+        ["H", "O"],
+        ["H"],
+    ],
+)
+def species_fixture(request):
+    return request.param
+
+
+def orderByZ(species):
+    return sorted(species, key=lambda x: atomic_numbers[x])
+
+
+def test_atomicnumberOredring():
+    species = ["O", "H"]
+    assert orderByZ(species) == ["H", "O"]
+    species = ["Au", "H", "C", "W", "O"]
+    ordSpecies = orderByZ(species)
+    for i in range(len(ordSpecies) - 1):
+        assert atomic_numbers[ordSpecies[i]] < atomic_numbers[ordSpecies[i + 1]]
+
+
+def test_askEngine(engineKind_fixture, species_fixture):
     nMol = 1
     SOAPrcut = 10.0
     n_max = 4
     l_max = 4
-    species = ["H", "O"]
+    species = orderByZ(species_fixture)
     engine = getSoapEngine(
         species=species,
         SOAPrcut=SOAPrcut,
@@ -44,14 +70,18 @@ def test_askEngine(engineKind_fixture):
     assert engine.lmax == l_max
     assert engine.rcut == SOAPrcut
     assert engine.species == species
+
     if engineKind_fixture == "dscribe":
-        assert engine.get_location("H", "H") == slice(0, upperDiag)
-        assert engine.get_location("H", "O") == slice(upperDiag, upperDiag + fullmat)
-        assert engine.get_location("O", "H") == slice(
-            upperDiag, upperDiag + fullmat
-        )  # redundant
-        assert engine.get_location("O", "O") == slice(
-            upperDiag + fullmat, 2 * upperDiag + fullmat
-        )
         # check if the engine is accessible
         assert engine.engine._nmax == n_max
+    prev = 0
+    next = 0
+    # the engine wrapper must return the same slice for every engine
+    for i in range(nsp):
+        for j in range(i, nsp):
+            if i == j:
+                next = prev + upperDiag
+            else:
+                next = prev + fullmat
+            assert engine.get_location(species[i], species[j]) == slice(prev, next)
+            prev = next
