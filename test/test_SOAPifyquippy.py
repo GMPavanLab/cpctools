@@ -1,3 +1,4 @@
+from operator import invert
 import SOAPify
 from SOAPify.Saponify import getSoapEngine
 import numpy
@@ -5,6 +6,7 @@ from numpy.testing import assert_array_equal
 import h5py
 import MDAnalysis as mda
 import HDF5er
+from ase.data import atomic_numbers
 from testSupport import getUniverseWithWaterMolecules
 import pytest
 
@@ -32,11 +34,27 @@ def species_fixture(request):
     return request.param
 
 
-def test_askEngine(engineKind_fixture, species_fixture):
+@pytest.fixture(
+    scope="module",
+    params=[1, 2, 3, 4, 5, 6],
+)
+def nMaxFixture(request):
+    return request.param
+
+
+@pytest.fixture(
+    scope="module",
+    params=[0, 1, 2, 3, 4, 5, 6],
+)
+def lMaxFixture(request):
+    return request.param
+
+
+def test_askEngine(engineKind_fixture, species_fixture, nMaxFixture, lMaxFixture):
     nMol = 1
     SOAPrcut = 10.0
-    n_max = 4
-    l_max = 4
+    n_max = nMaxFixture
+    l_max = lMaxFixture
     species = SOAPify.orderByZ(species_fixture)
     engine = getSoapEngine(
         species=species,
@@ -61,26 +79,11 @@ def test_askEngine(engineKind_fixture, species_fixture):
         # check if the engine is accessible
         assert engine.engine._nmax == n_max
     if engineKind_fixture == "quippy":
-        keys = list(engine._addresses.keys())
+        keys = list(engine._slices.keys())
         for i in range(len(species)):
             for j in range(i, len(species)):
                 key = species[i] + species[j]
                 assert key in keys
-                assert len(engine._addresses[key]) == upperDiag if i == j else fullmat
-                assert len(engine._addresses[key]) == len(
-                    numpy.unique(engine._addresses[key])
-                )
-
-        assert len(keys) == nsp + mixes
-        for i in range(len(keys)):
-            for j in range(i, len(keys)):
-                # check if the engine that the addresses id are not repeated
-                assert numpy.isin(
-                    engine._addresses[keys[i]],
-                    engine._addresses[keys[j]],
-                    invert=i != j,
-                ).all()
-
     prev = 0
     next = 0
     # the engine wrapper must return the same slice for every engine
@@ -92,3 +95,55 @@ def test_askEngine(engineKind_fixture, species_fixture):
                 next = prev + fullmat
             assert engine.get_location(species[i], species[j]) == slice(prev, next)
             prev = next
+
+
+def test_reorderQuippyLikeDscribe(species_fixture, nMaxFixture, lMaxFixture):
+    nmax = nMaxFixture
+    lmax = lMaxFixture
+    species = SOAPify.orderByZ(species_fixture)
+    nsp = len(species)
+    pdscribe = SOAPify.getdscribeSOAPMapping(lmax, nmax, species)
+    assert len(pdscribe) == (lmax + 1) * ((nmax * nsp) * (nmax * nsp + 1)) // 2
+    assert len(pdscribe) == len(numpy.unique(pdscribe))
+    pquippy = SOAPify.getquippySOAPMapping(lmax, nmax, species)
+    assert len(pquippy) == (lmax + 1) * ((nmax * nsp) * (nmax * nsp + 1)) // 2
+    assert len(pquippy) == len(numpy.unique(pquippy))
+    assert len(pquippy) == len(pdscribe)
+    # pquippy and pdscribe must contain the same elements
+    assert numpy.isin(pdscribe, pquippy).all()
+    i = 0
+    for Z in species:
+        for Zp in species:
+            for l in range(lmax + 1):
+                for n in range(nmax):
+                    for np in range(nmax):
+                        if (np, atomic_numbers[Zp]) >= (n, atomic_numbers[Z]):
+                            if atomic_numbers[Z] >= atomic_numbers[Zp]:
+                                assert pdscribe[i] == (f"{l}_{Z}{n}_{Zp}{np}")
+                            else:
+                                assert pdscribe[i] == (f"{l}_{Zp}{np}_{Z}{n}")
+                            i += 1
+
+    rs_index = SOAPify.utils._getRSindex(nmax, species)
+    assert rs_index.shape == (2, len(species) * nmax)
+    i = 0
+    for ia in range(len(species) * nmax):
+        na = rs_index[0, ia]
+        i_species = species[rs_index[1, ia]]
+        for jb in range(ia + 1):  # ia is  in the range
+            nb = rs_index[0, jb]
+            j_species = species[rs_index[1, jb]]
+            # if(this%diagonal_radial .and. a /= b) cycle
+            for l in range(lmax + 1):
+                if atomic_numbers[j_species] >= atomic_numbers[i_species]:
+                    assert pquippy[i] == f"{l}_{j_species}{nb}_{i_species}{na}"
+                else:
+                    assert pquippy[i] == f"{l}_{i_species}{na}_{j_species}{nb}"
+                i += 1
+
+    reorderIdexes = SOAPify.getAddressesQuippyLikeDscribe(lmax, nmax, species)
+    assert len(reorderIdexes) == len(pdscribe)
+    assert len(reorderIdexes) == len(numpy.unique(reorderIdexes))
+
+    t = numpy.array(pquippy)[reorderIdexes]
+    assert_array_equal(t, pdscribe)

@@ -4,6 +4,75 @@ from ase.data import atomic_numbers
 from itertools import combinations_with_replacement
 
 
+def _SOAPpstr(l, Z, n, Zp, np) -> str:
+    if atomic_numbers[Z] < atomic_numbers[Zp]:
+        Z, Zp = Zp, Z
+        n, np = np, n
+    return f"{l}_{Z}{n}_{Zp}{np}"
+
+
+def getdscribeSOAPMapping(lmax: int, nmax: int, species: "list[str]") -> numpy.ndarray:
+    """return a list of string with the identities of the data returned from dscribe,
+       see the note in https://singroup.github.io/dscribe/1.2.x/tutorials/descriptors/soap.html
+
+    Args:
+        lmax (int): the lmax specified in the calculation.
+        nmax (int): the nmax specified in the calculation.
+        species (list[str]): the list of atomic species.
+
+    Returns:
+        numpy.ndarray: _description_
+    """
+    species = orderByZ(species)
+    pdscribe = []
+    for Z in species:
+        for Zp in species:
+            for l in range(lmax + 1):
+                for n in range(nmax):
+                    for np in range(nmax):
+                        if (np, atomic_numbers[Zp]) >= (n, atomic_numbers[Z]):
+                            pdscribe.append(_SOAPpstr(l, Z, n, Zp, np))
+    return numpy.array(pdscribe)
+
+
+def _getRSindex(nmax: int, species: "list[str]") -> numpy.ndarray:
+    """Support function for quippy"""
+    rs_index = numpy.zeros((2, nmax * len(species)), dtype=numpy.int32)
+    i = 0
+    for i_species in range(len(species)):
+        for na in range(nmax):
+            rs_index[:, i] = na, i_species
+            i += 1
+    return rs_index
+
+
+def getquippySOAPMapping(lmax: int, nmax: int, species: "list[str]") -> numpy.ndarray:
+    """return a list of string with the identities of the data returned from quippy,
+       see https://github.com/libAtoms/GAP/blob/main/descriptors.f95#L7588
+
+    Args:
+        lmax (int): the lmax specified in the calculation.
+        nmax (int): the nmax specified in the calculation.
+        species (list[str]): the list of atomic species.
+
+    Returns:
+        numpy.ndarray: _description_
+    """
+    species = orderByZ(species)
+    rs_index = _getRSindex(nmax, species)
+    pquippy = []
+    for ia in range(len(species) * nmax):
+        np = rs_index[0, ia]
+        Zp = species[rs_index[1, ia]]
+        for jb in range(ia + 1):  # ia is  in the range
+            n = rs_index[0, jb]
+            Z = species[rs_index[1, jb]]
+            # if(this%diagonal_radial .and. a /= b) cycle
+            for l in range(lmax + 1):
+                pquippy.append(_SOAPpstr(l, Z, n, Zp, np))
+    return numpy.array(pquippy)
+
+
 def orderByZ(species: "list[str]") -> "list[str]":
     """Orders the list of species by their atomic number
 
@@ -14,6 +83,31 @@ def orderByZ(species: "list[str]") -> "list[str]":
         list[str]: the ordered list of atomic species
     """
     return sorted(species, key=lambda x: atomic_numbers[x])
+
+
+def getAddressesQuippyLikeDscribe(
+    lmax: int, nmax: int, species: "list[str]"
+) -> numpy.ndarray:
+    """Given the lmax and nmax of a SOAP calculation and the species of the atoms returns an array of idexes for reordering the quippy results as the dscribe results
+
+    Args:
+        lmax (int): the lmax specified in the calculation.
+        nmax (int): the nmax specified in the calculation.
+        species (list[str]): the list of atomic species.
+
+        Returns:
+            numpy.ndarray: an array of indexes
+    """
+    species = orderByZ(species)
+    nsp = len(species)
+    addresses = numpy.zeros(
+        (lmax + 1) * ((nmax * nsp) * (nmax * nsp + 1)) // 2, dtype=int
+    )
+    quippyOrder = getquippySOAPMapping(lmax, nmax, species)
+    dscribeOrder = getdscribeSOAPMapping(lmax, nmax, species)
+    for i, s in enumerate(addresses):
+        addresses[i] = numpy.where(quippyOrder == dscribeOrder[i])[0][0]
+    return addresses
 
 
 def normalizeArray(a: numpy.ndarray) -> numpy.ndarray:

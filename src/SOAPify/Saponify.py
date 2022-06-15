@@ -9,7 +9,7 @@ from dscribe.descriptors import SOAP
 from quippy.descriptors import Descriptor
 from ase.data import atomic_numbers, chemical_symbols
 import ase
-from .utils import orderByZ
+from .utils import orderByZ, _getRSindex, getAddressesQuippyLikeDscribe
 from HDF5er import (
     HDF52AseAtomsChunckedwithSymbols as HDF2ase,
     isTrajectoryGroup,
@@ -136,30 +136,20 @@ class quippySOAPengineContainer(SOAPengineContainer):
         enddo
         """
         species = self.species
-        rs_index = numpy.zeros((2, self.nmax * len(species)), dtype=numpy.int32)
-        i = 0
-        for i_species in range(len(species)):
-            for na in range(self.nmax):
-                rs_index[:, i] = na, i_species
-                i += 1
+        nmax = self.nmax
+        lmax = self.lmax
 
-        addresses = {}
         slices = {}
-        curAdd = {}
         next = 0
         prev = 0
-        fullmat = self.nmax * self.nmax * (self.lmax + 1)
-        upperDiag = ((self.nmax + 1) * self.nmax) // 2 * (self.lmax + 1)
-        for i in range(len(species) * self.nmax):
+        fullmat = nmax * nmax * (lmax + 1)
+        upperDiag = ((nmax + 1) * nmax) // 2 * (lmax + 1)
+        for i in range(len(species) * nmax):
             for j in range(i, len(species)):
                 key = species[i] + species[j]
-                addDim = (self.lmax + 1) * (
-                    self.nmax * self.nmax
-                    if i != j
-                    else ((self.nmax + 1) * self.nmax) // 2
+                addDim = (lmax + 1) * (
+                    nmax * nmax if i != j else ((nmax + 1) * nmax) // 2
                 )
-                addresses[key] = numpy.zeros((addDim), dtype=numpy.int32)
-                curAdd[key] = 0
                 if i == j:
                     next = prev + upperDiag
                 else:
@@ -167,42 +157,7 @@ class quippySOAPengineContainer(SOAPengineContainer):
                 slices[key] = slice(prev, next)
                 prev = next
 
-        """
-        i_pow = 0
-        do ia = 1, this%n_species*this%n_max
-           a = rs_index(1,ia)
-           i_species = rs_index(2,ia)
-           do jb = 1, ia
-              b = rs_index(1,jb)
-              j_species = rs_index(2,jb)
-
-              if(this%diagonal_radial .and. a /= b) cycle
-
-              do l = 0, this%l_max
-                 i_pow = i_pow + 1
-                 !SPEED descriptor_i(i_pow) = real( dot_product(fourier_so3(l,a,i_species)%m, fourier_so3(l,b,j_species)%m) )
-                 descriptor_i(i_pow) = dot_product(fourier_so3_r(l,a,i_species)%m, fourier_so3_r(l,b,j_species)%m) + dot_product(fourier_so3_i(l,a,i_species)%m, fourier_so3_i(l,b,j_species)%m)
-                 if(do_two_l_plus_one) descriptor_i(i_pow) = descriptor_i(i_pow) / sqrt(2.0_dp * l + 1.0_dp)
-                 if( ia /= jb ) descriptor_i(i_pow) = descriptor_i(i_pow) * SQRT_TWO
-              enddo !l
-           enddo !jb
-        enddo !ia
-        """
-        i_pow = 0
-        for ia in range(len(species) * self.nmax):
-            # na = rs_index[0, ia]
-            i_species = rs_index[1, ia]
-            for jb in range(ia + 1):  # ia is  in the range
-                # nb = rs_index[0, jb]
-                j_species = rs_index[1, jb]
-                # if(this%diagonal_radial .and. a /= b) cycle
-                for l in range(self.lmax + 1):
-                    sp1, sp2 = orderByZ([species[i_species], species[j_species]])
-                    key = sp1 + sp2
-                    addresses[key][curAdd[key]] = i_pow
-                    curAdd[key] += 1
-                    i_pow = i_pow + 1
-        self._addresses = addresses
+        self._addresses = getAddressesQuippyLikeDscribe(lmax, nmax, species)
         self._slices = slices
 
     @property
@@ -236,16 +191,7 @@ class quippySOAPengineContainer(SOAPengineContainer):
 
     def calculate(self, atoms: ase.Atoms):
         d = self.SOAPengine.calc(atoms)["data"][:-1]
-        ordered = numpy.empty_like(d)
-        ordered = numpy.nan
-        species = self.species
-        for i in range(len(species)):
-            sp1 = species[i]
-            for j in range(i, len(species)):
-                sp2 = species[j]
-                key = sp1 + sp2
-                ordered[self._slices[key]] = d[self._addresses[key]]
-        return ordered
+        return d[self._addresses]
 
     def __call__(self, atoms, **kwargs):
         if isinstance(atoms, ase.Atoms):
