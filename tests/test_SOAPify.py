@@ -1,3 +1,4 @@
+from lib2to3.pygram import Symbols
 import SOAPify
 import numpy
 from numpy.random import randint
@@ -6,7 +7,6 @@ from SOAPify import SOAPReferences
 import h5py
 from ase.data import atomic_numbers
 from SOAPify.SOAPClassify import SOAPclassification
-from testSupport import input_mockedTrajectoryClassification
 
 
 def test_atomicnumberOredring():
@@ -289,3 +289,11 @@ def test_RemoveAtomIdentityFromEventTracker(input_mockedTrajectoryClassification
             assert_array_equal(event, newevents[count])
             assert isinstance(newevents[atomID], numpy.ndarray)
             count += 1
+
+
+def test_centerMaskCreator():
+    symbols = ["C", "O", "H", "H", "N"] * 5
+    for SOAPatomMask in [["O"], ["H"], ["N", "O"]]:
+        mask = [i for i in range(len(symbols)) if symbols[i] in SOAPatomMask]
+        getMask = SOAPify.Saponify.centerMaskCreator(SOAPatomMask, symbols)
+        assert_array_equal(mask, getMask)

@@ -4,7 +4,6 @@ from SOAPify.Saponify import getSoapEngine
 import numpy
 from numpy.testing import assert_array_equal
 from ase.data import atomic_numbers
-from testSupport import engineKind_fixture, species_fixture, nMaxFixture, lMaxFixture
 
 
 def test_askEngine(engineKind_fixture, species_fixture, nMaxFixture, lMaxFixture):

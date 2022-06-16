@@ -16,6 +16,8 @@
 - Now HDFTo.getXYZfromTrajGroup accepts slices as an option to export the trajectory
 - **WARNING**: broken interface for saponify
 - `isTrajectoryGroup` added to HDF5er to check if a group contain a trajectory in our format
+- now it is possible to select 'quippy' for calculating SOAP
+- tests reahul
 
 ## Changes From 0.0.2a
 

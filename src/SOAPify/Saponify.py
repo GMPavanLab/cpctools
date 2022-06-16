@@ -26,12 +26,17 @@ class SOAPengineContainer(abc.ABC):
 
     """
 
-    def __init__(self, SOAPengine):
+    def __init__(self, SOAPengine, centerMask):
         self.SOAPengine = SOAPengine
+        self.centersMask_ = centerMask
 
     @property
     def engine(self):
         return self.SOAPengine
+
+    @property
+    def centersMask(self):
+        return self.centersMask_
 
     @property
     @abc.abstractmethod
@@ -80,8 +85,8 @@ class dscribeSOAPengineContainer(SOAPengineContainer):
 
     """
 
-    def __init__(self, SOAPengine):
-        super().__init__(SOAPengine)
+    def __init__(self, SOAPengine, centerMask):
+        super().__init__(SOAPengine, centerMask)
 
     @property
     def features(self):
@@ -122,19 +127,8 @@ class quippySOAPengineContainer(SOAPengineContainer):
 
     """
 
-    def __init__(self, SOAPengine):
-        super().__init__(SOAPengine)
-        # TODO: remap
-        """knowing this:
-        allocate(rs_index(2,this%n_max*this%n_species))
-        i = 0
-        do i_species = 1, this%n_species
-           do a = 1, this%n_max
-              i = i + 1
-              rs_index(:,i) = (/a,i_species/)
-           enddo
-        enddo
-        """
+    def __init__(self, SOAPengine, centerMask):
+        super().__init__(SOAPengine, centerMask)
         species = self.species
         nmax = self.nmax
         lmax = self.lmax
@@ -189,25 +183,23 @@ class quippySOAPengineContainer(SOAPengineContainer):
         a, b = orderByZ([specie1, specie2])
         return self._slices[a + b]
 
-    def calculate(self, atoms: ase.Atoms):
-        d = self.SOAPengine.calc(atoms)["data"][:-1]
-        return d[self._addresses]
-
     def __call__(self, atoms, **kwargs):
         if isinstance(atoms, ase.Atoms):
             atoms = [atoms]
-
-        toret = []
-        for frame in atoms:
-            toret.append(self.calculate(frame))
+        nat = len(self.centersMask_) if self.centersMask_ is not None else len(atoms[0])
+        toret = numpy.empty((len(atoms), nat, self.features))
+        for i, frame in enumerate(atoms):
+            toret[i] = self.SOAPengine.calc(frame)["data"][:, self._addresses]
         return numpy.array(toret)
 
 
 def getSoapEngine(
-    species: "list[str]",
+    atomNames: "list[str]",
     SOAPrcut: float,
     SOAPnmax: int,
     SOAPlmax: int,
+    SOAPatomMask: str = None,
+    centersMask: Iterable = None,  # TODO: document this
     SOAP_respectPBC: bool = True,
     SOAPkwargs: dict = {},
     useSoapFrom: "str" = "dscribe",
@@ -217,6 +209,11 @@ def getSoapEngine(
     Returns:
         SOAP: the soap engine already set up
     """
+    species = list(set(atomNames))
+    if SOAPatomMask is not None and centersMask is not None:
+        raise Exception(f"saponify: You can't use both SOAPatomMask and centersMask")
+    if SOAPatomMask is not None:
+        centersMask = centerMaskCreator(SOAPatomMask, atomNames)
     species = orderByZ(species)
     if useSoapFrom == "dscribe":
         SOAPkwargs.update(
@@ -232,7 +229,7 @@ def getSoapEngine(
             if SOAPkwargs["sparse"]:
                 SOAPkwargs["sparse"] = False
                 warnings.warn("sparse output is not supported yet, switching to dense")
-        return dscribeSOAPengineContainer(SOAP(**SOAPkwargs))
+        return dscribeSOAPengineContainer(SOAP(**SOAPkwargs), centersMask)
     if useSoapFrom == "quippy":
         """//from quippy.module_descriptors <-
         ============================= ===== =============== ===================================================
@@ -255,8 +252,7 @@ def getSoapEngine(
         average                       bool  F               Whether to calculate averaged SOAP - one
                                                             descriptor per atoms object. If false(default)
                                                             atomic SOAP is returned.
-        diagonal_radial               bool  F               Only return the n1=n2 elements of the power
-                                                            spectrum.
+        diagonal_radial               bool  F
         covariance_sigma0             float 0.0             sigma_0 parameter in polynomial covariance
                                                             function
         normalise                     bool  T               Normalise descriptor so magnitude is 1. In this
@@ -286,20 +282,33 @@ def getSoapEngine(
         )
         if "atom_sigma" not in SOAPkwargs:
             SOAPkwargs["atom_sigma"] = 0.5
+        # By default we impose quippy not to normalize the descriptor
+        SOAPkwargs["normalise"] = "F"
 
-        species_z = [atomic_numbers[specie] for specie in species]
-        thesps = str(species_z[0])
-        for sp in species_z[1:]:
-            thesps += ", " + str(sp)
+        def _makeSP(spArray):
+            sp_z = [atomic_numbers[specie] for specie in spArray]
+            spString = str(sp_z[0])
+            for sp in sp_z[1:]:
+                spString += ", " + str(sp)
+            return sp_z, spString
+
+        species_z, thesps = _makeSP(species)
+        Zs, theZs = species_z, thesps
+
         # TODO: Z and theZs personalized
-        Zs = species_z
-        theZs = thesps
+        if SOAPatomMask is None and centersMask is not None:
+            raise NotImplementedError(
+                "WARNING: the quippy interface works only with SOAPatomMask"
+            )
+        if SOAPatomMask is not None:
+            Zs, theZs = _makeSP(SOAPatomMask)
+
         settings = f"soap"
         for key, value in SOAPkwargs.items():
             settings += f" {key}={value}"
         settings += f" n_species={len(species_z)} species_Z={{{thesps}}}"
         settings += f" n_Z={len(Zs)} Z={{{theZs}}}"
-        return quippySOAPengineContainer(Descriptor(settings))
+        return quippySOAPengineContainer(Descriptor(settings), centersMask)
     else:
         raise NotImplementedError(f"{useSoapFrom} is not implemented yet")
 
@@ -308,7 +317,6 @@ def saponifyWorker(
     trajGroup: h5py.Group,
     SOAPoutDataset: h5py.Dataset,
     soapEngine: SOAPengineContainer,
-    centersMask: "list|None" = None,
     SOAPOutputChunkDim: int = 100,
     SOAPnJobs: int = 1,
 ):
@@ -320,7 +328,6 @@ def saponifyWorker(
         SOAPoutDataset (h5py.Dataset): The preformed dataset for storing the
         SOAP results
         soapEngine (SOAP): The soap engine already set up
-        centersMask (list): the mask for the SOAP centers, already set up
         SOAPOutputChunkDim (int, optional): The dimension of the chunck of data
         in the SOAP results dataset. Defaults to 100.
         SOAPnJobs (int, optional): the number of concurrent SOAP calculations
@@ -332,11 +339,11 @@ def saponifyWorker(
     SOAPoutDataset.attrs["n_max"] = soapEngine.nmax
     SOAPoutDataset.attrs["r_cut"] = soapEngine.rcut
     SOAPoutDataset.attrs["species"] = soapEngine.species
-    if centersMask is None:
+    if soapEngine.centersMask is None:
         if "centersIndexes" in SOAPoutDataset.attrs:
-            del centersMask.attrs["centersIndexes"]
+            del SOAPoutDataset.attrs["centersIndexes"]
     else:
-        SOAPoutDataset.attrs.create("centersIndexes", centersMask)
+        SOAPoutDataset.attrs.create("centersIndexes", soapEngine.centersMask)
         # print(centersMask)
         # print(SOAPoutDataset.attrs["centersIndexes"])
         # print(type(SOAPoutDataset.attrs["centersIndexes"]))
@@ -369,7 +376,7 @@ def saponifyWorker(
             # TODO: dscribe1.2.1 return (nat,nsoap) instead of (1,nat,nsoap) if we are analysing only ! frame!
             SOAPoutDataset[frameStart:FrameEnd] = soapEngine(
                 atoms[jobStart:jobEnd],
-                positions=[centersMask] * jobchunk,
+                positions=[soapEngine.centersMask] * jobchunk,
                 n_jobs=SOAPnJobs,
             )
             t2 = time.time()
@@ -384,13 +391,14 @@ def applySOAP(
     SOAPoutContainer: h5py.Group,
     key: str,
     soapEngine: SOAPengineContainer,
-    centersMask: "list|None" = None,
     SOAPOutputChunkDim: int = 100,
     SOAPnJobs: int = 1,
 ):
     NofFeatures = soapEngine.features
     symbols = trajContainer["Types"].asstr()[:]
-    nCenters = len(symbols) if centersMask is None else len(centersMask)
+    nCenters = (
+        len(symbols) if soapEngine.centersMask is None else len(soapEngine.centersMask)
+    )
 
     if key not in SOAPoutContainer.keys():
         SOAPoutContainer.create_dataset(
@@ -407,10 +415,16 @@ def applySOAP(
         trajContainer,
         SOAPout,
         soapEngine,
-        centersMask,
         SOAPOutputChunkDim,
         SOAPnJobs,
     )
+
+
+def centerMaskCreator(
+    SOAPatomMask: "list[str]",
+    symbols: "list[str]",
+):
+    return [i for i in range(len(symbols)) if symbols[i] in SOAPatomMask]
 
 
 def saponifyGroup(
@@ -421,7 +435,7 @@ def saponifyGroup(
     SOAPlmax: int,
     SOAPOutputChunkDim: int = 100,
     SOAPnJobs: int = 1,
-    SOAPatomMask: str = None,
+    SOAPatomMask: "list[str]" = None,
     centersMask: Iterable = None,  # TODO: document this
     SOAP_respectPBC: bool = True,
     SOAPkwargs: dict = {},
@@ -454,21 +468,14 @@ def saponifyGroup(
         if isTrajectoryGroup(trajContainers[key]):
             traj = trajContainers[key]
             symbols = traj["Types"].asstr()[:]
-            # TODO: unify the soap initialization with saponify
-            if SOAPatomMask is not None and centersMask is not None:
-                raise Exception(
-                    f"saponifyGroup: You can't use both SOAPatomMask and centersMask"
-                )
-            if SOAPatomMask is not None:
-                centersMask = [
-                    i for i in range(len(symbols)) if symbols[i] in SOAPatomMask
-                ]
             if soapEngine is None:
                 soapEngine = getSoapEngine(
-                    species=list(set(symbols)),
+                    atomNames=symbols,
                     SOAPrcut=SOAPrcut,
                     SOAPnmax=SOAPnmax,
                     SOAPlmax=SOAPlmax,
+                    SOAPatomMask=SOAPatomMask,
+                    centersMask=centersMask,
                     SOAP_respectPBC=SOAP_respectPBC,
                     SOAPkwargs=SOAPkwargs,
                     useSoapFrom=useSoapFrom,
@@ -478,7 +485,6 @@ def saponifyGroup(
                 SOAPoutContainers,
                 key,
                 soapEngine,
-                centersMask,
                 SOAPOutputChunkDim,
                 SOAPnJobs,
             )
@@ -527,17 +533,13 @@ def saponify(
     """
     if isTrajectoryGroup(trajContainer):
         symbols = trajContainer["Types"].asstr()[:]
-        if SOAPatomMask is not None and centersMask is not None:
-            raise Exception(
-                f"saponify: You can't use both SOAPatomMask and centersMask"
-            )
-        if SOAPatomMask is not None:
-            centersMask = [i for i in range(len(symbols)) if symbols[i] in SOAPatomMask]
         soapEngine = getSoapEngine(
-            species=list(set(symbols)),
+            atomNames=symbols,
             SOAPrcut=SOAPrcut,
             SOAPnmax=SOAPnmax,
             SOAPlmax=SOAPlmax,
+            SOAPatomMask=SOAPatomMask,
+            centersMask=centersMask,
             SOAP_respectPBC=SOAP_respectPBC,
             SOAPkwargs=SOAPkwargs,
             useSoapFrom=useSoapFrom,
@@ -548,7 +550,6 @@ def saponify(
             SOAPoutContainer,
             exportDatasetName,
             soapEngine,
-            centersMask,
             SOAPOutputChunkDim,
             SOAPnJobs,
         )

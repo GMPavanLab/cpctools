@@ -1,11 +1,10 @@
 import HDF5er
 import h5py
 import pytest
-import MDAnalysis
 import numpy
 from MDAnalysis.lib.mdamath import triclinic_vectors
 from io import StringIO
-from testSupport import giveUniverse, input_framesSlice
+from .testSupport import giveUniverse
 
 
 def test_istTrajectoryGroupCheck():
