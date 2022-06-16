@@ -5,19 +5,7 @@ import MDAnalysis
 import numpy
 from MDAnalysis.lib.mdamath import triclinic_vectors
 from io import StringIO
-from testSupport import giveUniverse
-
-
-@pytest.fixture(
-    scope="module",
-    params=[
-        slice(None, None, None),  # no slice
-        slice(1, None, 2),  # classic slice
-        [0, 4],  # list-like slice
-    ],
-)
-def input_framesSlice(request):
-    return request.param
+from testSupport import giveUniverse, input_framesSlice
 
 
 def test_istTrajectoryGroupCheck():

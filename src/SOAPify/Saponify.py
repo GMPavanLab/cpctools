@@ -281,6 +281,7 @@ def getSoapEngine(
                 cutoff=SOAPrcut,
                 n_max=SOAPnmax,
                 l_max=SOAPlmax,
+                # TODO: semove automatic normalization
             )
         )
         if "atom_sigma" not in SOAPkwargs:
@@ -325,6 +326,7 @@ def saponifyWorker(
         SOAPnJobs (int, optional): the number of concurrent SOAP calculations
         (option passed to dscribe's SOAP). Defaults to 1.
     """
+    # TODO: add name of the program used
     symbols = trajGroup["Types"].asstr()[:]
     SOAPoutDataset.attrs["l_max"] = soapEngine.lmax
     SOAPoutDataset.attrs["n_max"] = soapEngine.nmax

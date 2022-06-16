@@ -1,12 +1,12 @@
 import SOAPify
 import numpy
-import pytest
 from numpy.random import randint
 from numpy.testing import assert_array_equal
 from SOAPify import SOAPReferences
 import h5py
 from ase.data import atomic_numbers
 from SOAPify.SOAPClassify import SOAPclassification
+from testSupport import input_mockedTrajectoryClassification
 
 
 def test_atomicnumberOredring():
@@ -172,55 +172,6 @@ def test_fillSOAPVectorFromdscribeArrayOfVectorMultiSpecies():
                     assert c[l, n, np] == a[i, limited]
                     assert c[l, np, n] == a[i, limited]
                     limited += 1
-
-
-@pytest.fixture(
-    scope="module",
-    params=[
-        SOAPify.SOAPclassification(
-            [],
-            numpy.array(
-                # 0 never changes state
-                # 1 change stare at first frame
-                # 2 alternates two states
-                [
-                    [0, 1, 1],
-                    [0, 2, 2],
-                    [0, 2, 1],
-                    [0, 2, 2],
-                    [0, 2, 1],
-                    [0, 2, 2],
-                ]
-            ),
-            ["state0", "state1", "state2"],
-        ),
-        SOAPify.SOAPclassification(
-            [],
-            numpy.array(
-                # 0 never changes state
-                # 1 change stare at first frame
-                # 2 alternates two states
-                # 3 as an error at some point
-                [
-                    [0, 1, 1, 1],
-                    [0, 2, 2, 2],
-                    [0, 2, 1, 1],
-                    [0, 2, 2, -1],
-                    [0, 2, 1, 1],
-                    [0, 2, 2, 2],
-                ]
-            ),
-            ["state0", "state1", "state2", "Errors"],
-        ),
-        SOAPify.SOAPclassification(  # big random "simulation"
-            [],
-            randint(0, high=4, size=(1000, 309)),
-            ["state0", "state1", "state2", "state3"],
-        ),
-    ],
-)
-def input_mockedTrajectoryClassification(request):
-    return request.param
 
 
 def test_transitionMatrix(input_mockedTrajectoryClassification):

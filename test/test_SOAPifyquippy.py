@@ -3,51 +3,8 @@ import SOAPify
 from SOAPify.Saponify import getSoapEngine
 import numpy
 from numpy.testing import assert_array_equal
-import h5py
-import MDAnalysis as mda
-import HDF5er
 from ase.data import atomic_numbers
-from testSupport import getUniverseWithWaterMolecules
-import pytest
-
-
-@pytest.fixture(
-    scope="module",
-    params=[
-        "dscribe",
-        "quippy",
-    ],
-)
-def engineKind_fixture(request):
-    return request.param
-
-
-@pytest.fixture(
-    scope="module",
-    params=[
-        ["C", "O", "H", "N"],
-        ["H", "O"],
-        ["H"],
-    ],
-)
-def species_fixture(request):
-    return request.param
-
-
-@pytest.fixture(
-    scope="module",
-    params=[1, 2, 3, 4, 5, 6],
-)
-def nMaxFixture(request):
-    return request.param
-
-
-@pytest.fixture(
-    scope="module",
-    params=[0, 1, 2, 3, 4, 5, 6],
-)
-def lMaxFixture(request):
-    return request.param
+from testSupport import engineKind_fixture, species_fixture, nMaxFixture, lMaxFixture
 
 
 def test_askEngine(engineKind_fixture, species_fixture, nMaxFixture, lMaxFixture):
@@ -97,19 +54,45 @@ def test_askEngine(engineKind_fixture, species_fixture, nMaxFixture, lMaxFixture
             prev = next
 
 
+def test_noCrossoverSOAPMAPPINGDscribe(species_fixture, nMaxFixture, lMaxFixture):
+    nmax = nMaxFixture
+    lmax = lMaxFixture
+    species = SOAPify.orderByZ(species_fixture)
+    nsp = len(species)
+    # check if the support array are created correctly
+    pdscribe = SOAPify.getdscribeSOAPMapping(lmax, nmax, species, crossover=False)
+    assert len(pdscribe) == nsp * (lmax + 1) * (nmax * (nmax + 1)) // 2
+    assert len(pdscribe) == len(numpy.unique(pdscribe))
+    i = 0
+    for Z in species:
+        for Zp in species:
+            if Z != Zp:
+                continue
+            for l in range(lmax + 1):
+                for n in range(nmax):
+                    for np in range(nmax):
+                        if (np, atomic_numbers[Zp]) >= (n, atomic_numbers[Z]):
+                            if atomic_numbers[Z] >= atomic_numbers[Zp]:
+                                assert pdscribe[i] == (f"{l}_{Z}{n}_{Zp}{np}")
+                            else:
+                                assert pdscribe[i] == (f"{l}_{Zp}{np}_{Z}{n}")
+                            i += 1
+
+
 def test_reorderQuippyLikeDscribe(species_fixture, nMaxFixture, lMaxFixture):
     nmax = nMaxFixture
     lmax = lMaxFixture
     species = SOAPify.orderByZ(species_fixture)
     nsp = len(species)
+    # chech if the support array are created correctly
     pdscribe = SOAPify.getdscribeSOAPMapping(lmax, nmax, species)
     assert len(pdscribe) == (lmax + 1) * ((nmax * nsp) * (nmax * nsp + 1)) // 2
     assert len(pdscribe) == len(numpy.unique(pdscribe))
     pquippy = SOAPify.getquippySOAPMapping(lmax, nmax, species)
     assert len(pquippy) == (lmax + 1) * ((nmax * nsp) * (nmax * nsp + 1)) // 2
     assert len(pquippy) == len(numpy.unique(pquippy))
-    assert len(pquippy) == len(pdscribe)
     # pquippy and pdscribe must contain the same elements
+    assert len(pquippy) == len(pdscribe)
     assert numpy.isin(pdscribe, pquippy).all()
     i = 0
     for Z in species:

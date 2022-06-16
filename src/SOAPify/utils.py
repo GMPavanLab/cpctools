@@ -11,7 +11,9 @@ def _SOAPpstr(l, Z, n, Zp, np) -> str:
     return f"{l}_{Z}{n}_{Zp}{np}"
 
 
-def getdscribeSOAPMapping(lmax: int, nmax: int, species: "list[str]") -> numpy.ndarray:
+def getdscribeSOAPMapping(
+    lmax: int, nmax: int, species: "list[str]", crossover: bool = True
+) -> numpy.ndarray:
     """return a list of string with the identities of the data returned from dscribe,
        see the note in https://singroup.github.io/dscribe/1.2.x/tutorials/descriptors/soap.html
 
@@ -19,14 +21,17 @@ def getdscribeSOAPMapping(lmax: int, nmax: int, species: "list[str]") -> numpy.n
         lmax (int): the lmax specified in the calculation.
         nmax (int): the nmax specified in the calculation.
         species (list[str]): the list of atomic species.
+        crossover (bool): if True, the SOAP descriptors are generated for the mixed species
 
     Returns:
-        numpy.ndarray: _description_
+        numpy.ndarray: an array of strings with the mapping of the output of the analysis
     """
     species = orderByZ(species)
     pdscribe = []
     for Z in species:
         for Zp in species:
+            if not crossover and Z != Zp:
+                continue
             for l in range(lmax + 1):
                 for n in range(nmax):
                     for np in range(nmax):
@@ -46,7 +51,9 @@ def _getRSindex(nmax: int, species: "list[str]") -> numpy.ndarray:
     return rs_index
 
 
-def getquippySOAPMapping(lmax: int, nmax: int, species: "list[str]") -> numpy.ndarray:
+def getquippySOAPMapping(
+    lmax: int, nmax: int, species: "list[str]", diagonalRadial: bool = False
+) -> numpy.ndarray:
     """return a list of string with the identities of the data returned from quippy,
        see https://github.com/libAtoms/GAP/blob/main/descriptors.f95#L7588
 
@@ -54,9 +61,11 @@ def getquippySOAPMapping(lmax: int, nmax: int, species: "list[str]") -> numpy.nd
         lmax (int): the lmax specified in the calculation.
         nmax (int): the nmax specified in the calculation.
         species (list[str]): the list of atomic species.
+        diagonalRadial (bool): if True, Only return the n1=n2 elements of the power spectrum. *NOT IMPLEMENTED*
+
 
     Returns:
-        numpy.ndarray: _description_
+        numpy.ndarray: an array of strings with the mapping of the output of the analysis
     """
     species = orderByZ(species)
     rs_index = _getRSindex(nmax, species)
@@ -67,7 +76,9 @@ def getquippySOAPMapping(lmax: int, nmax: int, species: "list[str]") -> numpy.nd
         for jb in range(ia + 1):  # ia is  in the range
             n = rs_index[0, jb]
             Z = species[rs_index[1, jb]]
-            # if(this%diagonal_radial .and. a /= b) cycle
+            # if diagonalRadial and np != n:
+            #    continue
+
             for l in range(lmax + 1):
                 pquippy.append(_SOAPpstr(l, Z, n, Zp, np))
     return numpy.array(pquippy)
