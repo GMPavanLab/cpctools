@@ -295,5 +295,5 @@ def test_centerMaskCreator():
     symbols = ["C", "O", "H", "H", "N"] * 5
     for SOAPatomMask in [["O"], ["H"], ["N", "O"]]:
         mask = [i for i in range(len(symbols)) if symbols[i] in SOAPatomMask]
-        getMask = SOAPify.Saponify.centerMaskCreator(SOAPatomMask, symbols)
+        getMask = SOAPify.centerMaskCreator(SOAPatomMask, symbols)
         assert_array_equal(mask, getMask)

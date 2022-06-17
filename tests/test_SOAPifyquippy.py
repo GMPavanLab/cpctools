@@ -1,22 +1,26 @@
-from operator import invert
 import SOAPify
-from SOAPify.Saponify import getSoapEngine
+from SOAPify import getSoapEngine
 import numpy
 from numpy.testing import assert_array_equal
 from ase.data import atomic_numbers
 
 
 def test_askEngine(engineKind_fixture, species_fixture, nMaxFixture, lMaxFixture):
-    nMol = 1
+    # No centermask
+    nMol = 27
     SOAPrcut = 10.0
     n_max = nMaxFixture
     l_max = lMaxFixture
     species = SOAPify.orderByZ(species_fixture)
+    # this mocks a system
+    atomNames = species * nMol
     engine = getSoapEngine(
-        species=species,
+        atomNames=atomNames,
         SOAPrcut=SOAPrcut,
         SOAPnmax=n_max,
         SOAPlmax=l_max,
+        SOAPatomMask=None,
+        centersMask=None,
         SOAP_respectPBC=True,
         SOAPkwargs={},
         useSoapFrom=engineKind_fixture,

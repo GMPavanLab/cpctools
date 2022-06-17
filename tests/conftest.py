@@ -90,7 +90,7 @@ def species_fixture(request):
 
 @pytest.fixture(
     scope="module",
-    params=[1, 2, 3, 4, 5, 6],
+    params=[1, 4, 8],
 )
 def nMaxFixture(request):
     return request.param
@@ -98,7 +98,7 @@ def nMaxFixture(request):
 
 @pytest.fixture(
     scope="module",
-    params=[0, 1, 2, 3, 4, 5, 6],
+    params=[0, 4, 8],
 )
 def lMaxFixture(request):
     return request.param
