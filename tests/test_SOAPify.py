@@ -1,12 +1,21 @@
+from lib2to3.pygram import Symbols
 import SOAPify
 import numpy
-import pytest
 from numpy.random import randint
 from numpy.testing import assert_array_equal
 from SOAPify import SOAPReferences
 import h5py
-
+from ase.data import atomic_numbers
 from SOAPify.SOAPClassify import SOAPclassification
+
+
+def test_atomicnumberOredring():
+    species = ["O", "H"]
+    assert SOAPify.orderByZ(species) == ["H", "O"]
+    species = ["Au", "H", "C", "W", "O"]
+    ordSpecies = SOAPify.orderByZ(species)
+    for i in range(len(ordSpecies) - 1):
+        assert atomic_numbers[ordSpecies[i]] < atomic_numbers[ordSpecies[i + 1]]
 
 
 def test_norm1D():
@@ -108,19 +117,22 @@ def test_fillSOAPVectorFromdscribeArrayOfVector():
                     limited += 1
 
 
-def test_fillSOAPVectorFromdscribeArrayOfVectorMultiSpecies():
+def test_fillSOAPVectorFromdscribeArrayOfVectorMultiSpecies(nMaxFixture, lMaxFixture):
     species = ["H", "O"]
 
     ncomb = 3
-    nmax = 4
-    lmax = 3
+    nmax = nMaxFixture
+    lmax = lMaxFixture
     nfeats = (lmax + 1) * nmax * nmax
     nfeatsreduced = int(((lmax + 1) * (nmax + 1) * nmax) / 2)
+    nframes = 50
+    natoms = 1000
     a = randint(
         0,
         10,
         size=(
-            5,
+            nframes,
+            natoms,
             nfeats + 2 * nfeatsreduced,
         ),
     )
@@ -130,88 +142,39 @@ def test_fillSOAPVectorFromdscribeArrayOfVectorMultiSpecies():
         "OO": slice(nfeatsreduced + nfeats, nfeats + 2 * nfeatsreduced),
     }
     b = SOAPify.fillSOAPVectorFromdscribe(a, lmax, nmax, species, speciesSlices)
-    assert b.shape[1] == ncomb * nfeats
+    assert b.shape[2] == ncomb * nfeats
     slices = [
         slice(0, nfeats),
         slice(nfeats, 2 * nfeats),
         slice(2 * nfeats, 3 * nfeats),
     ]
+    for frame in range(nframes):
+        for i in range(natoms):
+            limited = 0
 
-    for i in range(a.shape[0]):
-        limited = 0
+            c = b[frame, i][slices[0]].reshape((lmax + 1, nmax, nmax))
 
-        c = b[i][slices[0]].reshape((lmax + 1, nmax, nmax))
+            for l in range(lmax + 1):
+                for n in range(nmax):
+                    for np in range(n, nmax):
+                        assert c[l, n, np] == a[frame, i, limited]
+                        assert c[l, np, n] == a[frame, i, limited]
+                        limited += 1
 
-        for l in range(lmax + 1):
-            for n in range(nmax):
-                for np in range(n, nmax):
-                    assert c[l, n, np] == a[i, limited]
-                    assert c[l, np, n] == a[i, limited]
-                    limited += 1
+            c = b[frame, i][slices[1]].reshape((lmax + 1, nmax, nmax))
+            for l in range(lmax + 1):
+                for n in range(nmax):
+                    for np in range(nmax):
+                        assert c[l, n, np] == a[frame, i, limited]
+                        limited += 1
 
-        c = b[i][slices[1]].reshape((lmax + 1, nmax, nmax))
-        for l in range(lmax + 1):
-            for n in range(nmax):
-                for np in range(nmax):
-                    assert c[l, n, np] == a[i, limited]
-                    limited += 1
-
-        c = b[i][slices[2]].reshape((lmax + 1, nmax, nmax))
-        for l in range(lmax + 1):
-            for n in range(nmax):
-                for np in range(n, nmax):
-                    assert c[l, n, np] == a[i, limited]
-                    assert c[l, np, n] == a[i, limited]
-                    limited += 1
-
-
-@pytest.fixture(
-    scope="module",
-    params=[
-        SOAPify.SOAPclassification(
-            [],
-            numpy.array(
-                # 0 never changes state
-                # 1 change stare at first frame
-                # 2 alternates two states
-                [
-                    [0, 1, 1],
-                    [0, 2, 2],
-                    [0, 2, 1],
-                    [0, 2, 2],
-                    [0, 2, 1],
-                    [0, 2, 2],
-                ]
-            ),
-            ["state0", "state1", "state2"],
-        ),
-        SOAPify.SOAPclassification(
-            [],
-            numpy.array(
-                # 0 never changes state
-                # 1 change stare at first frame
-                # 2 alternates two states
-                # 3 as an error at some point
-                [
-                    [0, 1, 1, 1],
-                    [0, 2, 2, 2],
-                    [0, 2, 1, 1],
-                    [0, 2, 2, -1],
-                    [0, 2, 1, 1],
-                    [0, 2, 2, 2],
-                ]
-            ),
-            ["state0", "state1", "state2", "Errors"],
-        ),
-        SOAPify.SOAPclassification(  # big random "simulation"
-            [],
-            randint(0, high=4, size=(1000, 309)),
-            ["state0", "state1", "state2", "state3"],
-        ),
-    ],
-)
-def input_mockedTrajectoryClassification(request):
-    return request.param
+            c = b[frame, i][slices[2]].reshape((lmax + 1, nmax, nmax))
+            for l in range(lmax + 1):
+                for n in range(nmax):
+                    for np in range(n, nmax):
+                        assert c[l, n, np] == a[frame, i, limited]
+                        assert c[l, np, n] == a[frame, i, limited]
+                        limited += 1
 
 
 def test_transitionMatrix(input_mockedTrajectoryClassification):
@@ -329,3 +292,11 @@ def test_RemoveAtomIdentityFromEventTracker(input_mockedTrajectoryClassification
             assert_array_equal(event, newevents[count])
             assert isinstance(newevents[atomID], numpy.ndarray)
             count += 1
+
+
+def test_centerMaskCreator():
+    symbols = ["C", "O", "H", "H", "N"] * 5
+    for SOAPatomMask in [["O"], ["H"], ["N", "O"]]:
+        mask = [i for i in range(len(symbols)) if symbols[i] in SOAPatomMask]
+        getMask = SOAPify.centerMaskCreator(SOAPatomMask, symbols)
+        assert_array_equal(mask, getMask)

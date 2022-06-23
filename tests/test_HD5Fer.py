@@ -1,49 +1,10 @@
 import HDF5er
 import h5py
 import pytest
-import MDAnalysis
 import numpy
 from MDAnalysis.lib.mdamath import triclinic_vectors
 from io import StringIO
-
-
-def giveUniverse(angles: set = (90.0, 90.0, 90.0)) -> MDAnalysis.Universe:
-    traj = numpy.array(
-        [
-            [[0.0, 0.0, 0.0], [1.0, 1.0, 1.0], [2.0, 2.0, 2.0], [3.0, 3.0, 3.0]],
-            [[0.1, 0.1, 0.1], [1.1, 1.1, 1.1], [2.1, 2.1, 2.1], [3.1, 3.1, 3.1]],
-            [[0.2, 0.2, 0.2], [1.2, 1.2, 1.2], [2.2, 2.2, 2.2], [3.2, 3.2, 3.2]],
-            [[0.3, 0.3, 0.3], [1.3, 1.3, 1.3], [2.3, 2.3, 2.3], [3.3, 3.3, 3.3]],
-            [[0.4, 0.4, 0.4], [1.4, 1.4, 1.4], [2.4, 2.4, 2.4], [3.4, 3.4, 3.4]],
-        ]
-    )
-    u = MDAnalysis.Universe.empty(
-        4, trajectory=True, atom_resindex=[0, 0, 0, 0], residue_segindex=[0]
-    )
-
-    u.add_TopologyAttr("type", ["H"] * 4)
-    u.atoms.positions = traj[0]
-    u.trajectory = MDAnalysis.coordinates.memory.MemoryReader(
-        traj,
-        order="fac",
-        # this tests the non orthogonality of the box
-        dimensions=numpy.array(
-            [[6.0, 6.0, 6.0, angles[0], angles[1], angles[2]]] * traj.shape[0]
-        ),
-    )
-    return u
-
-
-@pytest.fixture(
-    scope="module",
-    params=[
-        slice(None, None, None),  # no slice
-        slice(1, None, 2),  # classic slice
-        [0, 4],  # list-like slice
-    ],
-)
-def input_framesSlice(request):
-    return request.param
+from .testSupport import giveUniverse
 
 
 def test_istTrajectoryGroupCheck():
@@ -352,7 +313,6 @@ def test_copyMDA2HDF52xyzPerFrameProperty(input_framesSlice):
                     )
 
 
-@pytest.mark.xfail(raises=ValueError)
 def test_copyMDA2HDF52xyz_error1D():
     angles = (75.0, 60.0, 90.0)
     fourAtomsFiveFrames = giveUniverse(angles)
@@ -367,13 +327,12 @@ def test_copyMDA2HDF52xyz_error1D():
     )
 
     HDF5er.MDA2HDF5(fourAtomsFiveFrames, "test.hdf5", "4Atoms5Frames", override=True)
-    with h5py.File("test.hdf5", "r") as hdf5test:
+    with h5py.File("test.hdf5", "r") as hdf5test, pytest.raises(ValueError):
         group = hdf5test["Trajectories/4Atoms5Frames"]
         stringData = StringIO()
         HDF5er.getXYZfromTrajGroup(stringData, group, OneDData=OneDData)
 
 
-@pytest.mark.xfail(raises=ValueError)
 def test_copyMDA2HDF52xyz_error2D():
     angles = (75.0, 60.0, 90.0)
     fourAtomsFiveFrames = giveUniverse(angles)
@@ -391,13 +350,12 @@ def test_copyMDA2HDF52xyz_error2D():
         ),
     )
     HDF5er.MDA2HDF5(fourAtomsFiveFrames, "test.hdf5", "4Atoms5Frames", override=True)
-    with h5py.File("test.hdf5", "r") as hdf5test:
+    with h5py.File("test.hdf5", "r") as hdf5test, pytest.raises(ValueError):
         group = hdf5test["Trajectories/4Atoms5Frames"]
         stringData = StringIO()
         HDF5er.getXYZfromTrajGroup(stringData, group, TwoDData=TwoDData)
 
 
-@pytest.mark.xfail(raises=ValueError)
 def test_copyMDA2HDF52xyz_wrongD():
     angles = (75.0, 60.0, 90.0)
     fourAtomsFiveFrames = giveUniverse(angles)
@@ -416,13 +374,12 @@ def test_copyMDA2HDF52xyz_wrongD():
         ),
     )
     HDF5er.MDA2HDF5(fourAtomsFiveFrames, "test.hdf5", "4Atoms5Frames", override=True)
-    with h5py.File("test.hdf5", "r") as hdf5test:
+    with h5py.File("test.hdf5", "r") as hdf5test, pytest.raises(ValueError):
         group = hdf5test["Trajectories/4Atoms5Frames"]
         stringData = StringIO()
         HDF5er.getXYZfromTrajGroup(stringData, group, WrongDData=WrongDData)
 
 
-@pytest.mark.xfail(raises=ValueError)
 def test_copyMDA2HDF52xyz_wrongTrajlen():
     angles = (75.0, 60.0, 90.0)
     fourAtomsFiveFrames = giveUniverse(angles)
@@ -440,7 +397,7 @@ def test_copyMDA2HDF52xyz_wrongTrajlen():
         ),
     )
     HDF5er.MDA2HDF5(fourAtomsFiveFrames, "test.hdf5", "4Atoms5Frames", override=True)
-    with h5py.File("test.hdf5", "r") as hdf5test:
+    with h5py.File("test.hdf5", "r") as hdf5test, pytest.raises(ValueError):
         group = hdf5test["Trajectories/4Atoms5Frames"]
         stringData = StringIO()
         HDF5er.getXYZfromTrajGroup(stringData, group, WrongDData=WrongDData)

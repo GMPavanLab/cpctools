@@ -1,11 +1,11 @@
 # Changelog
 
-## Changes From 0.0.3
+## Changes since v0.0.3
 
 - `getXYZfromTrajGroup` now accept IO objects as inputs
 - **WARNING**: broken interface for `getXYZfromTrajGroup`, now it needs 3 inputs and the first is a file-like object
 - `saveXYZfromTrajGroup` and `getXYZfromTrajGroup` now can export comments per frames
-- `transitionMatrixFromSOAPClassification` now creates matrix with shape  `(n,n)` and no more `(n+1,n+1)`, where `n` is the lenght of the legend. The user will now need to address the errors in classification, if needed
+- `transitionMatrixFromSOAPClassification` now creates matrix with shape  `(n,n)` and no more `(n+1,n+1)`, where `n` is the lenght of the legend. The user will now need to address the errors in the legend, if needed
 - added `calculateResidenceTimesFromClassification` for calculating the residence times of the states during the MD
 - added `trackStates` for calculating the history of the evolution of the states in the MD
 - the result of `trackStates` can be used for calculating the residence times and the transition matrices
@@ -16,8 +16,12 @@
 - Now HDFTo.getXYZfromTrajGroup accepts slices as an option to export the trajectory
 - **WARNING**: broken interface for saponify
 - `isTrajectoryGroup` added to HDF5er to check if a group contain a trajectory in our format
+- now it is possible to select 'quippy' for calculating SOAP
+- tests reahul
+- fillSOAPVectorFromdscribe now is between 10 to 20 times faster than before
+- now name of the used engine is stored in the hdf5 file's SOAP dataset
 
-## Changes From 0.0.2a
+## Changes since v0.0.2a
 
 - Only for Monospecies systems: added a small utility (`fillSOAPVectorFromdscribe`) that returns the complete SOAP vector from the simplified one from dscribe
 - Added a utility for normalize SOAP vectors
@@ -26,12 +30,12 @@
 - the new references now can be loaded/unloaded on an hdf5 file
 - added a patch for hdf5 imported files: workaround for mda not loading correctly non orthogonal boxes from lammps dumps
 
-## Changes From 0.0.2
+## Changes since v0.0.2
 
 - Added the possiblity to export xyz files from the hdf5 trajectories, also with extra data columns
 - Improved performance for getXYZfromTrajGroup
 
-## Changes From 0.0.1
+## Changes since v0.0.1
 
 - Tests
 - Changed default imports for HDF5er
