@@ -24,7 +24,8 @@ class SOAPengineContainer(abc.ABC):
 
     """
 
-    def __init__(self, SOAPengine, centerMask):
+    def __init__(self, SOAPengine, centerMask, SOAPengineKind):
+        self.SOAPenginekind_ = SOAPengineKind
         self.SOAPengine = SOAPengine
         self.centersMask_ = centerMask
 
@@ -33,45 +34,49 @@ class SOAPengineContainer(abc.ABC):
         return self.SOAPengine
 
     @property
+    def SOAPenginekind(self):
+        return self.SOAPenginekind_
+
+    @property
     def centersMask(self):
         return self.centersMask_
 
     @property
     @abc.abstractmethod
-    def features(self):
+    def features(self):  # pragma: no cover
         pass
 
     @property
     @abc.abstractmethod
-    def nmax(self):
+    def nmax(self):  # pragma: no cover
         pass
 
     @property
     @abc.abstractmethod
-    def lmax(self):
+    def lmax(self):  # pragma: no cover
         pass
 
     @property
     @abc.abstractmethod
-    def rcut(self):
+    def rcut(self):  # pragma: no cover
         pass
 
     @property
     @abc.abstractmethod
-    def species(self) -> list:
+    def species(self) -> list:  # pragma: no cover
         pass
 
     @property
     @abc.abstractmethod
-    def crossover(self) -> bool:
+    def crossover(self) -> bool:  # pragma: no cover
         pass
 
     @abc.abstractmethod
-    def get_location(self, specie1, specie2):
+    def get_location(self, specie1, specie2):  # pragma: no cover
         pass
 
     @abc.abstractmethod
-    def __call__(self, atoms, **kwargs):
+    def __call__(self, atoms, **kwargs):  # pragma: no cover
         pass
 
 
@@ -83,8 +88,8 @@ class dscribeSOAPengineContainer(SOAPengineContainer):
 
     """
 
-    def __init__(self, SOAPengine, centerMask):
-        super().__init__(SOAPengine, centerMask)
+    def __init__(self, SOAPengine, centerMask, SOAPengineKind):
+        super().__init__(SOAPengine, centerMask, SOAPengineKind)
 
     @property
     def features(self):
@@ -125,8 +130,8 @@ class quippySOAPengineContainer(SOAPengineContainer):
 
     """
 
-    def __init__(self, SOAPengine, centerMask):
-        super().__init__(SOAPengine, centerMask)
+    def __init__(self, SOAPengine, centerMask, SOAPengineKind):
+        super().__init__(SOAPengine, centerMask, SOAPengineKind)
         species = self.species
         nmax = self.nmax
         lmax = self.lmax
@@ -207,8 +212,12 @@ def getSoapEngine(
     Returns:
         SOAP: the soap engine already set up
     """
-    #DAMNED pass by reference of python:
-    #I need to make this a copy to avoid modifying the passed dictionary in the calling function
+    if SOAPnmax <= 0:
+        raise ValueError("SOAPnmax must be a positive non zero integer")
+    if SOAPlmax < 0:
+        raise ValueError("SOAPlmax must be a positive integer, or zero")
+    # DAMNED pass by reference of python:
+    # I need to make this a copy to avoid modifying the passed dictionary in the calling function
     mySOAPkwargs = SOAPkwargs.copy()
     species = list(set(atomNames))
     if SOAPatomMask is not None and centersMask is not None:
@@ -230,7 +239,9 @@ def getSoapEngine(
             if mySOAPkwargs["sparse"]:
                 mySOAPkwargs["sparse"] = False
                 warnings.warn("sparse output is not supported yet, switching to dense")
-        return dscribeSOAPengineContainer(dscribeSOAP(**mySOAPkwargs), centersMask)
+        return dscribeSOAPengineContainer(
+            dscribeSOAP(**mySOAPkwargs), centersMask, "dscribe"
+        )
     elif useSoapFrom == "quippy":
         """//from quippy.module_descriptors <-
         ============================= ===== =============== ===================================================
@@ -306,6 +317,6 @@ def getSoapEngine(
             settings += f" {key}={value}"
         settings += f" n_species={len(species_z)} species_Z={{{thesps}}}"
         settings += f" n_Z={len(Zs)} Z={{{theZs}}}"
-        return quippySOAPengineContainer(Descriptor(settings), centersMask)
+        return quippySOAPengineContainer(Descriptor(settings), centersMask, "quippy")
     else:
         raise NotImplementedError(f"{useSoapFrom} is not implemented yet")

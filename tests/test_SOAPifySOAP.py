@@ -40,6 +40,7 @@ def test_MultiAtomicSoapify(fixture_AtomMask, engineKind_fixture):
             useSoapFrom=engineKind_fixture,
             SOAPatomMask=fixture_AtomMask,
         )
+        assert soapGroup["testH2O"].attrs["SOAPengine"] == engineKind_fixture
         assert soapGroup["testH2O"].attrs["n_max"] == n_max
         assert soapGroup["testH2O"].attrs["l_max"] == l_max
         assert "O" in soapGroup["testH2O"].attrs["species"]
@@ -78,6 +79,7 @@ def test_MultiAtomicSoapifyGroup(fixture_AtomMask, engineKind_fixture):
             useSoapFrom=engineKind_fixture,
             SOAPatomMask=fixture_AtomMask,
         )
+        assert soapGroup["testH2O"].attrs["SOAPengine"] == engineKind_fixture
         assert soapGroup["testH2O"].attrs["n_max"] == n_max
         assert soapGroup["testH2O"].attrs["l_max"] == l_max
         assert "O" in soapGroup["testH2O"].attrs["species"]

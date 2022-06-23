@@ -19,6 +19,7 @@
 - now it is possible to select 'quippy' for calculating SOAP
 - tests reahul
 - fillSOAPVectorFromdscribe now is between 10 to 20 times faster than before
+- now name of the used engine is stored in the hdf5 file's SOAP dataset
 
 ## Changes since v0.0.2a
 

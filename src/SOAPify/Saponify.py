@@ -32,8 +32,8 @@ def saponifyWorker(
         SOAPnJobs (int, optional): the number of concurrent SOAP calculations
         (option passed to dscribe's SOAP). Defaults to 1.
     """
-    # TODO: add name of the program used
     symbols = trajGroup["Types"].asstr()[:]
+    SOAPoutDataset.attrs["SOAPengine"] = soapEngine.SOAPenginekind
     SOAPoutDataset.attrs["l_max"] = soapEngine.lmax
     SOAPoutDataset.attrs["n_max"] = soapEngine.nmax
     SOAPoutDataset.attrs["r_cut"] = soapEngine.rcut

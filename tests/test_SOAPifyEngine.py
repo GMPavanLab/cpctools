@@ -3,6 +3,7 @@ from SOAPify import getSoapEngine
 import numpy
 from numpy.testing import assert_array_equal
 from ase.data import atomic_numbers
+import pytest
 
 
 def test_askEngine(engineKind_fixture, species_fixture, nMaxFixture, lMaxFixture):
@@ -25,6 +26,7 @@ def test_askEngine(engineKind_fixture, species_fixture, nMaxFixture, lMaxFixture
         SOAPkwargs={},
         useSoapFrom=engineKind_fixture,
     )
+    assert engine.SOAPenginekind==engineKind_fixture
     nsp = len(species)
     mixes = nsp * (nsp - 1) // 2
     fullmat = n_max * n_max * (l_max + 1)
@@ -55,6 +57,84 @@ def test_askEngine(engineKind_fixture, species_fixture, nMaxFixture, lMaxFixture
                 next = prev + fullmat
             assert engine.get_location(species[i], species[j]) == slice(prev, next)
             prev = next
+
+
+def test_askEngine_notImplemented():
+    species = ["O"]
+    nMol = 27
+    SOAPrcut = 10.0
+    n_max = 1
+    l_max = 0
+    species = SOAPify.orderByZ(species)
+    # this mocks a system
+    atomNames = species * nMol
+    with pytest.raises(NotImplementedError):
+        getSoapEngine(
+            atomNames=atomNames,
+            SOAPrcut=SOAPrcut,
+            SOAPnmax=n_max,
+            SOAPlmax=l_max,
+            SOAPatomMask=None,
+            SOAP_respectPBC=True,
+            SOAPkwargs={},
+            centersMask=[i * 3 for i in range(nMol)],
+            useSoapFrom="notImplementedEngine",
+        )
+
+
+def test_askEngine_fails(engineKind_fixture, species_fixture, nMaxFixture, lMaxFixture):
+    nMol = 27
+    SOAPrcut = 10.0
+    n_max = nMaxFixture
+    l_max = lMaxFixture
+    species = SOAPify.orderByZ(species_fixture)
+    # this mocks a system
+    atomNames = species * nMol
+    if engineKind_fixture == "quippy":
+        with pytest.raises(NotImplementedError):
+            getSoapEngine(
+                atomNames=atomNames,
+                SOAPrcut=SOAPrcut,
+                SOAPnmax=n_max,
+                SOAPlmax=l_max,
+                SOAPatomMask=None,
+                SOAP_respectPBC=True,
+                SOAPkwargs={},
+                centersMask=[i * 3 for i in range(nMol)],
+                useSoapFrom=engineKind_fixture,
+            )
+    with pytest.raises(Exception):
+        getSoapEngine(
+            atomNames=atomNames,
+            SOAPrcut=SOAPrcut,
+            SOAPnmax=n_max,
+            SOAPlmax=l_max,
+            SOAPatomMask=["O"],
+            SOAP_respectPBC=True,
+            SOAPkwargs={},
+            centersMask=[i * 3 for i in range(nMol)],
+            useSoapFrom=engineKind_fixture,
+        )
+    # negative n
+    if n_max > 0:
+        with pytest.raises(ValueError):
+            getSoapEngine(
+                atomNames=atomNames,
+                SOAPrcut=SOAPrcut,
+                SOAPnmax=-n_max,
+                SOAPlmax=l_max,
+                useSoapFrom=engineKind_fixture,
+            )
+    # negative l
+    if l_max > 0:
+        with pytest.raises(ValueError):
+            getSoapEngine(
+                atomNames=atomNames,
+                SOAPrcut=SOAPrcut,
+                SOAPnmax=n_max,
+                SOAPlmax=-l_max,
+                useSoapFrom=engineKind_fixture,
+            )
 
 
 def test_noCrossoverSOAPMAPPINGDscribe(species_fixture, nMaxFixture, lMaxFixture):
