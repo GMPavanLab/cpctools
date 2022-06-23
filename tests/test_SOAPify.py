@@ -117,16 +117,16 @@ def test_fillSOAPVectorFromdscribeArrayOfVector():
                     limited += 1
 
 
-def test_fillSOAPVectorFromdscribeArrayOfVectorMultiSpecies():
+def test_fillSOAPVectorFromdscribeArrayOfVectorMultiSpecies(nMaxFixture, lMaxFixture):
     species = ["H", "O"]
 
     ncomb = 3
-    nmax = 4
-    lmax = 3
+    nmax = nMaxFixture
+    lmax = lMaxFixture
     nfeats = (lmax + 1) * nmax * nmax
     nfeatsreduced = int(((lmax + 1) * (nmax + 1) * nmax) / 2)
-    nframes = 5
-    natoms = 10
+    nframes = 50
+    natoms = 1000
     a = randint(
         0,
         10,

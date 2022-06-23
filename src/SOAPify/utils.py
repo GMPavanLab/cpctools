@@ -1,4 +1,3 @@
-from re import A
 import numpy
 from ase.data import atomic_numbers
 from itertools import combinations_with_replacement
@@ -162,7 +161,18 @@ def getSlicesFromAttrs(attrs: dict) -> "tuple(list,dict)":
 def _getIndexesForFillSOAPVectorFromdscribeSapeSpecies(
     l_max: int,
     n_max: int,
-):
+) -> numpy.ndarray:
+    """given l_max and n_max returns the indexes of the SOAP vector to be reordered to filla  complete vector
+    useful to calculate the correct distances between the SOAP vectors
+
+    Args:
+        l_max (int): the lmax specified in the calculation.
+        n_max (int): the nmax specified in the calculation.
+
+    Returns:
+        numpy.ndarray: the array of the indexes in the correct order
+    """
+
     completeData = numpy.zeros(((l_max + 1), n_max, n_max), dtype=int)
     limitedID = 0
     for l in range(l_max + 1):
@@ -187,14 +197,16 @@ def _getIndexesForFillSOAPVectorFromdscribe(
 
     Args:
         soapFromdscribe (numpy.ndarray): the result of the SOAP calculation from the dscribe utility
-        l_max (int, optional): the l_max specified in the calculation. Defaults to 8.
-        n_max (int, optional): the n_max specified in the calculation. Defaults to 8.
+        l_max (int): the l_max specified in the calculation. Defaults to 8.
+        n_max (int): the n_max specified in the calculation. Defaults to 8.
+        atomTypes (list[str]): the list of atomic species. Defaults to [None].
+        atomicSlices (dict): the slices of the SOAP vector relative to che atomic species combinations. Defaults to None.
 
     Returns:
         numpy.ndarray: The full soap spectrum, with the symmetric part sored explicitly
     """
     if atomTypes == [None]:
-        completeData = _getIndexesForFillSOAPVectorFromdscribeSapeSpecies(l_max, n_max)
+        return _getIndexesForFillSOAPVectorFromdscribeSapeSpecies(l_max, n_max)
     else:
         nOfFeatures = (l_max + 1) * n_max * n_max
         nofCombinations = len(list(combinations_with_replacement(atomTypes, 2)))
@@ -219,7 +231,7 @@ def _getIndexesForFillSOAPVectorFromdscribe(
                         + atomicSlices[s1 + s2].start
                     )
                 combinationID += 1
-    return completeData.reshape(-1)
+        return completeData
 
 
 def fillSOAPVectorFromdscribe(
@@ -229,7 +241,7 @@ def fillSOAPVectorFromdscribe(
     atomTypes: list = [None],
     atomicSlices: dict = None,
 ) -> numpy.ndarray:
-    """Given the resul of a SOAP calculation from dscribe returns the SOAP power
+    """Given the result of a SOAP calculation from dscribe returns the SOAP power
         spectrum with also the symmetric part explicitly stored, see the note in https://singroup.github.io/dscribe/1.2.x/tutorials/descriptors/soap.html
 
         No controls are implemented on the shape of the soapFromdscribe vector.
@@ -256,12 +268,6 @@ def fillSOAPVectorFromdscribe(
         raise Exception(
             "fillSOAPVectorFromdscribe: the given soap vector do not have the expected dimensions"
         )
-    fullSOAPdim = (
-        (l_max + 1)
-        * n_max
-        * n_max
-        * len(list(combinations_with_replacement(atomTypes, 2)))
-    )
     indexes = _getIndexesForFillSOAPVectorFromdscribe(
         l_max, n_max, atomTypes, atomicSlices
     )
@@ -271,7 +277,7 @@ def fillSOAPVectorFromdscribe(
     elif len(soapFromdscribe.shape) == 2:
         return soapFromdscribe[:, indexes]
     elif len(soapFromdscribe.shape) == 3:
-        return soapFromdscribe[:,:, indexes]
+        return soapFromdscribe[:, :, indexes]
     else:
         raise Exception(
             "fillSOAPVectorFromdscribe: cannot convert array with len(shape) >=3"
