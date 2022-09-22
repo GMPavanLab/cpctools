@@ -1,11 +1,27 @@
 [build-system]
 requires = [
     "setuptools>=42",
-    "wheel",
-"ase",
-"mdanalysis",
-"h5py",
-"dscribe>=1.2.0",
-"seaborn",
 ]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "SOAPify"
+description = "Molecular dynamics simulations trakjectory analysis with soap fingerprints "
+version = "0.0.3"
+requires-python = ">=3.7"
+keywords = ["SOAP", "Molecular Dynamics", "Simulations"]
+license = {text = "MIT License"}
+classifiers = [
+    "Programming Language :: Python :: 3",
+]
+dependencies = [
+    "ase",
+    "mdanalysis",
+    "h5py",
+    "dscribe>=1.2.0",
+    "seaborn",    
+]
+#dynamic = ["version"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
