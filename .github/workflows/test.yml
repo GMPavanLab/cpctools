@@ -43,4 +43,4 @@ jobs:
                 
         # Run the tests. I'm using pytest and the file is in the tests directory.
       - name: Run tests
-        run: python -m pytest test
+        run: python -m pytest tests
