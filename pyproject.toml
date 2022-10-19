@@ -18,7 +18,7 @@ dependencies = [
     "ase",
     "mdanalysis",
     "h5py",
-    "dscribe==1.2.0",
+    "dscribe==1.2.1",
     "seaborn",
     "quippy-ase",
 ]
