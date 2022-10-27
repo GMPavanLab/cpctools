@@ -6,28 +6,38 @@ build-backend = "hatchling.build"
 name = "SOAPify-GMPavanLab"
 dynamic = ["version"]
 description = "A package for creating and studying SOAP fingerprints"
-readme = { "file" = "Readme.md", "content-type" = "text/markdown" }
-license = "MIT"
+license = ""
 requires-python = ">=3.8"
-authors = [{ name = "Daniele Rapetti", email = "daniele.rapetti@polito.it" }]
+authors = [
+    { name = "Daniele Rapetti", email = "daniele.rapetti@polito.it" },
+]
 classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
 ]
-dependencies = ["ase", "mdanalysis", "h5py", "seaborn"]
-
-[project.optional-dependencies]
-dscribe = ["dscribe==1.2.1"]
-quippy = ["quippy-ase"]
 
 [project.urls]
 "Bug Tracker" = "https://github.com/GMPavanLab/SOAPify/issues"
 Homepage = "https://github.com/GMPavanLab/SOAPify"
-"Source code" = "https://github.com/GMPavanLab/SOAPify"
 
 [tool.hatch.version]
-path = "src/SOAPify/__init__.py"
+path = "hdf5er/__init__.py"
 
 [tool.hatch.build.targets.wheel]
-packages = ["SOAPify", "HDF5er", "ReferenceMaker"]
+packages = [
+    "src/ReferenceMaker",
+]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/src",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[project.optional-dependencies]
+dscribe = ["dscribe==1.2.1"]
+quippy = ["quippy-ase"]
+tests = ['pytest']
