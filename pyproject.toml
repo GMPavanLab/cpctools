@@ -1,7 +1,5 @@
 [build-system]
-requires = [
-    "setuptools>=42",
-]
+requires = ["setuptools>=42"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -10,19 +8,15 @@ description = "Molecular dynamics simulations trakjectory analysis with soap fin
 version = "0.0.3"
 requires-python = ">=3.8"
 keywords = ["SOAP", "Molecular Dynamics", "Simulations"]
-license = {text = "MIT License"}
-classifiers = [
-    "Programming Language :: Python :: 3",
-]
-dependencies = [
-    "ase",
-    "mdanalysis",
-    "h5py",
-    "dscribe==1.2.1",
-    "seaborn",
-    "quippy-ase",
-]
+license = { text = "MIT License" }
+classifiers = ["Programming Language :: Python :: 3"]
+dependencies = ["ase", "mdanalysis", "h5py", "seaborn"]
 #dynamic = ["version"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[project.optional-dependencies]
+dscribe = ["dscribe==1.2.1"]
+quippy = ["quippy-ase"]
+tests = ['pytest']
