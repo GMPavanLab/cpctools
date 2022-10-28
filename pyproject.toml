@@ -29,5 +29,23 @@ Homepage = "https://github.com/GMPavanLab/SOAPify"
 [tool.hatch.version]
 path = "src/SOAPify/__init__.py"
 
-[tool.hatch.build.targets.wheel]
-packages = ["SOAPify", "HDF5er", "ReferenceMaker"]
+
+[tool.hatch.build]
+sources = ["src"]
+only-packages = true
+
+[tool.hatch.envs.default]
+skip-install = false
+
+[tool.hatch.envs.test]
+pre-install-commands = ["which python"]
+
+extra-dependencies = ["coverage[toml]", "pytest", "pytest-cov"]
+features = ["dscribe", "quippy"]
+
+[tool.hatch.envs.test.scripts]
+cov = 'pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=pkg --cov=tests'
+
+
+[[tool.hatch.envs.test.matrix]]
+python = ["38", "39"]
