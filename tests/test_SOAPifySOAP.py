@@ -3,7 +3,6 @@ import SOAPify
 import numpy
 from numpy.testing import assert_array_equal
 import h5py
-import MDAnalysis as mda
 import HDF5er
 from .testSupport import getUniverseWithWaterMolecules
 import pytest

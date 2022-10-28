@@ -3,10 +3,21 @@ import warnings
 import numpy
 from ase.data import atomic_numbers, chemical_symbols
 import ase
-from dscribe.descriptors import SOAP as dscribeSOAP
-from quippy.descriptors import Descriptor
 from .utils import orderByZ, _getRSindex, getAddressesQuippyLikeDscribe
 from typing import Iterable
+
+try:
+    from dscribe.descriptors import SOAP as dscribeSOAP
+
+    HAVE_DSCRIBE = True
+except ImportError:
+    HAVE_DSCRIBE = False
+try:
+    from quippy.descriptors import Descriptor
+
+    HAVE_QUIPPY = True
+except ImportError:
+    HAVE_QUIPPY = False
 
 
 def centerMaskCreator(
@@ -97,15 +108,24 @@ class dscribeSOAPengineContainer(SOAPengineContainer):
 
     @property
     def nmax(self):
-        return self.SOAPengine._nmax
+        if hasattr(self.SOAPengine, "_nmax"):
+            return self.SOAPengine._nmax
+        if hasattr(self.SOAPengine, "_n_max"):
+            return self.SOAPengine._n_max
 
     @property
     def lmax(self):
-        return self.SOAPengine._lmax
+        if hasattr(self.SOAPengine, "_lmax"):
+            return self.SOAPengine._lmax
+        if hasattr(self.SOAPengine, "_l_max"):
+            return self.SOAPengine._l_max
 
     @property
     def rcut(self):
-        return self.SOAPengine._rcut
+        if hasattr(self.SOAPengine, "_rcut"):
+            return self.SOAPengine._rcut
+        if hasattr(self.SOAPengine, "_r_cut"):
+            return self.SOAPengine._r_cut
 
     @property
     def species(self):
@@ -226,6 +246,8 @@ def getSoapEngine(
         centersMask = centerMaskCreator(SOAPatomMask, atomNames)
     species = orderByZ(species)
     if useSoapFrom == "dscribe":
+        if not HAVE_DSCRIBE:
+            raise ImportError("dscribe is not installed in your current environment")
         mySOAPkwargs.update(
             dict(
                 species=species,
@@ -243,6 +265,8 @@ def getSoapEngine(
             dscribeSOAP(**mySOAPkwargs), centersMask, "dscribe"
         )
     elif useSoapFrom == "quippy":
+        if not HAVE_QUIPPY:
+            raise ImportError("quippy-ase is not installed in your current environment")
         """//from quippy.module_descriptors <-
         ============================= ===== =============== ===================================================
         Name                          Type  Value           Doc

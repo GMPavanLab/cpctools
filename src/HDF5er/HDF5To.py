@@ -98,6 +98,7 @@ def getXYZfromTrajGroup(
         ):
             raise ValueError(
                 'Extra data passed to "getXYZfromTrajGroup" do not has the right dimensions'
+                + f"\n(Trajectory shape:{coordData.shape[0:2]}, data {key} shape:{shapeOfData})"
             )
         # Removing this functionality, it was a workaround while waiting for 'framesToExport' to be implemented
         # if there are less data htan frames this functiol will only eport the first frames

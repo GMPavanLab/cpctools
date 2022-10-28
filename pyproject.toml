@@ -1,28 +1,57 @@
 [build-system]
-requires = [
-    "setuptools>=42",
-]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
-name = "SOAPify"
-description = "Molecular dynamics simulations trakjectory analysis with soap fingerprints "
-version = "0.0.3"
+name = "SOAPify-GMPavanLab"
+dynamic = ["version"]
+description = "A package for creating and studying SOAP fingerprints"
+readme = { "file" = "Readme.md", "content-type" = "text/markdown" }
+license = "MIT"
 requires-python = ">=3.8"
-keywords = ["SOAP", "Molecular Dynamics", "Simulations"]
-license = {text = "MIT License"}
+authors = [{ name = "Daniele Rapetti", email = "daniele.rapetti@polito.it" }]
 classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
 ]
-dependencies = [
-    "ase",
-    "mdanalysis",
-    "h5py",
-    "dscribe==1.2.1",
-    "seaborn",
+
+dependencies = ["ase", "mdanalysis", "h5py", "seaborn"]
+
+#[project.optional-dependencies]
+#dscribe = ["dscribe==1.2.1"]
+#quippy = ["quippy-ase"]
+
+[project.urls]
+"Bug Tracker" = "https://github.com/GMPavanLab/SOAPify/issues"
+Homepage = "https://github.com/GMPavanLab/SOAPify"
+"Source code" = "https://github.com/GMPavanLab/SOAPify"
+
+[tool.hatch.version]
+path = "src/SOAPify/__init__.py"
+
+
+[tool.hatch.build]
+sources = ["src"]
+only-packages = true
+
+[tool.hatch.envs.default]
+skip-install = false
+
+[tool.hatch.envs.test]
+pre-install-commands = ["which python"]
+
+extra-dependencies = [
+    "coverage[toml]",
+    "pytest",
+    "pytest-cov",
+    "dscribe >1.2.0, <=1.2.2",
     "quippy-ase",
 ]
-#dynamic = ["version"]
 
-[tool.setuptools.packages.find]
-where = ["src"]
+[tool.hatch.envs.test.scripts]
+cov = 'pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=pkg --cov=tests'
+
+
+[[tool.hatch.envs.test.matrix]]
+python = ["3.8", "3.9"]
