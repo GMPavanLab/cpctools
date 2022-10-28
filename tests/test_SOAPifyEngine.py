@@ -46,7 +46,7 @@ def test_askEngine(engineKind_fixture, species_fixture, nMaxFixture, lMaxFixture
 
     if engineKind_fixture == "dscribe":
         # check if the engine is accessible
-        assert getNMax(engine) == n_max
+        assert getNMax(engine.engine) == n_max
     if engineKind_fixture == "quippy":
         keys = list(engine._slices.keys())
         for i in range(len(species)):
