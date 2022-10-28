@@ -8,7 +8,14 @@ To set up the environment and install _SOAPify_ run the following in the reposit
 python3 -m venv ./venv --prompt SOAPify
 source ./venv/bin/activate
 pip install --upgrade pip 
-pip install ".[dscribe,quippy]"
+pip install .
+```
+
+If you want to use _dscribe_ or _quippy_ for calculating the SOAP features you should install them separately:
+
+```
+pip install "dscribe >1.2.0 <=1.2.2"
+pip install quippy-ase
 ```
 
 (pypi support is incoming!)

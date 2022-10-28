@@ -17,9 +17,9 @@ classifiers = [
 ]
 dependencies = ["ase", "mdanalysis", "h5py", "seaborn"]
 
-[project.optional-dependencies]
-dscribe = ["dscribe==1.2.1"]
-quippy = ["quippy-ase"]
+#[project.optional-dependencies]
+#dscribe = ["dscribe==1.2.1"]
+#quippy = ["quippy-ase"]
 
 [project.urls]
 "Bug Tracker" = "https://github.com/GMPavanLab/SOAPify/issues"
@@ -40,8 +40,13 @@ skip-install = false
 [tool.hatch.envs.test]
 pre-install-commands = ["which python"]
 
-extra-dependencies = ["coverage[toml]", "pytest", "pytest-cov"]
-features = ["dscribe", "quippy"]
+extra-dependencies = [
+    "coverage[toml]",
+    "pytest",
+    "pytest-cov",
+    "dscribe >1.2.0, <=1.2.2",
+    "quippy-ase",
+]
 
 [tool.hatch.envs.test.scripts]
 cov = 'pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=pkg --cov=tests'
