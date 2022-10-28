@@ -54,4 +54,4 @@ cov = 'pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=pkg --
 
 
 [[tool.hatch.envs.test.matrix]]
-python = ["38", "39"]
+python = ["3.8", "3.9"]
