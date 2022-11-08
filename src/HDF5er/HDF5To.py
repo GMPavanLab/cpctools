@@ -8,6 +8,7 @@ __all__ = [
     "getXYZfromTrajGroup",
     "saveXYZfromTrajGroup",
     "HDF52AseAtomsChunckedwithSymbols",
+    "getXYZfromMDA",
 ]
 
 # TODO: using slices is not the best compromise here
@@ -165,3 +166,17 @@ def saveXYZfromTrajGroup(
             perFrameProperties,
             **additionalColumns,
         )
+
+
+import MDAnalysis
+
+
+def getXYZfromMDA(
+    filelike: IO,
+    group: "MDAnalysis.Universe | MDAnalysis.AtomGroup",
+    framesToExport: "List or slice or None" = None,
+    allFramesProperty: str = "",
+    perFrameProperties: "list[str]" = None,
+    **additionalColumns,
+) -> None:
+    pass
