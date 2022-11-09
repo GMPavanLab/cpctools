@@ -1,5 +1,68 @@
 import MDAnalysis
 import numpy
+import re
+from io import StringIO
+from MDAnalysis.lib.mdamath import triclinic_vectors
+
+__PropertiesFinder = re.compile('Properties="{0,1}(.*?)"{0,1}(?: |$)', flags=0)
+__LatticeFinder = re.compile('Lattice="(.*?)"', flags=0)
+
+
+def checkStringDataFromUniverse(
+    stringData: StringIO,
+    myUniverse,
+    frameSlice: slice,
+    allFramesProperty: str = None,
+    perFrameProperties: list = None,
+    **passedValues,
+):
+    lines = stringData.getvalue().splitlines()
+    nat = int(lines[0])
+    assert int(lines[0]) == len(myUniverse.atoms)
+    assert lines[2].split()[0] == myUniverse.atoms.types[0]
+    for frame, traj in enumerate(myUniverse.trajectory[frameSlice]):
+        frameID = frame * (nat + 2)
+        assert int(lines[frameID]) == nat
+        Lattice = __LatticeFinder.search(lines[frameID + 1]).group(1).split()
+        Properties = __PropertiesFinder.search(lines[frameID + 1]).group(1).split(":")
+        WhereIsTheProperty = dict()
+        for name in passedValues.keys():
+            assert name in Properties
+            mapPos = Properties.index(name)
+            WhereIsTheProperty[name] = numpy.sum(
+                [int(k) for k in Properties[2:mapPos:3]]
+            )
+        numberOfproperties = int(numpy.sum([int(k) for k in Properties[2::3]]))
+
+        universeBox = triclinic_vectors(myUniverse.dimensions).flatten()
+        for original, control in zip(universeBox, Lattice):
+            assert (original - float(control)) < 1e-7
+        if allFramesProperty is not None:
+            assert allFramesProperty in lines[frameID + 1]
+        if perFrameProperties is not None:
+            assert perFrameProperties[frame] in lines[frameID + 1]
+        for atomID in range(len(myUniverse.atoms)):
+            thisline = lines[frameID + 2 + atomID]
+            print(thisline)
+            assert thisline.split()[0] == myUniverse.atoms.types[atomID]
+            assert len(thisline.split()) == numberOfproperties
+            for name in passedValues.keys():
+                if len(passedValues[name].shape) == 2:
+                    assert (
+                        int((thisline.split()[WhereIsTheProperty[name]]))
+                        == passedValues[name][frame, atomID]
+                    )
+                else:
+                    for i, d in enumerate(passedValues[name][frame, atomID]):
+                        assert (
+                            int((thisline.split()[WhereIsTheProperty[name] + i])) == d
+                        )
+
+            for i in range(3):
+                assert (
+                    float(thisline.split()[i + 1])
+                    == myUniverse.atoms.positions[atomID][i]
+                )
 
 
 def getUniverseWithWaterMolecules(n_residues=10):

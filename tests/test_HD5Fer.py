@@ -4,7 +4,7 @@ import pytest
 import numpy
 from MDAnalysis.lib.mdamath import triclinic_vectors
 from io import StringIO
-from .testSupport import giveUniverse
+from .testSupport import giveUniverse, checkStringDataFromUniverse
 
 
 def test_istTrajectoryGroupCheck():
@@ -107,54 +107,6 @@ def test_MDA2HDF5Box():
                     assert aseTraj[0].cell[j][i] - d < 1e-7
 
 
-def checkStringDataAndUniverse(
-    stringData: StringIO, myUniverse, frameSlice: slice, **passedValues
-):
-    lines = stringData.getvalue().splitlines()
-    nat = int(lines[0])
-    assert int(lines[0]) == len(myUniverse.atoms)
-    assert lines[2].split()[0] == myUniverse.atoms.types[0]
-    for frame, traj in enumerate(myUniverse.trajectory[frameSlice]):
-        frameID = frame * (nat + 2)
-        assert int(lines[frameID]) == nat
-        t = lines[frameID + 1].split(" Lattice=")
-        Lattice = t[1].replace('"', "").split()
-        Properties = t[0].split("=")[-1].split(":")
-        WhereIsTheProperty = dict()
-        for name in passedValues.keys():
-            assert name in Properties
-            mapPos = Properties.index(name)
-            WhereIsTheProperty[name] = numpy.sum(
-                [int(k) for k in Properties[2:mapPos:3]]
-            )
-        numberOfproperties = numpy.sum([int(k) for k in Properties[2::3]])
-        universeBox = triclinic_vectors(myUniverse.dimensions).flatten()
-        for original, control in zip(universeBox, Lattice):
-            assert (original - float(control)) < 1e-7
-        for atomID in range(len(myUniverse.atoms)):
-            thisline = lines[frameID + 2 + atomID]
-            print(thisline)
-            assert thisline.split()[0] == myUniverse.atoms.types[atomID]
-            assert len(thisline.split()) == numberOfproperties
-            for name in passedValues.keys():
-                if len(passedValues[name].shape) == 2:
-                    assert (
-                        int((thisline.split()[WhereIsTheProperty[name]]))
-                        == passedValues[name][frame, atomID]
-                    )
-                else:
-                    for i, d in enumerate(passedValues[name][frame, atomID]):
-                        assert (
-                            int((thisline.split()[WhereIsTheProperty[name] + i])) == d
-                        )
-
-            for i in range(3):
-                assert (
-                    float(thisline.split()[i + 1])
-                    == myUniverse.atoms.positions[atomID][i]
-                )
-
-
 def test_copyMDA2HDF52xyz1DData(input_framesSlice):
 
     angles = (75.0, 60.0, 90.0)
@@ -175,7 +127,7 @@ def test_copyMDA2HDF52xyz1DData(input_framesSlice):
             OneDData=OneDData,
         )
 
-        checkStringDataAndUniverse(
+        checkStringDataFromUniverse(
             stringData,
             fourAtomsFiveFrames,
             input_framesSlice,
@@ -208,7 +160,7 @@ def test_copyMDA2HDF52xyzMultiDData(input_framesSlice):
             framesToExport=input_framesSlice,
             MultiDData=MultiDData,
         )
-        checkStringDataAndUniverse(
+        checkStringDataFromUniverse(
             stringData,
             fourAtomsFiveFrames,
             input_framesSlice,
@@ -233,33 +185,12 @@ def test_copyMDA2HDF52xyzAllFrameProperty(input_framesSlice):
             allFramesProperty='Origin="-1 -1 -1"',
         )
 
-        lines = stringData.getvalue().splitlines()
-        nat = int(lines[0])
-        assert int(lines[0]) == len(fourAtomsFiveFrames.atoms)
-        assert lines[2].split()[0] == fourAtomsFiveFrames.atoms.types[0]
-        for frame, traj in enumerate(fourAtomsFiveFrames.trajectory[input_framesSlice]):
-            frameID = frame * (nat + 2)
-            assert int(lines[frameID]) == nat
-            t = lines[frameID + 1].split(" Lattice=")
-            Lattice = t[1].replace('"', "").split()
-            assert "Origin" in lines[frameID + 1]
-            t = lines[frameID + 1].split(" Origin=")[1].split('"')[1]
-            for v in t.split(" "):
-                assert int(v) == -1
-            for original, control in zip(latticeVector, Lattice):
-                assert (original - float(control)) < 1e-7
-            for atomID in range(len(fourAtomsFiveFrames.atoms)):
-                thisline = frameID + 2 + atomID
-                assert (
-                    lines[thisline].split()[0]
-                    == fourAtomsFiveFrames.atoms.types[atomID]
-                )
-                assert len(lines[thisline].split()) == 4
-                for i in range(3):
-                    assert (
-                        float(lines[thisline].split()[i + 1])
-                        == fourAtomsFiveFrames.atoms.positions[atomID][i]
-                    )
+        checkStringDataFromUniverse(
+            stringData,
+            fourAtomsFiveFrames,
+            input_framesSlice,
+            allFramesProperty='Origin="-1 -1 -1"',
+        )
 
 
 def test_copyMDA2HDF52xyzPerFrameProperty(input_framesSlice):
@@ -282,36 +213,12 @@ def test_copyMDA2HDF52xyzPerFrameProperty(input_framesSlice):
             framesToExport=input_framesSlice,
             perFrameProperties=perFrameProperties,
         )
-
-        lines = stringData.getvalue().splitlines()
-        nat = int(lines[0])
-        assert int(lines[0]) == len(fourAtomsFiveFrames.atoms)
-        assert lines[2].split()[0] == fourAtomsFiveFrames.atoms.types[0]
-        for frame, traj in enumerate(fourAtomsFiveFrames.trajectory[input_framesSlice]):
-            frameID = frame * (nat + 2)
-            assert int(lines[frameID]) == nat
-            t = lines[frameID + 1].split(" Lattice=")
-            Lattice = t[1].replace('"', "").split()
-            assert "Originpf" in lines[frameID + 1]
-            t = lines[frameID + 1].split(" Originpf=")[1].split('"')[1]
-            to = perFrameProperties[frame].split("Originpf=")[1].split('"')[1]
-            for saved, orig in zip(t.split(" "), to.split(" ")):
-                assert int(saved) == int(orig)
-            for original, control in zip(latticeVector, Lattice):
-                assert (original - float(control)) < 1e-7
-            for atomID in range(len(fourAtomsFiveFrames.atoms)):
-                thisline = frameID + 2 + atomID
-                assert (
-                    lines[thisline].split()[0]
-                    == fourAtomsFiveFrames.atoms.types[atomID]
-                )
-                assert len(lines[thisline].split()) == 4
-                for i in range(3):
-                    assert (
-                        float(lines[thisline].split()[i + 1])
-                        == fourAtomsFiveFrames.atoms.positions[atomID][i]
-                    )
-
+        checkStringDataFromUniverse(
+            stringData,
+            fourAtomsFiveFrames,
+            input_framesSlice,
+            perFrameProperties=perFrameProperties,
+        )
 
 def test_copyMDA2HDF52xyz_error1D():
     angles = (75.0, 60.0, 90.0)
