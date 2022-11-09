@@ -107,6 +107,51 @@ def test_MDA2HDF5Box():
                     assert aseTraj[0].cell[j][i] - d < 1e-7
 
 
+def checkStringDataAndUniverse(
+    stringData: StringIO, myUniverse, frameSlice: slice, **passedValues
+):
+    lines = stringData.getvalue().splitlines()
+    nat = int(lines[0])
+    assert int(lines[0]) == len(myUniverse.atoms)
+    assert lines[2].split()[0] == myUniverse.atoms.types[0]
+    for frame, traj in enumerate(myUniverse.trajectory[frameSlice]):
+        frameID = frame * (nat + 2)
+        assert int(lines[frameID]) == nat
+        t = lines[frameID + 1].split(" Lattice=")
+        Lattice = t[1].replace('"', "").split()
+        Properties = t[0].split("=")[-1].split(":")
+        WhereIsTheProperty = dict()
+        for name in passedValues.keys():
+            assert name in Properties
+            mapPos = Properties.index(name)
+            WhereIsTheProperty[name] = numpy.sum(
+                [int(k) for k in Properties[2:mapPos:3]]
+            )
+            print(
+                name,
+                WhereIsTheProperty[name],
+                Properties[2:mapPos:3],
+            )
+
+        universeBox = triclinic_vectors(myUniverse.dimensions).flatten()
+        for original, control in zip(universeBox, Lattice):
+            assert (original - float(control)) < 1e-7
+        for atomID in range(len(myUniverse.atoms)):
+            thisline = frameID + 2 + atomID
+            assert lines[thisline].split()[0] == myUniverse.atoms.types[atomID]
+            assert len(lines[thisline].split()) == 4 + len(passedValues)
+            for name in passedValues.keys():
+                assert (
+                    int((lines[thisline].split()[WhereIsTheProperty[name]]))
+                    == passedValues[name][frame, atomID]
+                )
+            for i in range(3):
+                assert (
+                    float(lines[thisline].split()[i + 1])
+                    == myUniverse.atoms.positions[atomID][i]
+                )
+
+
 def test_copyMDA2HDF52xyz1DData(input_framesSlice):
 
     angles = (75.0, 60.0, 90.0)
@@ -130,33 +175,12 @@ def test_copyMDA2HDF52xyz1DData(input_framesSlice):
             OneDData=OneDData,
         )
 
-        lines = stringData.getvalue().splitlines()
-        nat = int(lines[0])
-        assert int(lines[0]) == len(fourAtomsFiveFrames.atoms)
-        assert lines[2].split()[0] == fourAtomsFiveFrames.atoms.types[0]
-        for frame, traj in enumerate(fourAtomsFiveFrames.trajectory[input_framesSlice]):
-            frameID = frame * (nat + 2)
-            assert int(lines[frameID]) == nat
-            t = lines[frameID + 1].split(" Lattice=")
-            Lattice = t[1].replace('"', "").split()
-            Properties = t[0].split(":")
-
-            assert "OneDData" in Properties
-            for original, control in zip(latticeVector, Lattice):
-                assert (original - float(control)) < 1e-7
-            for atomID in range(len(fourAtomsFiveFrames.atoms)):
-                thisline = frameID + 2 + atomID
-                assert (
-                    lines[thisline].split()[0]
-                    == fourAtomsFiveFrames.atoms.types[atomID]
-                )
-                assert len(lines[thisline].split()) == 5
-                assert int((lines[thisline].split()[-1])) == OneDData[frame, atomID]
-                for i in range(3):
-                    assert (
-                        float(lines[thisline].split()[i + 1])
-                        == fourAtomsFiveFrames.atoms.positions[atomID][i]
-                    )
+        checkStringDataAndUniverse(
+            stringData,
+            fourAtomsFiveFrames,
+            input_framesSlice,
+            OneDData=OneDData,
+        )
 
 
 def test_copyMDA2HDF52xyzMultiDData(input_framesSlice):
@@ -214,6 +238,12 @@ def test_copyMDA2HDF52xyzMultiDData(input_framesSlice):
                         float(lines[thisline].split()[i + 1])
                         == fourAtomsFiveFrames.atoms.positions[atomID][i]
                     )
+            checkStringDataAndUniverse(
+            stringData,
+            fourAtomsFiveFrames,
+            input_framesSlice,
+            MultiDData=MultiDData,
+        )
 
 
 def test_copyMDA2HDF52xyzAllFrameProperty(input_framesSlice):
