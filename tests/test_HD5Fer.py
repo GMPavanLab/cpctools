@@ -108,7 +108,6 @@ def test_MDA2HDF5Box():
 
 
 def test_copyMDA2HDF52xyz1DData(input_framesSlice):
-
     angles = (75.0, 60.0, 90.0)
     fourAtomsFiveFrames = giveUniverse(angles)
     rng = numpy.random.default_rng(12345)
@@ -171,9 +170,6 @@ def test_copyMDA2HDF52xyzMultiDData(input_framesSlice):
 def test_copyMDA2HDF52xyzAllFrameProperty(input_framesSlice):
     angles = (75.0, 60.0, 90.0)
     fourAtomsFiveFrames = giveUniverse(angles)
-    latticeVector = triclinic_vectors(
-        [6.0, 6.0, 6.0, angles[0], angles[1], angles[2]]
-    ).flatten()
     HDF5er.MDA2HDF5(fourAtomsFiveFrames, "test.hdf5", "4Atoms5Frames", override=True)
     with h5py.File("test.hdf5", "r") as hdf5test:
         group = hdf5test["Trajectories/4Atoms5Frames"]
@@ -243,9 +239,6 @@ def test_copyMDA2HDF52xyz_error1D():
 def test_copyMDA2HDF52xyz_error2D():
     angles = (75.0, 60.0, 90.0)
     fourAtomsFiveFrames = giveUniverse(angles)
-    latticeVector = triclinic_vectors(
-        [6.0, 6.0, 6.0, angles[0], angles[1], angles[2]]
-    ).flatten()
     rng = numpy.random.default_rng(12345)
     TwoDData = rng.integers(
         0,
@@ -266,9 +259,6 @@ def test_copyMDA2HDF52xyz_error2D():
 def test_copyMDA2HDF52xyz_wrongD():
     angles = (75.0, 60.0, 90.0)
     fourAtomsFiveFrames = giveUniverse(angles)
-    latticeVector = triclinic_vectors(
-        [6.0, 6.0, 6.0, angles[0], angles[1], angles[2]]
-    ).flatten()
     rng = numpy.random.default_rng(12345)
     WrongDData = rng.integers(
         0,
@@ -290,9 +280,6 @@ def test_copyMDA2HDF52xyz_wrongD():
 def test_copyMDA2HDF52xyz_wrongTrajlen():
     angles = (75.0, 60.0, 90.0)
     fourAtomsFiveFrames = giveUniverse(angles)
-    latticeVector = triclinic_vectors(
-        [6.0, 6.0, 6.0, angles[0], angles[1], angles[2]]
-    ).flatten()
     rng = numpy.random.default_rng(12345)
     WrongDData = rng.integers(
         0,

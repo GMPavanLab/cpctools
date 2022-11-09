@@ -57,7 +57,7 @@ def getXYZfromTrajGroup(
     perFrameProperties: "list[str]" = None,
     **additionalColumns,
 ) -> None:
-    """generate an xyz-style string from a trajectory group in an hdf5
+    """generate an xyz-file in a IO object from a trajectory group in an hdf5
 
         The string generated can be then exported to a file,
         the additionalColumns arguments are added as extra columns to the file,
@@ -66,6 +66,7 @@ def getXYZfromTrajGroup(
         this will add one or more columns to the xyz file
 
     Args:
+        filelike (IO): the IO destination, can be a file
         group (h5py.Group): the trajectory group
         frames (List or slice or None, optional): the frames to export. Defaults to None.
         allFramesProperty (str, optional): A comment string that will be present in all of the frames. Defaults to "".
@@ -136,8 +137,6 @@ def getXYZfromTrajGroup(
         filelike.write(data)
 
 
-# TODO: add the possibility to append
-# TODO: add the possibility to pass a file handler
 # TODO: it is slow with huge files
 def saveXYZfromTrajGroup(
     filename: str,
@@ -147,8 +146,9 @@ def saveXYZfromTrajGroup(
     perFrameProperties: "list[str]" = None,
     **additionalColumns,
 ) -> None:
-    """Saves "filename" as an xyz file see
-       saveXYZfromTrajGroup this calls getXYZfromTrajGroup and treats the inputs in the same way
+    """Saves "filename" as an xyz file
+
+    see saveXYZfromTrajGroup this calls getXYZfromTrajGroup and treats the inputs in the same way
 
     Args:
         filename (str): name of the file
@@ -174,9 +174,85 @@ import MDAnalysis
 def getXYZfromMDA(
     filelike: IO,
     group: "MDAnalysis.Universe | MDAnalysis.AtomGroup",
-    framesToExport: "List or slice or None" = None,
+    framesToExport: "List or slice or None" = slice(None),
     allFramesProperty: str = "",
     perFrameProperties: "list[str]" = None,
     **additionalColumns,
 ) -> None:
-    pass
+    """generate an xyz-file in a IO object from an MDA trajectory
+
+        The string generated can be then exported to a file,
+        the additionalColumns arguments are added as extra columns to the file,
+        they must be numpy.ndarray with shape (nofFrames,NofAtoms) for 1D data
+        or (nofFrames,NofAtoms,Nvalues) for multidimensional data
+        this will add one or more columns to the xyz file
+
+    Args:
+        filelike (IO): the IO destination, can be a file
+        group (MDAnalysis.Universe | MDAnalysis.AtomGroup): the universe or the selection of atoms to export
+        frames (List or slice or None, optional): the frames to export. Defaults to None.
+        allFramesProperty (str, optional): A comment string that will be present in all of the frames. Defaults to "".
+        perFrameProperties (list[str], optional): A list of comment. Defaults to None.
+        additionalColumns(): the additional columns to add to the file
+    Returns:
+        str: the content of the xyz file
+    """
+    data = ""
+    atoms = group.atoms
+    universe = group.universe
+    atomtypes = atoms.types
+
+    coordData: MDAnalysis.Universe | MDAnalysis.AtomGroup = (
+        group if framesToExport is None else group.trajectory[framesToExport]
+    )
+
+    trajlen: int = len(coordData)
+    nat: int = len(atoms)
+    additional = ""
+    for key in additionalColumns:
+        shapeOfData = additionalColumns[key].shape
+        dim = shapeOfData[2] if len(shapeOfData) == 3 else 1
+        if (  # wrong shape of the array
+            (len(shapeOfData) != 2 and len(shapeOfData) != 3)
+            # More data than frames
+            or shapeOfData[0] > trajlen
+            # wrong number of atoms
+            or shapeOfData[1] != nat
+        ):
+            raise ValueError(
+                'Extra data passed to "getXYZfromMDA" do not has the right dimensions'
+                + f"\n(Trajectory shape:{coordData.shape[0:2]}, data {key} shape:{shapeOfData})"
+            )
+        # Removing this functionality, it was a workaround while waiting for 'framesToExport' to be implemented
+        # if there are less data htan frames this functiol will only eport the first frames
+        # trajlen = min(trajlen, shapeOfData[0])
+        additional += ":" + key + ":R:" + str(dim)
+    if perFrameProperties is not None:
+        if len(perFrameProperties) != trajlen:
+            raise ValueError(
+                "perFrameProperties do not have the same lenght of the trajectory"
+            )
+    header: str = (
+        f"{nat}\nProperties=species:S:1:pos:R:3{additional} {allFramesProperty}"
+    )
+    for frameIndex, frame in enumerate(universe.trajectory[framesToExport]):
+        coord = atoms.positions
+        data = f"{header}"
+        data += (
+            f" {perFrameProperties[frame]}" if perFrameProperties is not None else ""
+        )
+        theBox = triclinic_vectors(universe.dimensions)
+        data += f' Lattice="{theBox[0][0]} {theBox[0][1]} {theBox[0][2]} '
+        data += f"{theBox[1][0]} {theBox[1][1]} {theBox[1][2]} "
+        data += f'{theBox[2][0]} {theBox[2][1]} {theBox[2][2]}"'
+        data += "\n"
+
+        for atomID in range(nat):
+            data += f"{atomtypes[atomID]} {coord[atomID,0]} {coord[atomID,1]} {coord[atomID,2]}"
+            for key in additionalColumns:
+                # this removes the brackets from the data if the dimensions are >1
+                data += " " + re.sub(
+                    "( \[|\[|\])", "", str(additionalColumns[key][frameIndex, atomID])
+                )
+            data += "\n"
+        filelike.write(data)
