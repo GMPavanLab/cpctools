@@ -10,17 +10,19 @@ __LatticeFinder = re.compile('Lattice="(.*?)"', flags=0)
 
 def checkStringDataFromUniverse(
     stringData: StringIO,
-    myUniverse,
+    myUniverse: "MDAnalysis.Universe | MDAnalysis.AtomGroup",
     frameSlice: slice,
     allFramesProperty: str = None,
     perFrameProperties: list = None,
     **passedValues,
 ):
+    universe = myUniverse.universe
+    atoms = myUniverse.atoms
     lines = stringData.getvalue().splitlines()
     nat = int(lines[0])
-    assert int(lines[0]) == len(myUniverse.atoms)
-    assert lines[2].split()[0] == myUniverse.atoms.types[0]
-    for frame, traj in enumerate(myUniverse.trajectory[frameSlice]):
+    assert int(lines[0]) == len(atoms)
+    assert lines[2].split()[0] == atoms.types[0]
+    for frame, traj in enumerate(universe.trajectory[frameSlice]):
         frameID = frame * (nat + 2)
         assert int(lines[frameID]) == nat
         Lattice = __LatticeFinder.search(lines[frameID + 1]).group(1).split()

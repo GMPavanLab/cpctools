@@ -203,7 +203,9 @@ def getXYZfromMDA(
     atomtypes = atoms.types
 
     coordData: MDAnalysis.Universe | MDAnalysis.AtomGroup = (
-        group if framesToExport is None else group.trajectory[framesToExport]
+        universe.trajectory
+        if framesToExport is None
+        else universe.trajectory[framesToExport]
     )
 
     trajlen: int = len(coordData)
