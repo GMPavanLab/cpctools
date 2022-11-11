@@ -3,7 +3,6 @@ import SOAPify
 import numpy
 from numpy.testing import assert_array_equal
 import h5py
-import MDAnalysis as mda
 import HDF5er
 from .testSupport import getUniverseWithWaterMolecules
 import pytest
@@ -108,7 +107,7 @@ def test_slicesNo():
     upperDiag = (l_max + 1) * ((n_max) * (n_max + 1)) // 2
     fullmat = n_max * n_max * (l_max + 1)
     rcut = 10.0
-    with h5py.File("testH2O.hdf5", "a") as f:
+    with h5py.File("testH2O_slices.hdf5", "a") as f:
         soapGroup = f.require_group("SOAP")
         SOAPify.saponifyGroup(
             f["Trajectories"],

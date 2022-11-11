@@ -1,7 +1,0 @@
-ase
-mdanalysis
-h5py
-dscribe>=1.2.0
-seaborn
-quippy-ase
-#https://github.com/libAtoms/quippy-wheels/releases/download/v0.9.10-rc2/quippy_ase-0.9.10rc2-cp38-cp38-manylinux_2_12_x86_64.manylinux2010_x86_64.whl

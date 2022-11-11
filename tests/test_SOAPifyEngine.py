@@ -6,6 +6,13 @@ from ase.data import atomic_numbers
 import pytest
 
 
+def getNMax(SOAPengine):
+    if hasattr(SOAPengine, "_nmax"):
+        return SOAPengine._nmax
+    if hasattr(SOAPengine, "_n_max"):
+        return SOAPengine._n_max
+
+
 def test_askEngine(engineKind_fixture, species_fixture, nMaxFixture, lMaxFixture):
     # No centermask
     nMol = 27
@@ -26,7 +33,7 @@ def test_askEngine(engineKind_fixture, species_fixture, nMaxFixture, lMaxFixture
         SOAPkwargs={},
         useSoapFrom=engineKind_fixture,
     )
-    assert engine.SOAPenginekind==engineKind_fixture
+    assert engine.SOAPenginekind == engineKind_fixture
     nsp = len(species)
     mixes = nsp * (nsp - 1) // 2
     fullmat = n_max * n_max * (l_max + 1)
@@ -39,7 +46,7 @@ def test_askEngine(engineKind_fixture, species_fixture, nMaxFixture, lMaxFixture
 
     if engineKind_fixture == "dscribe":
         # check if the engine is accessible
-        assert engine.engine._nmax == n_max
+        assert getNMax(engine.engine) == n_max
     if engineKind_fixture == "quippy":
         keys = list(engine._slices.keys())
         for i in range(len(species)):

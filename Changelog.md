@@ -1,5 +1,8 @@
 # Changelog
 
+Until we get to a release version you may encounter different broken interface problem each time we increase a minor version.
+
+
 ## Changes since v0.0.3
 
 - `getXYZfromTrajGroup` now accept IO objects as inputs
@@ -20,6 +23,8 @@
 - tests reahul
 - fillSOAPVectorFromdscribe now is between 10 to 20 times faster than before
 - now name of the used engine is stored in the hdf5 file's SOAP dataset
+- added a small utility to make the nmax/lmax/rcut getter work regardless the compatible dscribe engine
+- now installation procedure ignores dscribe/quippy: you should install them separately, but you do not need to wait for their compilation if you only need the analysis features
 
 ## Changes since v0.0.2a
 
