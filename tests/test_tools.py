@@ -36,11 +36,43 @@ def input_CreateParameters(request):
 
 
 def test_MDA2EXYZ(input_framesSlice, input_CreateParameters):
+@pytest.fixture(
+    scope="module",
+    params=[(True, False), (True, True), (False, False)],
+)
+def input_CreateParameters(request):
+    oneD, MultD = request.param
+
+    class ParameterCreator:
+        def __init__(self, doOneD, doMultyD):
+            self.doOneD = doOneD
+            self.doMultD = doMultyD
+            self.rng = numpy.random.default_rng(12345)
+
+        def __call__(self, frames, nat) -> dict:
+            toret = dict()
+            if self.doOneD:
+                toret["OneD"] = self.rng.integers(0, 7, size=(frames, nat))
+            if self.doMultD:
+                dataDim = self.rng.integers(2, 15)
+                toret["MultD"] = self.rng.integers(0, 7, size=(frames, nat, dataDim))
+            return toret
+
+    return ParameterCreator(doOneD=oneD, doMultyD=MultD)
+
+
+def test_MDA2EXYZ(input_framesSlice, input_CreateParameters):
     angles = (75.0, 60.0, 90.0)
     fourAtomsFiveFrames = giveUniverse(angles)
     additionalParameters = input_CreateParameters(
         len(fourAtomsFiveFrames.trajectory), len(fourAtomsFiveFrames.atoms)
+    additionalParameters = input_CreateParameters(
+        len(fourAtomsFiveFrames.trajectory), len(fourAtomsFiveFrames.atoms)
     )
+    # making data coherent with the input_framesSlice
+    for k in additionalParameters:
+        additionalParameters[k] = additionalParameters[k][input_framesSlice]
+
     # making data coherent with the input_framesSlice
     for k in additionalParameters:
         additionalParameters[k] = additionalParameters[k][input_framesSlice]
@@ -51,12 +83,14 @@ def test_MDA2EXYZ(input_framesSlice, input_CreateParameters):
         fourAtomsFiveFrames,
         framesToExport=input_framesSlice,
         **additionalParameters,
+        **additionalParameters,
     )
 
     checkStringDataFromUniverse(
         stringData,
         fourAtomsFiveFrames,
         input_framesSlice,
+        **additionalParameters,
         **additionalParameters,
     )
 
