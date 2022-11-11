@@ -13,7 +13,7 @@ pip install .
 
 If you want to use _dscribe_ or _quippy_ for calculating the SOAP features you should install them separately:
 
-```
+```bash
 pip install "dscribe >1.2.0 <=1.2.2"
 pip install quippy-ase
 ```
