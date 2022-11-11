@@ -56,8 +56,8 @@ def __prepareHeaders(additionalColumns: dict, nframes: int, nat: int) -> str:
         dim = shapeOfData[2] if len(shapeOfData) == 3 else 1
         if (  # wrong shape of the array
             (len(shapeOfData) != 2 and len(shapeOfData) != 3)
-            # More data than frames
-            or shapeOfData[0] > nframes
+            # different data from number of frames the user may accidentally sliced in a wrong way the frame data
+            or shapeOfData[0] != nframes
             # wrong number of atoms
             or shapeOfData[1] != nat
         ):

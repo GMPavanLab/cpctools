@@ -12,7 +12,7 @@ from .testSupport import (
 
 @pytest.fixture(
     scope="module",
-    params=[(True, False), (True, True), (False, False)],
+    params=[(True, False), (True, True), (False, True), (False, False)],
 )
 def input_CreateParameters(request):
     oneD, MultD = request.param
@@ -32,30 +32,8 @@ def input_CreateParameters(request):
                 toret["MultD"] = self.rng.integers(0, 7, size=(frames, nat, dataDim))
             return toret
 
-    return ParameterCreator(doOneD=oneD, doMultyD=MultD)
-
-
-@pytest.fixture(
-    scope="module",
-    params=[(True, False), (True, True), (False, False)],
-)
-def input_CreateParameters(request):
-    oneD, MultD = request.param
-
-    class ParameterCreator:
-        def __init__(self, doOneD, doMultyD):
-            self.doOneD = doOneD
-            self.doMultD = doMultyD
-            self.rng = numpy.random.default_rng(12345)
-
-        def __call__(self, frames, nat) -> dict:
-            toret = dict()
-            if self.doOneD:
-                toret["OneD"] = self.rng.integers(0, 7, size=(frames, nat))
-            if self.doMultD:
-                dataDim = self.rng.integers(2, 15)
-                toret["MultD"] = self.rng.integers(0, 7, size=(frames, nat, dataDim))
-            return toret
+        def __repr__(self) -> str:
+            return f"ParameterCreator, doOneD:{self.doOneD}, doMultD:{self.doMultD}"
 
     return ParameterCreator(doOneD=oneD, doMultyD=MultD)
 
@@ -290,3 +268,34 @@ def test_headerPreparation(input_CreateParameters):
             numOfData = testData[k].shape[2]
         MapPos = headerProperties.index(k)
         assert numOfData == int(headerProperties[MapPos + 2])
+
+
+@pytest.fixture(
+    scope="module",
+    params=[-1, 0, 1],
+)
+def input_intModify(request):
+    return request.param
+
+
+@pytest.fixture
+def diffFrames(input_intModify):
+    return input_intModify
+
+
+@pytest.fixture
+def diffNat(input_intModify):
+    return input_intModify
+
+
+def test_headerPreparation_errors(input_CreateParameters, diffFrames, diffNat):
+    nat = 10
+    nframes = 5
+    testData = input_CreateParameters(nframes, nat)
+    if len(testData) == 0 or (diffFrames == 0 and diffNat == 0):
+        return
+
+    with pytest.raises(ValueError):
+        HDF5er.HDF5To.__prepareHeaders(
+            testData, nframes=nframes + diffFrames, nat=nat + diffNat
+        )
