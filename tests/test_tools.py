@@ -7,41 +7,14 @@ from .testSupport import (
     giveUniverse,
     checkStringDataFromUniverse,
     getUniverseWithWaterMolecules,
+    __PropertiesFinder,
 )
 
 
-@pytest.fixture(
-    scope="module",
-    params=[(True, False), (True, True), (False, True), (False, False)],
-)
-def input_CreateParameters(request):
-    oneD, MultD = request.param
-
-    class ParameterCreator:
-        def __init__(self, doOneD, doMultyD):
-            self.doOneD = doOneD
-            self.doMultD = doMultyD
-            self.rng = numpy.random.default_rng(12345)
-
-        def __call__(self, frames, nat) -> dict:
-            toret = dict()
-            if self.doOneD:
-                toret["OneD"] = self.rng.integers(0, 7, size=(frames, nat))
-            if self.doMultD:
-                dataDim = self.rng.integers(2, 15)
-                toret["MultD"] = self.rng.integers(0, 7, size=(frames, nat, dataDim))
-            return toret
-
-        def __repr__(self) -> str:
-            return f"ParameterCreator, doOneD:{self.doOneD}, doMultD:{self.doMultD}"
-
-    return ParameterCreator(doOneD=oneD, doMultyD=MultD)
-
-
-def test_MDA2EXYZ(input_framesSlice, input_CreateParameters):
+def test_MDA2EXYZ(input_framesSlice, input_CreateParametersToExport):
     angles = (75.0, 60.0, 90.0)
     fourAtomsFiveFrames = giveUniverse(angles)
-    additionalParameters = input_CreateParameters(
+    additionalParameters = input_CreateParametersToExport(
         len(fourAtomsFiveFrames.trajectory), len(fourAtomsFiveFrames.atoms)
     )
     # making data coherent with the input_framesSlice
@@ -105,10 +78,10 @@ def test_MDA2EXYZ_selection():
     )
 
 
-def test_copyMDA2HDF52xyz(input_framesSlice, input_CreateParameters):
+def test_copyMDA2HDF52xyz(input_framesSlice, input_CreateParametersToExport):
     angles = (75.0, 60.0, 90.0)
     fourAtomsFiveFrames = giveUniverse(angles)
-    additionalParameters = input_CreateParameters(
+    additionalParameters = input_CreateParametersToExport(
         len(fourAtomsFiveFrames.trajectory), len(fourAtomsFiveFrames.atoms)
     )
     # making data coherent with the input_framesSlice
@@ -253,13 +226,22 @@ def test_copyMDA2HDF52xyz_wrongTrajlen():
         HDF5er.getXYZfromTrajGroup(stringData, group, WrongDData=WrongDData)
 
 
-def test_headerPreparation(input_CreateParameters):
+@pytest.fixture(
+    scope="module",
+    params=[None, 'Origin="-1 -1 -1"', 'Title="Graph"'],
+)
+def input_afp(request):
+    return request.param
+
+
+def test_headerPreparation(input_CreateParametersToExport, input_afp):
     nat = 10
     nframes = 5
-    testData = input_CreateParameters(nframes, nat)
-    headerProperties = HDF5er.HDF5To.__prepareHeaders(
-        testData, nframes=nframes, nat=nat
+    testData = input_CreateParametersToExport(nframes, nat)
+    header: str = HDF5er.HDF5To.__prepareHeaders(
+        testData, nframes=nframes, nat=nat, allFramesProperty=input_afp
     )
+    headerProperties: str = __PropertiesFinder.search(header).group(1)
     headerProperties = headerProperties.split(":")
     for k in testData:
         assert k in headerProperties
@@ -268,14 +250,16 @@ def test_headerPreparation(input_CreateParameters):
             numOfData = testData[k].shape[2]
         MapPos = headerProperties.index(k)
         assert numOfData == int(headerProperties[MapPos + 2])
-
-
-@pytest.fixture(
-    scope="module",
-    params=[-1, 0, 1],
-)
-def input_intModify(request):
-    return request.param
+    # the fixture can report a None:
+    if input_afp is None:
+        headerbis: str = HDF5er.HDF5To.__prepareHeaders(
+            testData, nframes=nframes, nat=nat
+        )
+        assert headerbis == header
+    else:
+        assert input_afp in header
+    assert nat == int(header[: header.find("\n")])
+    assert header[-1] != "\n"
 
 
 @pytest.fixture
@@ -288,10 +272,10 @@ def diffNat(input_intModify):
     return input_intModify
 
 
-def test_headerPreparation_errors(input_CreateParameters, diffFrames, diffNat):
+def test_headerPreparation_errors(input_CreateParametersToExport, diffFrames, diffNat):
     nat = 10
     nframes = 5
-    testData = input_CreateParameters(nframes, nat)
+    testData = input_CreateParametersToExport(nframes, nat)
     if len(testData) == 0 or (diffFrames == 0 and diffNat == 0):
         return
 

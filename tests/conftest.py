@@ -102,3 +102,39 @@ def nMaxFixture(request):
 )
 def lMaxFixture(request):
     return request.param
+
+
+@pytest.fixture(
+    scope="module",
+    params=[-1, 0, 1],
+)
+def input_intModify(request):
+    return request.param
+
+
+@pytest.fixture(
+    scope="module",
+    params=[(True, False), (True, True), (False, True), (False, False)],
+)
+def input_CreateParametersToExport(request):
+    oneD, MultD = request.param
+
+    class ParameterCreator:
+        def __init__(self, doOneD, doMultyD):
+            self.doOneD = doOneD
+            self.doMultD = doMultyD
+            self.rng = numpy.random.default_rng(12345)
+
+        def __call__(self, frames, nat) -> dict:
+            toret = dict()
+            if self.doOneD:
+                toret["OneD"] = self.rng.integers(0, 7, size=(frames, nat))
+            if self.doMultD:
+                dataDim = self.rng.integers(2, 15)
+                toret["MultD"] = self.rng.integers(0, 7, size=(frames, nat, dataDim))
+            return toret
+
+        def __repr__(self) -> str:
+            return f"ParameterCreator, doOneD:{self.doOneD}, doMultD:{self.doMultD}"
+
+    return ParameterCreator(doOneD=oneD, doMultyD=MultD)

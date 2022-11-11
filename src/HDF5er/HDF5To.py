@@ -49,7 +49,9 @@ def HDF52AseAtomsChunckedwithSymbols(
     return atoms
 
 
-def __prepareHeaders(additionalColumns: dict, nframes: int, nat: int) -> str:
+def __prepareHeaders(
+    additionalColumns: dict, nframes: int, nat: int, allFramesProperty: str = None
+) -> str:
     additional = ""
     for key in additionalColumns:
         shapeOfData = additionalColumns[key].shape
@@ -66,7 +68,8 @@ def __prepareHeaders(additionalColumns: dict, nframes: int, nat: int) -> str:
                 + f"\n(Trajectory shape:{(nframes,nat)}, data {key} shape:{shapeOfData})"
             )
         additional += ":" + key + ":R:" + str(dim)
-    return additional
+
+    return f"{nat}\nProperties=species:S:1:pos:R:3{additional} {allFramesProperty}"
 
 
 def getXYZfromTrajGroup(
@@ -105,40 +108,24 @@ def getXYZfromTrajGroup(
 
     trajlen: int = coordData.shape[0]
     nat: int = coordData.shape[1]
-    additional = ""
-    for key in additionalColumns:
-        shapeOfData = additionalColumns[key].shape
-        dim = shapeOfData[2] if len(shapeOfData) == 3 else 1
-        if (  # wrong shape of the array
-            (len(shapeOfData) != 2 and len(shapeOfData) != 3)
-            # More data than frames
-            or shapeOfData[0] > trajlen
-            # wrong number of atoms
-            or shapeOfData[1] != nat
-        ):
-            raise ValueError(
-                'Extra data passed to "getXYZfromTrajGroup" do not has the right dimensions'
-                + f"\n(Trajectory shape:{coordData.shape[0:2]}, data {key} shape:{shapeOfData})"
-            )
-        # Removing this functionality, it was a workaround while waiting for 'framesToExport' to be implemented
-        # if there are less data htan frames this functiol will only eport the first frames
-        # trajlen = min(trajlen, shapeOfData[0])
-        additional += ":" + key + ":R:" + str(dim)
     if perFrameProperties is not None:
         if len(perFrameProperties) != trajlen:
             raise ValueError(
                 "perFrameProperties do not have the same lenght of the trajectory"
             )
-    header: str = (
-        f"{nat}\nProperties=species:S:1:pos:R:3{additional} {allFramesProperty}"
+    header: str = __prepareHeaders(
+        additionalColumns, nframes=trajlen, nat=nat, allFramesProperty=allFramesProperty
     )
-    for frame in range(trajlen):
-        coord = coordData[frame, :]
+
+    for frameIndex in range(trajlen):
+        coord = coordData[frameIndex, :]
         data = f"{header}"
         data += (
-            f" {perFrameProperties[frame]}" if perFrameProperties is not None else ""
+            f" {perFrameProperties[frameIndex]}"
+            if perFrameProperties is not None
+            else ""
         )
-        theBox = triclinic_vectors(boxes[frame])
+        theBox = triclinic_vectors(boxes[frameIndex])
         data += f' Lattice="{theBox[0][0]} {theBox[0][1]} {theBox[0][2]} '
         data += f"{theBox[1][0]} {theBox[1][1]} {theBox[1][2]} "
         data += f'{theBox[2][0]} {theBox[2][1]} {theBox[2][2]}"'
@@ -149,7 +136,7 @@ def getXYZfromTrajGroup(
             for key in additionalColumns:
                 # this removes the brackets from the data if the dimensions are >1
                 data += " " + re.sub(
-                    "( \[|\[|\])", "", str(additionalColumns[key][frame, atomID])
+                    "( \[|\[|\])", "", str(additionalColumns[key][frameIndex, atomID])
                 )
             data += "\n"
         filelike.write(data)
@@ -226,32 +213,13 @@ def getXYZfromMDA(
 
     trajlen: int = len(coordData)
     nat: int = len(atoms)
-    additional = ""
-    for key in additionalColumns:
-        shapeOfData = additionalColumns[key].shape
-        dim = shapeOfData[2] if len(shapeOfData) == 3 else 1
-        if (  # wrong shape of the array
-            (len(shapeOfData) != 2 and len(shapeOfData) != 3)
-            # More data than frames
-            or shapeOfData[0] > trajlen
-            # wrong number of atoms
-            or shapeOfData[1] != nat
-        ):
-            raise ValueError(
-                'Extra data passed to "getXYZfromMDA" do not has the right dimensions'
-                + f"\n(Trajectory shape:{coordData.shape[0:2]}, data {key} shape:{shapeOfData})"
-            )
-        # Removing this functionality, it was a workaround while waiting for 'framesToExport' to be implemented
-        # if there are less data htan frames this functiol will only eport the first frames
-        # trajlen = min(trajlen, shapeOfData[0])
-        additional += ":" + key + ":R:" + str(dim)
     if perFrameProperties is not None:
         if len(perFrameProperties) != trajlen:
             raise ValueError(
                 "perFrameProperties do not have the same lenght of the trajectory"
             )
-    header: str = (
-        f"{nat}\nProperties=species:S:1:pos:R:3{additional} {allFramesProperty}"
+    header: str = __prepareHeaders(
+        additionalColumns, nframes=trajlen, nat=nat, allFramesProperty=allFramesProperty
     )
     for frameIndex, frame in enumerate(universe.trajectory[framesToExport]):
         coord = atoms.positions
