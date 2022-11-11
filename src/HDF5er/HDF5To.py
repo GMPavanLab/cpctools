@@ -1,8 +1,9 @@
+import re
+from typing import IO, List
+
 import h5py
 from ase import Atoms as aseAtoms
 from MDAnalysis.lib.mdamath import triclinic_vectors
-import re
-from typing import IO, List
 
 __all__ = [
     "getXYZfromTrajGroup",
@@ -50,8 +51,28 @@ def HDF52AseAtomsChunckedwithSymbols(
 
 
 def __prepareHeaders(
-    additionalColumns: dict, nframes: int, nat: int, allFramesProperty: str = None
+    additionalColumns: dict,
+    nframes: int,
+    nat: int,
+    allFramesProperty: str = None,
+    perFrameProperties: "list[str]" = None,
 ) -> str:
+    """Generates the static part of the header and perform sanity checks on optional data
+
+    Args:
+        additionalColumns (dict): the dictionary of the values of the additional columns
+        nframes (int): the total number of frame, used for sanity checks
+        nat (int): the total number of atoms, used for sanity checks (n is fixed)
+        allFramesProperty (str, optional): the property common to all frames. Defaults to None.
+        perFrameProperties (list[str], optional): list of properties that changes frame per frame. Defaults to None.
+
+    Raises:
+        ValueError: if additionalColumns is ill-formed
+        ValueError: if perFrameProperties is ill-formed
+
+    Returns:
+        str: the static part of the header
+    """
     additional = ""
     for key in additionalColumns:
         shapeOfData = additionalColumns[key].shape
@@ -68,7 +89,11 @@ def __prepareHeaders(
                 + f"\n(Trajectory shape:{(nframes,nat)}, data {key} shape:{shapeOfData})"
             )
         additional += ":" + key + ":R:" + str(dim)
-
+    if perFrameProperties is not None:
+        if len(perFrameProperties) != nframes:
+            raise ValueError(
+                "perFrameProperties do not have the same lenght of the trajectory"
+            )
     return f"{nat}\nProperties=species:S:1:pos:R:3{additional} {allFramesProperty}"
 
 
@@ -96,7 +121,7 @@ def getXYZfromTrajGroup(
         perFrameProperties (list[str], optional): A list of comment. Defaults to None.
         additionalColumns(): the additional columns to add to the file
     """
-    data = ""
+
     atomtypes = group["Types"].asstr()
 
     boxes: h5py.Dataset = group["Box"]
@@ -108,37 +133,23 @@ def getXYZfromTrajGroup(
 
     trajlen: int = coordData.shape[0]
     nat: int = coordData.shape[1]
-    if perFrameProperties is not None:
-        if len(perFrameProperties) != trajlen:
-            raise ValueError(
-                "perFrameProperties do not have the same lenght of the trajectory"
-            )
+
     header: str = __prepareHeaders(
         additionalColumns, nframes=trajlen, nat=nat, allFramesProperty=allFramesProperty
     )
 
     for frameIndex in range(trajlen):
         coord = coordData[frameIndex, :]
-        data = f"{header}"
-        data += (
-            f" {perFrameProperties[frameIndex]}"
-            if perFrameProperties is not None
-            else ""
+        data = __writeAframe(
+            header,
+            nat,
+            atomtypes,
+            coord,
+            boxes[frameIndex],
+            perFrameProperties[frameIndex] if perFrameProperties is not None else None,
+            # this may create a bottleneck
+            **{k: additionalColumns[k][frameIndex] for k in additionalColumns},
         )
-        theBox = triclinic_vectors(boxes[frameIndex])
-        data += f' Lattice="{theBox[0][0]} {theBox[0][1]} {theBox[0][2]} '
-        data += f"{theBox[1][0]} {theBox[1][1]} {theBox[1][2]} "
-        data += f'{theBox[2][0]} {theBox[2][1]} {theBox[2][2]}"'
-        data += "\n"
-
-        for atomID in range(nat):
-            data += f"{atomtypes[atomID]} {coord[atomID,0]} {coord[atomID,1]} {coord[atomID,2]}"
-            for key in additionalColumns:
-                # this removes the brackets from the data if the dimensions are >1
-                data += " " + re.sub(
-                    "( \[|\[|\])", "", str(additionalColumns[key][frameIndex, atomID])
-                )
-            data += "\n"
         filelike.write(data)
 
 
@@ -178,7 +189,7 @@ import MDAnalysis
 
 def getXYZfromMDA(
     filelike: IO,
-    group: "MDAnalysis.Universe | MDAnalysis.AtomGroup",
+    trajToExport: "MDAnalysis.Universe | MDAnalysis.AtomGroup",
     framesToExport: "List or slice or None" = slice(None),
     allFramesProperty: str = "",
     perFrameProperties: "list[str]" = None,
@@ -200,12 +211,12 @@ def getXYZfromMDA(
         perFrameProperties (list[str], optional): A list of comment. Defaults to None.
         additionalColumns(): the additional columns to add to the file
     """
-    data = ""
-    atoms = group.atoms
-    universe = group.universe
+
+    atoms = trajToExport.atoms
+    universe = trajToExport.universe
     atomtypes = atoms.types
 
-    coordData: MDAnalysis.Universe | MDAnalysis.AtomGroup = (
+    coordData: "MDAnalysis.Universe | MDAnalysis.AtomGroup" = (
         universe.trajectory
         if framesToExport is None
         else universe.trajectory[framesToExport]
@@ -213,32 +224,49 @@ def getXYZfromMDA(
 
     trajlen: int = len(coordData)
     nat: int = len(atoms)
-    if perFrameProperties is not None:
-        if len(perFrameProperties) != trajlen:
-            raise ValueError(
-                "perFrameProperties do not have the same lenght of the trajectory"
-            )
+
     header: str = __prepareHeaders(
         additionalColumns, nframes=trajlen, nat=nat, allFramesProperty=allFramesProperty
     )
     for frameIndex, frame in enumerate(universe.trajectory[framesToExport]):
         coord = atoms.positions
-        data = f"{header}"
-        data += (
-            f" {perFrameProperties[frame]}" if perFrameProperties is not None else ""
+        data = __writeAframe(
+            header,
+            nat,
+            atomtypes,
+            coord,
+            universe.dimensions,
+            perFrameProperties[frameIndex] if perFrameProperties is not None else None,
+            # this may create a bottleneck
+            **{k: additionalColumns[k][frameIndex] for k in additionalColumns},
         )
-        theBox = triclinic_vectors(universe.dimensions)
-        data += f' Lattice="{theBox[0][0]} {theBox[0][1]} {theBox[0][2]} '
-        data += f"{theBox[1][0]} {theBox[1][1]} {theBox[1][2]} "
-        data += f'{theBox[2][0]} {theBox[2][1]} {theBox[2][2]}"'
-        data += "\n"
-
-        for atomID in range(nat):
-            data += f"{atomtypes[atomID]} {coord[atomID,0]} {coord[atomID,1]} {coord[atomID,2]}"
-            for key in additionalColumns:
-                # this removes the brackets from the data if the dimensions are >1
-                data += " " + re.sub(
-                    "( \[|\[|\])", "", str(additionalColumns[key][frameIndex, atomID])
-                )
-            data += "\n"
         filelike.write(data)
+
+
+def __writeAframe(
+    header,
+    nat,
+    atomtypes,
+    coord,
+    boxDimensions,
+    perFramePorperty: str = None,
+    **additionalColumns,
+) -> str:
+
+    data = f"{header}"
+    data += f" {perFramePorperty}" if perFramePorperty is not None else ""
+    theBox = triclinic_vectors(boxDimensions)
+    data += f' Lattice="{theBox[0][0]} {theBox[0][1]} {theBox[0][2]} '
+    data += f"{theBox[1][0]} {theBox[1][1]} {theBox[1][2]} "
+    data += f'{theBox[2][0]} {theBox[2][1]} {theBox[2][2]}"'
+    data += "\n"
+
+    for atomID in range(nat):
+        data += (
+            f"{atomtypes[atomID]} {coord[atomID,0]} {coord[atomID,1]} {coord[atomID,2]}"
+        )
+        for key in additionalColumns:
+            # this removes the brackets from the data if the dimensions are >1
+            data += " " + re.sub("( \[|\[|\])", "", str(additionalColumns[key][atomID]))
+        data += "\n"
+    return data

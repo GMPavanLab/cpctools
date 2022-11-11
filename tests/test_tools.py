@@ -5,15 +5,27 @@ import numpy
 from io import StringIO
 from .testSupport import (
     giveUniverse,
+    giveUniverse_ChangingBox,
     checkStringDataFromUniverse,
     getUniverseWithWaterMolecules,
     __PropertiesFinder,
 )
 
 
-def test_MDA2EXYZ(input_framesSlice, input_CreateParametersToExport):
+@pytest.fixture(
+    scope="module",
+    params=[
+        giveUniverse,
+        # giveUniverse_ChangingBox,
+    ],
+)
+def input_universe(request):
+    return request.param
+
+
+def test_MDA2EXYZ(input_framesSlice, input_CreateParametersToExport, input_universe):
     angles = (75.0, 60.0, 90.0)
-    fourAtomsFiveFrames = giveUniverse(angles)
+    fourAtomsFiveFrames = input_universe(angles)
     additionalParameters = input_CreateParametersToExport(
         len(fourAtomsFiveFrames.trajectory), len(fourAtomsFiveFrames.atoms)
     )
@@ -78,9 +90,11 @@ def test_MDA2EXYZ_selection():
     )
 
 
-def test_copyMDA2HDF52xyz(input_framesSlice, input_CreateParametersToExport):
+def test_copyMDA2HDF52xyz(
+    input_framesSlice, input_CreateParametersToExport, input_universe
+):
     angles = (75.0, 60.0, 90.0)
-    fourAtomsFiveFrames = giveUniverse(angles)
+    fourAtomsFiveFrames = input_universe(angles)
     additionalParameters = input_CreateParametersToExport(
         len(fourAtomsFiveFrames.trajectory), len(fourAtomsFiveFrames.atoms)
     )

@@ -22,8 +22,8 @@ def checkStringDataFromUniverse(
     nat = int(lines[0])
     assert int(lines[0]) == len(atoms)
     assert lines[2].split()[0] == atoms.types[0]
-    for frame, traj in enumerate(universe.trajectory[frameSlice]):
-        frameID = frame * (nat + 2)
+    for frameIndex, traj in enumerate(universe.trajectory[frameSlice]):
+        frameID = frameIndex * (nat + 2)
         assert int(lines[frameID]) == nat
         Lattice = __LatticeFinder.search(lines[frameID + 1]).group(1).split()
         Properties = __PropertiesFinder.search(lines[frameID + 1]).group(1).split(":")
@@ -38,11 +38,12 @@ def checkStringDataFromUniverse(
 
         universeBox = triclinic_vectors(myUniverse.dimensions).flatten()
         for original, control in zip(universeBox, Lattice):
+            print(frameIndex, original, control)
             assert (original - float(control)) < 1e-7
         if allFramesProperty is not None:
             assert allFramesProperty in lines[frameID + 1]
         if perFrameProperties is not None:
-            assert perFrameProperties[frame] in lines[frameID + 1]
+            assert perFrameProperties[frameIndex] in lines[frameID + 1]
         for atomID in range(len(myUniverse.atoms)):
             thisline = lines[frameID + 2 + atomID]
             print(thisline)
@@ -52,10 +53,10 @@ def checkStringDataFromUniverse(
                 if len(passedValues[name].shape) == 2:
                     assert (
                         int((thisline.split()[WhereIsTheProperty[name]]))
-                        == passedValues[name][frame, atomID]
+                        == passedValues[name][frameIndex, atomID]
                     )
                 else:
-                    for i, d in enumerate(passedValues[name][frame, atomID]):
+                    for i, d in enumerate(passedValues[name][frameIndex, atomID]):
                         assert (
                             int((thisline.split()[WhereIsTheProperty[name] + i])) == d
                         )
@@ -155,5 +156,35 @@ def giveUniverse(angles: set = (90.0, 90.0, 90.0)) -> MDAnalysis.Universe:
         dimensions=numpy.array(
             [[6.0, 6.0, 6.0, angles[0], angles[1], angles[2]]] * traj.shape[0]
         ),
+    )
+    return u
+
+
+def giveUniverse_ChangingBox(angles: set = (90.0, 90.0, 90.0)) -> MDAnalysis.Universe:
+    traj = numpy.array(
+        [
+            [[0.0, 0.0, 0.0], [1.0, 1.0, 1.0], [2.0, 2.0, 2.0], [3.0, 3.0, 3.0]],
+            [[0.1, 0.1, 0.1], [1.1, 1.1, 1.1], [2.1, 2.1, 2.1], [3.1, 3.1, 3.1]],
+            [[0.2, 0.2, 0.2], [1.2, 1.2, 1.2], [2.2, 2.2, 2.2], [3.2, 3.2, 3.2]],
+            [[0.3, 0.3, 0.3], [1.3, 1.3, 1.3], [2.3, 2.3, 2.3], [3.3, 3.3, 3.3]],
+            [[0.4, 0.4, 0.4], [1.4, 1.4, 1.4], [2.4, 2.4, 2.4], [3.4, 3.4, 3.4]],
+        ]
+    )
+    u = MDAnalysis.Universe.empty(
+        4, trajectory=True, atom_resindex=[0, 0, 0, 0], residue_segindex=[0]
+    )
+    dimensions = numpy.array(
+        [[6.0, 6.0, 6.0, angles[0], angles[1], angles[2]]] * traj.shape[0]
+    )
+    multiplier = numpy.array([[1.5 - 0.5 * numpy.cos(k)] for k in range(traj.shape[0])])
+    dimensions[:, :3] *= multiplier
+
+    u.add_TopologyAttr("type", ["H"] * 4)
+    u.atoms.positions = traj[0]
+    u.trajectory = MDAnalysis.coordinates.memory.MemoryReader(
+        traj,
+        order="fac",
+        # this tests the non orthogonality of the box
+        dimensions=dimensions,
     )
     return u
