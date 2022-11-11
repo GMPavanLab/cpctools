@@ -49,6 +49,26 @@ def HDF52AseAtomsChunckedwithSymbols(
     return atoms
 
 
+def __prepareHeaders(additionalColumns: dict, nframes: int, nat: int) -> str:
+    additional = ""
+    for key in additionalColumns:
+        shapeOfData = additionalColumns[key].shape
+        dim = shapeOfData[2] if len(shapeOfData) == 3 else 1
+        if (  # wrong shape of the array
+            (len(shapeOfData) != 2 and len(shapeOfData) != 3)
+            # More data than frames
+            or shapeOfData[0] > nframes
+            # wrong number of atoms
+            or shapeOfData[1] != nat
+        ):
+            raise ValueError(
+                'Extra data passed to "getXYZfromTrajGroup" do not has the right dimensions'
+                + f"\n(Trajectory shape:{(nframes,nat)}, data {key} shape:{shapeOfData})"
+            )
+        additional += ":" + key + ":R:" + str(dim)
+    return additional
+
+
 def getXYZfromTrajGroup(
     filelike: IO,
     group: h5py.Group,
@@ -72,8 +92,6 @@ def getXYZfromTrajGroup(
         allFramesProperty (str, optional): A comment string that will be present in all of the frames. Defaults to "".
         perFrameProperties (list[str], optional): A list of comment. Defaults to None.
         additionalColumns(): the additional columns to add to the file
-    Returns:
-        str: the content of the xyz file
     """
     data = ""
     atomtypes = group["Types"].asstr()
@@ -194,8 +212,6 @@ def getXYZfromMDA(
         allFramesProperty (str, optional): A comment string that will be present in all of the frames. Defaults to "".
         perFrameProperties (list[str], optional): A list of comment. Defaults to None.
         additionalColumns(): the additional columns to add to the file
-    Returns:
-        str: the content of the xyz file
     """
     data = ""
     atoms = group.atoms
