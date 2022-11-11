@@ -35,7 +35,6 @@ def input_CreateParameters(request):
     return ParameterCreator(doOneD=oneD, doMultyD=MultD)
 
 
-def test_MDA2EXYZ(input_framesSlice, input_CreateParameters):
 @pytest.fixture(
     scope="module",
     params=[(True, False), (True, True), (False, False)],
@@ -66,13 +65,7 @@ def test_MDA2EXYZ(input_framesSlice, input_CreateParameters):
     fourAtomsFiveFrames = giveUniverse(angles)
     additionalParameters = input_CreateParameters(
         len(fourAtomsFiveFrames.trajectory), len(fourAtomsFiveFrames.atoms)
-    additionalParameters = input_CreateParameters(
-        len(fourAtomsFiveFrames.trajectory), len(fourAtomsFiveFrames.atoms)
     )
-    # making data coherent with the input_framesSlice
-    for k in additionalParameters:
-        additionalParameters[k] = additionalParameters[k][input_framesSlice]
-
     # making data coherent with the input_framesSlice
     for k in additionalParameters:
         additionalParameters[k] = additionalParameters[k][input_framesSlice]
@@ -83,14 +76,12 @@ def test_MDA2EXYZ(input_framesSlice, input_CreateParameters):
         fourAtomsFiveFrames,
         framesToExport=input_framesSlice,
         **additionalParameters,
-        **additionalParameters,
     )
 
     checkStringDataFromUniverse(
         stringData,
         fourAtomsFiveFrames,
         input_framesSlice,
-        **additionalParameters,
         **additionalParameters,
     )
 
