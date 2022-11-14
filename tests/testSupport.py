@@ -1,8 +1,9 @@
 import MDAnalysis
 import numpy
+import h5py
 import re
 from io import StringIO
-from MDAnalysis.lib.mdamath import triclinic_vectors
+from MDAnalysis.lib.mdamath import triclinic_vectors, triclinic_box
 
 __PropertiesFinder = re.compile('Properties="{0,1}(.*?)"{0,1}(?: |$)', flags=0)
 __LatticeFinder = re.compile('Lattice="(.*?)"', flags=0)
@@ -37,6 +38,12 @@ def checkStringDataFromUniverse(
         numberOfproperties = int(numpy.sum([int(k) for k in Properties[2::3]]))
 
         universeBox = triclinic_vectors(myUniverse.dimensions).flatten()
+        print(frameIndex, universeBox)
+        print(Lattice)
+        print(myUniverse.dimensions)
+        x, y, z = numpy.array([float(l) for l in Lattice]).reshape(3, 3)
+        print(triclinic_box(x, y, z))
+
         for original, control in zip(universeBox, Lattice):
             print(frameIndex, original, control)
             assert (original - float(control)) < 1e-7
@@ -66,6 +73,67 @@ def checkStringDataFromUniverse(
                     float(thisline.split()[i + 1])
                     == myUniverse.atoms.positions[atomID][i]
                 )
+
+
+def checkStringDataFromHDF5(
+    stringData: StringIO,
+    myUniverse: "h5py.Group",
+    frameSlice: slice,
+    allFramesProperty: str = None,
+    perFrameProperties: list = None,
+    **passedValues,
+):
+    lines = stringData.getvalue().splitlines()
+    nat = int(lines[0])
+    types = myUniverse["Types"].asstr()
+    assert int(lines[0]) == myUniverse["Trajectory"].shape[1]
+    # assert lines[2].split()[0] == atoms.types[0]
+    for frameIndex, (coords, box) in enumerate(
+        zip(myUniverse["Trajectory"][frameSlice], myUniverse["Box"][frameSlice])
+    ):
+        frameID = frameIndex * (nat + 2)
+        assert int(lines[frameID]) == nat
+        Lattice = __LatticeFinder.search(lines[frameID + 1]).group(1).split()
+        Properties = __PropertiesFinder.search(lines[frameID + 1]).group(1).split(":")
+        WhereIsTheProperty = dict()
+        for name in passedValues.keys():
+            assert name in Properties
+            mapPos = Properties.index(name)
+            WhereIsTheProperty[name] = numpy.sum(
+                [int(k) for k in Properties[2:mapPos:3]]
+            )
+        numberOfproperties = int(numpy.sum([int(k) for k in Properties[2::3]]))
+
+        universeBox = triclinic_vectors(box).flatten()
+        print(frameIndex, universeBox)
+        print(Lattice)
+        print(box)
+        x, y, z = numpy.array([float(l) for l in Lattice]).reshape(3, 3)
+        print(triclinic_box(x, y, z))
+        for original, control in zip(universeBox, Lattice):
+            assert (original - float(control)) < 1e-7
+        if allFramesProperty is not None:
+            assert allFramesProperty in lines[frameID + 1]
+        if perFrameProperties is not None:
+            assert perFrameProperties[frameIndex] in lines[frameID + 1]
+        for atomID in range(nat):
+            thisline = lines[frameID + 2 + atomID]
+            assert thisline.split()[0] == types[atomID]
+            assert len(thisline.split()) == numberOfproperties
+            for name in passedValues.keys():
+                if len(passedValues[name].shape) == 2:
+                    assert (
+                        int((thisline.split()[WhereIsTheProperty[name]]))
+                        == passedValues[name][frameIndex, atomID]
+                    )
+                else:
+                    for i, d in enumerate(passedValues[name][frameIndex, atomID]):
+                        assert (
+                            int((thisline.split()[WhereIsTheProperty[name] + i])) == d
+                        )
+
+            for i in range(3):
+                assert float(thisline.split()[i + 1]) == coords[atomID][i]
 
 
 def getUniverseWithWaterMolecules(n_residues=10):
@@ -157,6 +225,8 @@ def giveUniverse(angles: set = (90.0, 90.0, 90.0)) -> MDAnalysis.Universe:
             [[6.0, 6.0, 6.0, angles[0], angles[1], angles[2]]] * traj.shape[0]
         ),
     )
+    # adding this for recognisign this univers during tests:
+    u.myUsefulName = "FixedBox"
     return u
 
 
@@ -187,4 +257,6 @@ def giveUniverse_ChangingBox(angles: set = (90.0, 90.0, 90.0)) -> MDAnalysis.Uni
         # this tests the non orthogonality of the box
         dimensions=dimensions,
     )
+    # adding this for recognisign this univers during tests:
+    u.myUsefulName = "ChangingBox"
     return u

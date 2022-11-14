@@ -124,7 +124,9 @@ def getXYZfromTrajGroup(
 
     atomtypes = group["Types"].asstr()
 
-    boxes: h5py.Dataset = group["Box"]
+    boxes: h5py.Dataset = (
+        group["Box"][:] if framesToExport is None else group["Box"][framesToExport]
+    )
     coordData: h5py.Dataset = (
         group["Trajectory"][:]
         if framesToExport is None
