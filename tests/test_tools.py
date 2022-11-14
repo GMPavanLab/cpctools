@@ -8,30 +8,19 @@ from .testSupport import (
     giveUniverse_ChangingBox,
     checkStringDataFromUniverse,
     getUniverseWithWaterMolecules,
+    checkStringDataFromHDF5,
     __PropertiesFinder,
 )
-
-
-@pytest.fixture(
-    scope="module",
-    params=[
-        giveUniverse,
-        # giveUniverse_ChangingBox,
-    ],
-)
-def input_universe(request):
-    return request.param
 
 
 def test_MDA2EXYZ(input_framesSlice, input_CreateParametersToExport, input_universe):
     angles = (75.0, 60.0, 90.0)
     fourAtomsFiveFrames = input_universe(angles)
     additionalParameters = input_CreateParametersToExport(
-        len(fourAtomsFiveFrames.trajectory), len(fourAtomsFiveFrames.atoms)
+        frames=len(fourAtomsFiveFrames.trajectory),
+        nat=len(fourAtomsFiveFrames.atoms),
+        frameSlice=input_framesSlice,
     )
-    # making data coherent with the input_framesSlice
-    for k in additionalParameters:
-        additionalParameters[k] = additionalParameters[k][input_framesSlice]
 
     stringData = StringIO()
     HDF5er.getXYZfromMDA(
@@ -90,28 +79,25 @@ def test_MDA2EXYZ_selection():
     )
 
 
-def test_copyMDA2HDF52xyz(
-    input_framesSlice, input_CreateParametersToExport, input_universe
-):
-    angles = (75.0, 60.0, 90.0)
-    fourAtomsFiveFrames = input_universe(angles)
+def test_copyMDA2HDF52xyz(input_framesSlice, input_CreateParametersToExport, hdf5_file):
+    testFname = hdf5_file[0]
+    fourAtomsFiveFrames = hdf5_file[1]
     additionalParameters = input_CreateParametersToExport(
-        len(fourAtomsFiveFrames.trajectory), len(fourAtomsFiveFrames.atoms)
+        frames=len(fourAtomsFiveFrames.trajectory),
+        nat=len(fourAtomsFiveFrames.atoms),
+        frameSlice=input_framesSlice,
     )
-    # making data coherent with the input_framesSlice
-    for k in additionalParameters:
-        additionalParameters[k] = additionalParameters[k][input_framesSlice]
-
-    HDF5er.MDA2HDF5(fourAtomsFiveFrames, "test.hdf5", "4Atoms5Frames", override=True)
-    with h5py.File("test.hdf5", "r") as hdf5test:
+    print(testFname)
+    with h5py.File(testFname, "r") as hdf5test:
         group = hdf5test["Trajectories/4Atoms5Frames"]
+        print("Box", group["Box"][:])
         stringData = StringIO()
         HDF5er.getXYZfromTrajGroup(
             stringData, group, framesToExport=input_framesSlice, **additionalParameters
         )
 
-        checkStringDataFromUniverse(
-            stringData, fourAtomsFiveFrames, input_framesSlice, **additionalParameters
+        checkStringDataFromHDF5(
+            stringData, group, input_framesSlice, **additionalParameters
         )
 
 

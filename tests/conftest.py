@@ -1,7 +1,33 @@
 import pytest
 import SOAPify
+import HDF5er
 import numpy
 from numpy.random import randint
+from .testSupport import giveUniverse, giveUniverse_ChangingBox
+
+
+@pytest.fixture(
+    scope="session",
+    params=[
+        giveUniverse,
+        giveUniverse_ChangingBox,
+    ],
+)
+def input_universe(request):
+    return request.param
+
+
+@pytest.fixture(scope="session")
+def hdf5_file(tmp_path_factory, input_universe):
+    fourAtomsFiveFrames = input_universe((90.0, 90.0, 90.0))
+
+    testFname = (
+        tmp_path_factory.mktemp("data") / f"test{fourAtomsFiveFrames.myUsefulName}.hdf5"
+    )
+
+    HDF5er.MDA2HDF5(fourAtomsFiveFrames, testFname, "4Atoms5Frames", override=True)
+
+    return testFname, fourAtomsFiveFrames
 
 
 @pytest.fixture(
@@ -125,13 +151,15 @@ def input_CreateParametersToExport(request):
             self.doMultD = doMultyD
             self.rng = numpy.random.default_rng(12345)
 
-        def __call__(self, frames, nat) -> dict:
+        def __call__(self, frames, nat, frameSlice=slice(None)) -> dict:
             toret = dict()
             if self.doOneD:
-                toret["OneD"] = self.rng.integers(0, 7, size=(frames, nat))
+                toret["OneD"] = self.rng.integers(0, 7, size=(frames, nat))[frameSlice]
             if self.doMultD:
                 dataDim = self.rng.integers(2, 15)
-                toret["MultD"] = self.rng.integers(0, 7, size=(frames, nat, dataDim))
+                toret["MultD"] = self.rng.integers(0, 7, size=(frames, nat, dataDim))[
+                    frameSlice
+                ]
             return toret
 
         def __repr__(self) -> str:

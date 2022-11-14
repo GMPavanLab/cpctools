@@ -25,6 +25,8 @@ Until we get to a release version you may encounter different broken interface p
 - added a small utility to make the nmax/lmax/rcut getter work regardless the compatible dscribe engine
 - now installation procedure ignores dscribe/quippy: you should install them separately, but you do not need to wait for their compilation if you only need the analysis features
 - created `getXYZfromMDA` for exporting exyz files (with personalized header and columns) from mda universe
+- removed a bug in `getXYZfromHDF5`: now boxes are exported correctly
+- some QoL improvements behind the curtains and in the tests
 
 ## Changes since v0.0.2a
 
