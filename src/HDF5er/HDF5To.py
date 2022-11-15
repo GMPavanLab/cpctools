@@ -13,6 +13,7 @@ __all__ = [
 ]
 
 # TODO: using slices is not the best compromise here
+# TODO: maybe it is better to make this and iterator/generator
 def HDF52AseAtomsChunckedwithSymbols(
     groupTraj: h5py.Group,
     chunkTraj: "tuple[slice]",
@@ -107,7 +108,6 @@ def getXYZfromTrajGroup(
 ) -> None:
     """generate an xyz-file in a IO object from a trajectory group in an hdf5
 
-        The string generated can be then exported to a file,
         the additionalColumns arguments are added as extra columns to the file,
         they must be numpy.ndarray with shape (nofFrames,NofAtoms) for 1D data
         or (nofFrames,NofAtoms,Nvalues) for multidimensional data
@@ -198,7 +198,6 @@ def getXYZfromMDA(
 ) -> None:
     """generate an xyz-file in a IO object from an MDA trajectory
 
-        The string generated can be then exported to a file,
         the additionalColumns arguments are added as extra columns to the file,
         they must be numpy.ndarray with shape (nofFrames,NofAtoms) for 1D data
         or (nofFrames,NofAtoms,Nvalues) for multidimensional data

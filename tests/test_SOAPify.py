@@ -42,10 +42,11 @@ def test_norm3D():
     )
 
 
-def test_Saving_loadingOfSOAPreferences():
+def test_Saving_loadingOfSOAPreferences(tmp_path):
+    refFile = tmp_path / "refSave.hdf5"
     a = SOAPReferences(["a", "b"], numpy.array([[0, 0], [1, 1]]), 4, 8)
-    SOAPify.saveReferences(h5py.File("refSave.hdf5", "w"), "testRef", a)
-    with h5py.File("refSave.hdf5", "r") as saved:
+    SOAPify.saveReferences(h5py.File(refFile, "w"), "testRef", a)
+    with h5py.File(refFile, "r") as saved:
         bk = SOAPify.getReferencesFromDataset(saved["testRef"])
         assert len(a) == len(bk)
         assert_array_equal(bk.spectra, a.spectra)
@@ -55,36 +56,47 @@ def test_Saving_loadingOfSOAPreferences():
         assert a.lmax == bk.lmax
 
 
-def test_concatenationOfSOAPreferences():
+def test_concatenationOfSOAPreferencesNamedArgumumets():
     a = SOAPReferences(["a", "b"], [[0, 0], [1, 1]], 8, 8)
     b = SOAPReferences(["c", "d"], [[2, 2], [3, 4]], 8, 8)
     c = SOAPify.mergeReferences(a, b)
     assert len(c.names) == 4
     assert c.spectra.shape == (4, 2)
-    assert_array_equal(a.spectra[0], c.spectra[0])
-    assert_array_equal(a.spectra[1], c.spectra[1])
-    assert_array_equal(b.spectra[0], c.spectra[2])
-    assert_array_equal(b.spectra[1], c.spectra[3])
+    assert_array_equal(a.spectra[0:2], c.spectra[0:2])
+    assert_array_equal(b.spectra[0:2], c.spectra[2:4])
 
 
-def test_concatenationOfSOAPreferencesLonger():
+def test_concatenationOfSOAPreferencesLongerNamedArgumumets():
     a = SOAPReferences(["a", "b"], [[0, 0], [1, 1]], 8, 8)
     b = SOAPReferences(["c", "d"], [[2, 2], [3, 3]], 8, 8)
     d = SOAPReferences(["e", "f"], [[4, 4], [5, 5]], 8, 8)
     c = SOAPify.mergeReferences(a, b, d)
     assert len(c.names) == (len(a) + len(b) + len(d))
     assert c.spectra.shape == (6, 2)
-    assert_array_equal(a.spectra[0], c.spectra[0])
-    assert_array_equal(a.spectra[1], c.spectra[1])
-    assert_array_equal(b.spectra[0], c.spectra[2])
-    assert_array_equal(b.spectra[1], c.spectra[3])
-    assert_array_equal(d.spectra[0], c.spectra[4])
-    assert_array_equal(d.spectra[1], c.spectra[5])
+    assert_array_equal(a.spectra[0:2], c.spectra[0:2])
+    assert_array_equal(b.spectra[0:2], c.spectra[2:4])
+    assert_array_equal(d.spectra[0:2], c.spectra[4:6])
 
 
-def test_fillSOAPVectorFromdscribeSingleVector():
-    nmax = 4
-    lmax = 3
+def test_concatenationOfSOAPreferences(randomSOAPReferences):
+    conc = SOAPify.mergeReferences(*randomSOAPReferences)
+    refDim = randomSOAPReferences[0].spectra.shape[1]
+    origTotalLenght = numpy.sum([len(a) for a in randomSOAPReferences])
+    assert len(conc) == origTotalLenght
+    assert conc.spectra.shape == (origTotalLenght, refDim)
+    totalLength = 0
+    for i, orig in enumerate(randomSOAPReferences):
+        spectraL = orig.spectra.shape[0]
+        assert_array_equal(
+            orig.spectra, conc.spectra[totalLength : totalLength + spectraL]
+        )
+        assert_array_equal(orig.names, conc.names[totalLength : totalLength + spectraL])
+        totalLength += spectraL
+
+
+def test_fillSOAPVectorFromdscribeSingleVector(nMaxFixture,lMaxFixture):
+    nmax=nMaxFixture
+    lmax = lMaxFixture
     a = randint(0, 10, size=int(((lmax + 1) * (nmax + 1) * nmax) / 2))
     b = SOAPify.fillSOAPVectorFromdscribe(a, lmax, nmax)
     assert b.shape[0] == (lmax + 1) * (nmax * nmax)
@@ -98,9 +110,9 @@ def test_fillSOAPVectorFromdscribeSingleVector():
                 limited += 1
 
 
-def test_fillSOAPVectorFromdscribeArrayOfVector():
-    nmax = 4
-    lmax = 3
+def test_fillSOAPVectorFromdscribeArrayOfVector(nMaxFixture,lMaxFixture):
+    nmax=nMaxFixture
+    lmax = lMaxFixture
     a = randint(0, 10, size=(5, int(((lmax + 1) * (nmax + 1) * nmax) / 2)))
     b = SOAPify.fillSOAPVectorFromdscribe(a, lmax, nmax)
     assert b.shape[1] == (lmax + 1) * (nmax * nmax)

@@ -101,11 +101,12 @@ def test_copyMDA2HDF52xyz(input_framesSlice, input_CreateParametersToExport, hdf
         )
 
 
-def test_copyMDA2HDF52xyzAllFrameProperty(input_framesSlice):
+def test_copyMDA2HDF52xyzAllFrameProperty(input_framesSlice, tmp_path):
     angles = (75.0, 60.0, 90.0)
     fourAtomsFiveFrames = giveUniverse(angles)
-    HDF5er.MDA2HDF5(fourAtomsFiveFrames, "test.hdf5", "4Atoms5Frames", override=True)
-    with h5py.File("test.hdf5", "r") as hdf5test:
+    fname = tmp_path / "test.hdf5"
+    HDF5er.MDA2HDF5(fourAtomsFiveFrames, fname, "4Atoms5Frames", override=True)
+    with h5py.File(fname, "r") as hdf5test:
         group = hdf5test["Trajectories/4Atoms5Frames"]
         stringData = StringIO()
         HDF5er.getXYZfromTrajGroup(
@@ -123,15 +124,16 @@ def test_copyMDA2HDF52xyzAllFrameProperty(input_framesSlice):
         )
 
 
-def test_copyMDA2HDF52xyzPerFrameProperty(input_framesSlice):
+def test_copyMDA2HDF52xyzPerFrameProperty(input_framesSlice, tmp_path):
     angles = (75.0, 60.0, 90.0)
     fourAtomsFiveFrames = giveUniverse(angles)
-    HDF5er.MDA2HDF5(fourAtomsFiveFrames, "test.hdf5", "4Atoms5Frames", override=True)
+    fname = tmp_path / "test.hdf5"
+    HDF5er.MDA2HDF5(fourAtomsFiveFrames, fname, "4Atoms5Frames", override=True)
     perFrameProperties = numpy.array([f'Originpf="-{i} -{i} -{i}"' for i in range(5)])[
         input_framesSlice
     ]
 
-    with h5py.File("test.hdf5", "r") as hdf5test:
+    with h5py.File(fname, "r") as hdf5test:
         group = hdf5test["Trajectories/4Atoms5Frames"]
         stringData = StringIO()
         HDF5er.getXYZfromTrajGroup(
@@ -148,7 +150,7 @@ def test_copyMDA2HDF52xyzPerFrameProperty(input_framesSlice):
         )
 
 
-def test_copyMDA2HDF52xyz_error1D():
+def test_copyMDA2HDF52xyz_error1D(tmp_path):
     angles = (75.0, 60.0, 90.0)
     fourAtomsFiveFrames = giveUniverse(angles)
     rng = numpy.random.default_rng(12345)
@@ -157,15 +159,15 @@ def test_copyMDA2HDF52xyz_error1D():
         7,
         size=(len(fourAtomsFiveFrames.trajectory), len(fourAtomsFiveFrames.atoms) + 1),
     )
-
-    HDF5er.MDA2HDF5(fourAtomsFiveFrames, "test.hdf5", "4Atoms5Frames", override=True)
-    with h5py.File("test.hdf5", "r") as hdf5test, pytest.raises(ValueError):
+    fname = tmp_path / "test.hdf5"
+    HDF5er.MDA2HDF5(fourAtomsFiveFrames, fname, "4Atoms5Frames", override=True)
+    with h5py.File(fname, "r") as hdf5test, pytest.raises(ValueError):
         group = hdf5test["Trajectories/4Atoms5Frames"]
         stringData = StringIO()
         HDF5er.getXYZfromTrajGroup(stringData, group, OneDData=OneDData)
 
 
-def test_copyMDA2HDF52xyz_error2D():
+def test_copyMDA2HDF52xyz_error2D(tmp_path):
     angles = (75.0, 60.0, 90.0)
     fourAtomsFiveFrames = giveUniverse(angles)
     rng = numpy.random.default_rng(12345)
@@ -178,14 +180,15 @@ def test_copyMDA2HDF52xyz_error2D():
             2,
         ),
     )
-    HDF5er.MDA2HDF5(fourAtomsFiveFrames, "test.hdf5", "4Atoms5Frames", override=True)
-    with h5py.File("test.hdf5", "r") as hdf5test, pytest.raises(ValueError):
+    fname = tmp_path / "test.hdf5"
+    HDF5er.MDA2HDF5(fourAtomsFiveFrames, fname, "4Atoms5Frames", override=True)
+    with h5py.File(fname, "r") as hdf5test, pytest.raises(ValueError):
         group = hdf5test["Trajectories/4Atoms5Frames"]
         stringData = StringIO()
         HDF5er.getXYZfromTrajGroup(stringData, group, TwoDData=TwoDData)
 
 
-def test_copyMDA2HDF52xyz_wrongD():
+def test_copyMDA2HDF52xyz_wrongD(tmp_path):
     angles = (75.0, 60.0, 90.0)
     fourAtomsFiveFrames = giveUniverse(angles)
     rng = numpy.random.default_rng(12345)
@@ -199,14 +202,15 @@ def test_copyMDA2HDF52xyz_wrongD():
             4,
         ),
     )
-    HDF5er.MDA2HDF5(fourAtomsFiveFrames, "test.hdf5", "4Atoms5Frames", override=True)
-    with h5py.File("test.hdf5", "r") as hdf5test, pytest.raises(ValueError):
+    fname = tmp_path / "test.hdf5"
+    HDF5er.MDA2HDF5(fourAtomsFiveFrames, fname, "4Atoms5Frames", override=True)
+    with h5py.File(fname, "r") as hdf5test, pytest.raises(ValueError):
         group = hdf5test["Trajectories/4Atoms5Frames"]
         stringData = StringIO()
         HDF5er.getXYZfromTrajGroup(stringData, group, WrongDData=WrongDData)
 
 
-def test_copyMDA2HDF52xyz_wrongTrajlen():
+def test_copyMDA2HDF52xyz_wrongTrajlen(tmp_path):
     angles = (75.0, 60.0, 90.0)
     fourAtomsFiveFrames = giveUniverse(angles)
     rng = numpy.random.default_rng(12345)
@@ -219,8 +223,9 @@ def test_copyMDA2HDF52xyz_wrongTrajlen():
             2,
         ),
     )
-    HDF5er.MDA2HDF5(fourAtomsFiveFrames, "test.hdf5", "4Atoms5Frames", override=True)
-    with h5py.File("test.hdf5", "r") as hdf5test, pytest.raises(ValueError):
+    fname = tmp_path / "test.hdf5"
+    HDF5er.MDA2HDF5(fourAtomsFiveFrames, fname, "4Atoms5Frames", override=True)
+    with h5py.File(fname, "r") as hdf5test, pytest.raises(ValueError):
         group = hdf5test["Trajectories/4Atoms5Frames"]
         stringData = StringIO()
         HDF5er.getXYZfromTrajGroup(stringData, group, WrongDData=WrongDData)

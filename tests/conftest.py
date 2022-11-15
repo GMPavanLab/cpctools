@@ -6,6 +6,38 @@ from numpy.random import randint
 from .testSupport import giveUniverse, giveUniverse_ChangingBox
 
 
+def __alph(k):
+    "helper function to not overlap ref names in randomSOAPReferences"
+    from string import ascii_lowercase as alph
+
+    toret = ""
+    while k >= len(alph):
+        knew = k - len(alph)
+        toret += alph[k - knew - 1]
+        k -= len(alph)
+    toret += alph[k]
+    return toret
+
+
+@pytest.fixture(scope="module", params=[2, 3, 4, 5, 6])
+def randomSOAPReferences(request):
+    toret = []
+    totalLength = 0
+    refDim = randint(2, high=7)
+    for i in range(request.param):
+        refLenght = randint(2, high=7)
+        toret.append(
+            SOAPify.SOAPReferences(
+                [__alph(k) for k in range(totalLength, totalLength + refLenght)],
+                randint(0, high=500, size=(refLenght, refDim)),
+                8,
+                8,
+            )
+        )
+        totalLength += refLenght
+    return toret
+
+
 @pytest.fixture(
     scope="session",
     params=[

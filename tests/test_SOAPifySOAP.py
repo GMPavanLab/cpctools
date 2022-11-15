@@ -19,10 +19,11 @@ def fixture_AtomMask(request):
     return request.param
 
 
-def test_MultiAtomicSoapify(fixture_AtomMask, engineKind_fixture):
+def test_MultiAtomicSoapify(fixture_AtomMask, engineKind_fixture, tmp_path):
     nMol = 27
     u = getUniverseWithWaterMolecules(nMol)
     fname = f"testH2O_{engineKind_fixture}_{''.join([i for i in fixture_AtomMask]) if fixture_AtomMask else ''}.hdf5"
+    fname = tmp_path / fname
     HDF5er.MDA2HDF5(u, fname, "testH2O", override=True)
     n_max = 4
     l_max = 4
@@ -59,10 +60,11 @@ def test_MultiAtomicSoapify(fixture_AtomMask, engineKind_fixture):
         )
 
 
-def test_MultiAtomicSoapifyGroup(fixture_AtomMask, engineKind_fixture):
+def test_MultiAtomicSoapifyGroup(fixture_AtomMask, engineKind_fixture, tmp_path):
     nMol = 27
     u = getUniverseWithWaterMolecules(nMol)
     fname = f"testH2O_{engineKind_fixture}_{''.join([i for i in fixture_AtomMask]) if fixture_AtomMask else ''}.hdf5"
+    fname = tmp_path / fname
     HDF5er.MDA2HDF5(u, fname, "testH2O", override=True)
     n_max = 4
     l_max = 4
@@ -98,16 +100,18 @@ def test_MultiAtomicSoapifyGroup(fixture_AtomMask, engineKind_fixture):
             )
 
 
-def test_slicesNo():
+def test_slicesNo(tmp_path):
     nMol = 1
     u = getUniverseWithWaterMolecules(nMol)
-    HDF5er.MDA2HDF5(u, "testH2O_slices.hdf5", "testH2O", override=True)
+
+    fname = tmp_path / "testH2O_slices.hdf5"
+    HDF5er.MDA2HDF5(u, fname, "testH2O", override=True)
     n_max = 4
     l_max = 4
     upperDiag = (l_max + 1) * ((n_max) * (n_max + 1)) // 2
     fullmat = n_max * n_max * (l_max + 1)
     rcut = 10.0
-    with h5py.File("testH2O_slices.hdf5", "a") as f:
+    with h5py.File(fname, "a") as f:
         soapGroup = f.require_group("SOAP")
         SOAPify.saponifyGroup(
             f["Trajectories"],
@@ -130,16 +134,17 @@ def test_slicesNo():
         assert fullSpectrum.shape[-1] == 3 * fullmat
 
 
-def test_MultiAtomicSoapkwargs():
+def test_MultiAtomicSoapkwargs(tmp_path):
     nMol = 27
     u = getUniverseWithWaterMolecules(nMol)
-    HDF5er.MDA2HDF5(u, "testH2O_kwargs.hdf5", "testH2O", override=True)
+    fname = tmp_path / "testH2O_kwargs.hdf5"
+    HDF5er.MDA2HDF5(u, fname, "testH2O", override=True)
     n_max = 4
     l_max = 4
     rcut = 10.0
     upperDiag = (l_max + 1) * ((n_max) * (n_max + 1)) // 2
     fullmat = n_max * n_max * (l_max + 1)
-    with h5py.File("testH2O_kwargs.hdf5", "a") as f:
+    with h5py.File(fname, "a") as f:
         soapGroup = f.require_group("SOAPNoCrossover")
         SOAPify.saponifyGroup(
             f["Trajectories"],
