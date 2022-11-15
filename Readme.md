@@ -20,6 +20,8 @@ pip install quippy-ase
 
 (pypi support is incoming!)
 
+Now with a (very basic) documentation! https://gmpavanlab.github.io/SOAPify/SOAPify.html
+
 ## SOAPify
 
 This package contains a toolbox to calculate the [SOAP fingerprints](https://doi.org/10.1103/PhysRevB.87.184115) of a system of atoms.
