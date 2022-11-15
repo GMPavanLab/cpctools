@@ -7,6 +7,7 @@ import pytest
 
 
 def getNMax(SOAPengine):
+    """returns the n_max from the soap engine of dscribe 1.2.1 or 1.2.2"""
     if hasattr(SOAPengine, "_nmax"):
         return SOAPengine._nmax
     if hasattr(SOAPengine, "_n_max"):
