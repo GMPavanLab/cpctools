@@ -12,6 +12,9 @@ jobs:
     - uses: actions/checkout@v3
     - name: Build HTML
       uses: ammaraskar/sphinx-action@master
+      with:
+        docs-folder: "docs/"
+        build-command: "sphinx-build -M html source build"
     - name: Upload artifacts
       uses: actions/upload-artifact@v3
       with:
