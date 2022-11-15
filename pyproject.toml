@@ -50,7 +50,7 @@ extra-dependencies = [
 ]
 
 [tool.hatch.envs.test.scripts]
-cov = 'pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=pkg --cov=tests'
+cov = 'pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=src --cov-report html'
 tools = 'pytest ./tests/test_tools.py'
 
 [[tool.hatch.envs.test.matrix]]
