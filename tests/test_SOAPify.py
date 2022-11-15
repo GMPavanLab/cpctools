@@ -42,10 +42,11 @@ def test_norm3D():
     )
 
 
-def test_Saving_loadingOfSOAPreferences():
+def test_Saving_loadingOfSOAPreferences(tmp_path):
+    refFile = tmp_path / "refSave.hdf5"
     a = SOAPReferences(["a", "b"], numpy.array([[0, 0], [1, 1]]), 4, 8)
-    SOAPify.saveReferences(h5py.File("refSave.hdf5", "w"), "testRef", a)
-    with h5py.File("refSave.hdf5", "r") as saved:
+    SOAPify.saveReferences(h5py.File(refFile, "w"), "testRef", a)
+    with h5py.File(refFile, "r") as saved:
         bk = SOAPify.getReferencesFromDataset(saved["testRef"])
         assert len(a) == len(bk)
         assert_array_equal(bk.spectra, a.spectra)
@@ -61,10 +62,8 @@ def test_concatenationOfSOAPreferences():
     c = SOAPify.mergeReferences(a, b)
     assert len(c.names) == 4
     assert c.spectra.shape == (4, 2)
-    assert_array_equal(a.spectra[0], c.spectra[0])
-    assert_array_equal(a.spectra[1], c.spectra[1])
-    assert_array_equal(b.spectra[0], c.spectra[2])
-    assert_array_equal(b.spectra[1], c.spectra[3])
+    assert_array_equal(a.spectra[0:2], c.spectra[0:2])
+    assert_array_equal(b.spectra[0:2], c.spectra[2:4])
 
 
 def test_concatenationOfSOAPreferencesLonger():
@@ -74,12 +73,9 @@ def test_concatenationOfSOAPreferencesLonger():
     c = SOAPify.mergeReferences(a, b, d)
     assert len(c.names) == (len(a) + len(b) + len(d))
     assert c.spectra.shape == (6, 2)
-    assert_array_equal(a.spectra[0], c.spectra[0])
-    assert_array_equal(a.spectra[1], c.spectra[1])
-    assert_array_equal(b.spectra[0], c.spectra[2])
-    assert_array_equal(b.spectra[1], c.spectra[3])
-    assert_array_equal(d.spectra[0], c.spectra[4])
-    assert_array_equal(d.spectra[1], c.spectra[5])
+    assert_array_equal(a.spectra[0:2], c.spectra[0:2])
+    assert_array_equal(b.spectra[0:2], c.spectra[2:4])
+    assert_array_equal(d.spectra[0:2], c.spectra[4:6])
 
 
 def test_fillSOAPVectorFromdscribeSingleVector():

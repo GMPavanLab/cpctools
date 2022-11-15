@@ -3,9 +3,10 @@ import h5py
 import numpy
 
 
-def test_istTrajectoryGroupCheck():
+def test_istTrajectoryGroupCheck(tmp_path):
+    fname = tmp_path / "test.hdf5"
     # Given an HDF5 group
-    with h5py.File("test.hdf5", "w") as hdf5test:
+    with h5py.File(fname, "w") as hdf5test:
         group = hdf5test.create_group("Trajectories/4Atoms3Frames")
         # empty group
         assert not HDF5er.isTrajectoryGroup(group)
@@ -15,7 +16,7 @@ def test_istTrajectoryGroupCheck():
         assert not HDF5er.isTrajectoryGroup(group)
         group.create_dataset("Box", data=numpy.zeros((5, 3)))
         assert HDF5er.isTrajectoryGroup(group)
-    with h5py.File("test.hdf5", "w") as hdf5test:
+    with h5py.File(fname, "w") as hdf5test:
         group = hdf5test.create_group("Trajectories/4Atoms3Frames")
         # empty group
         assert not HDF5er.isTrajectoryGroup(group)
