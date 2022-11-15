@@ -56,7 +56,7 @@ def test_Saving_loadingOfSOAPreferences(tmp_path):
         assert a.lmax == bk.lmax
 
 
-def test_concatenationOfSOAPreferences():
+def test_concatenationOfSOAPreferencesNamedArgumumets():
     a = SOAPReferences(["a", "b"], [[0, 0], [1, 1]], 8, 8)
     b = SOAPReferences(["c", "d"], [[2, 2], [3, 4]], 8, 8)
     c = SOAPify.mergeReferences(a, b)
@@ -66,7 +66,7 @@ def test_concatenationOfSOAPreferences():
     assert_array_equal(b.spectra[0:2], c.spectra[2:4])
 
 
-def test_concatenationOfSOAPreferencesLonger():
+def test_concatenationOfSOAPreferencesLongerNamedArgumumets():
     a = SOAPReferences(["a", "b"], [[0, 0], [1, 1]], 8, 8)
     b = SOAPReferences(["c", "d"], [[2, 2], [3, 3]], 8, 8)
     d = SOAPReferences(["e", "f"], [[4, 4], [5, 5]], 8, 8)
@@ -78,9 +78,25 @@ def test_concatenationOfSOAPreferencesLonger():
     assert_array_equal(d.spectra[0:2], c.spectra[4:6])
 
 
-def test_fillSOAPVectorFromdscribeSingleVector():
-    nmax = 4
-    lmax = 3
+def test_concatenationOfSOAPreferences(randomSOAPReferences):
+    conc = SOAPify.mergeReferences(*randomSOAPReferences)
+    refDim = randomSOAPReferences[0].spectra.shape[1]
+    origTotalLenght = numpy.sum([len(a) for a in randomSOAPReferences])
+    assert len(conc) == origTotalLenght
+    assert conc.spectra.shape == (origTotalLenght, refDim)
+    totalLength = 0
+    for i, orig in enumerate(randomSOAPReferences):
+        spectraL = orig.spectra.shape[0]
+        assert_array_equal(
+            orig.spectra, conc.spectra[totalLength : totalLength + spectraL]
+        )
+        assert_array_equal(orig.names, conc.names[totalLength : totalLength + spectraL])
+        totalLength += spectraL
+
+
+def test_fillSOAPVectorFromdscribeSingleVector(nMaxFixture,lMaxFixture):
+    nmax=nMaxFixture
+    lmax = lMaxFixture
     a = randint(0, 10, size=int(((lmax + 1) * (nmax + 1) * nmax) / 2))
     b = SOAPify.fillSOAPVectorFromdscribe(a, lmax, nmax)
     assert b.shape[0] == (lmax + 1) * (nmax * nmax)
@@ -94,9 +110,9 @@ def test_fillSOAPVectorFromdscribeSingleVector():
                 limited += 1
 
 
-def test_fillSOAPVectorFromdscribeArrayOfVector():
-    nmax = 4
-    lmax = 3
+def test_fillSOAPVectorFromdscribeArrayOfVector(nMaxFixture,lMaxFixture):
+    nmax=nMaxFixture
+    lmax = lMaxFixture
     a = randint(0, 10, size=(5, int(((lmax + 1) * (nmax + 1) * nmax) / 2)))
     b = SOAPify.fillSOAPVectorFromdscribe(a, lmax, nmax)
     assert b.shape[1] == (lmax + 1) * (nmax * nmax)
