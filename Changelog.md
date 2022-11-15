@@ -27,6 +27,7 @@ Until we get to a release version you may encounter different broken interface p
 - created `getXYZfromMDA` for exporting exyz files (with personalized header and columns) from mda universe
 - removed a bug in `getXYZfromHDF5`: now boxes are exported correctly
 - some QoL improvements behind the curtains and in the tests
+- added CI for documentation
 
 ## Changes since v0.0.2a
 
