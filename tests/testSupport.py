@@ -9,6 +9,57 @@ __PropertiesFinder = re.compile('Properties="{0,1}(.*?)"{0,1}(?: |$)', flags=0)
 __LatticeFinder = re.compile('Lattice="(.*?)"', flags=0)
 
 
+def __frameConfrontation(
+    lines: "list[str]",
+    nat: int,
+    coords: numpy.ndarray,
+    box: numpy.ndarray,
+    types: "list[str]",
+    allFramesProperty,
+    perFrameProperties,
+    **passedValues,
+):
+    assert int(lines[0]) == nat
+    Lattice = __LatticeFinder.search(lines[1]).group(1).split()
+    Properties = __PropertiesFinder.search(lines[1]).group(1).split(":")
+    WhereIsTheProperty = dict()
+    for name in passedValues.keys():
+        assert name in Properties
+        mapPos = Properties.index(name)
+        WhereIsTheProperty[name] = numpy.sum([int(k) for k in Properties[2:mapPos:3]])
+    numberOfproperties = int(numpy.sum([int(k) for k in Properties[2::3]]))
+
+    universeBox = triclinic_vectors(box).flatten()
+    print(universeBox)
+    print(Lattice)
+    print(box)
+    x, y, z = numpy.array([float(l) for l in Lattice]).reshape(3, 3)
+    print(triclinic_box(x, y, z))
+    for original, control in zip(universeBox, Lattice):
+        print(original, control)
+        assert (original - float(control)) < 1e-7
+    if allFramesProperty is not None:
+        assert allFramesProperty in lines[1]
+    if perFrameProperties is not None:
+        assert perFrameProperties in lines[1]
+    for atomID in range(nat):
+        thisline = lines[2 + atomID]
+        assert thisline.split()[0] == types[atomID]
+        assert len(thisline.split()) == numberOfproperties
+        for name in passedValues.keys():
+            if len(passedValues[name].shape) == 1:
+                assert (
+                    int((thisline.split()[WhereIsTheProperty[name]]))
+                    == passedValues[name][atomID]
+                )
+            else:
+                for i, d in enumerate(passedValues[name][atomID]):
+                    assert int((thisline.split()[WhereIsTheProperty[name] + i])) == d
+
+        for i in range(3):
+            assert float(thisline.split()[i + 1]) == coords[atomID][i]
+
+
 def checkStringDataFromUniverse(
     stringData: StringIO,
     myUniverse: "MDAnalysis.Universe | MDAnalysis.AtomGroup",
@@ -17,62 +68,29 @@ def checkStringDataFromUniverse(
     perFrameProperties: list = None,
     **passedValues,
 ):
+
     universe = myUniverse.universe
     atoms = myUniverse.atoms
+    types = myUniverse.atoms.types
+    nat = len(atoms)
     lines = stringData.getvalue().splitlines()
-    nat = int(lines[0])
-    assert int(lines[0]) == len(atoms)
-    assert lines[2].split()[0] == atoms.types[0]
+
+    # REMARKS: works only for static number of atoms during simulation
     for frameIndex, traj in enumerate(universe.trajectory[frameSlice]):
         frameID = frameIndex * (nat + 2)
-        assert int(lines[frameID]) == nat
-        Lattice = __LatticeFinder.search(lines[frameID + 1]).group(1).split()
-        Properties = __PropertiesFinder.search(lines[frameID + 1]).group(1).split(":")
-        WhereIsTheProperty = dict()
-        for name in passedValues.keys():
-            assert name in Properties
-            mapPos = Properties.index(name)
-            WhereIsTheProperty[name] = numpy.sum(
-                [int(k) for k in Properties[2:mapPos:3]]
-            )
-        numberOfproperties = int(numpy.sum([int(k) for k in Properties[2::3]]))
-
-        universeBox = triclinic_vectors(myUniverse.dimensions).flatten()
-        print(frameIndex, universeBox)
-        print(Lattice)
-        print(myUniverse.dimensions)
-        x, y, z = numpy.array([float(l) for l in Lattice]).reshape(3, 3)
-        print(triclinic_box(x, y, z))
-
-        for original, control in zip(universeBox, Lattice):
-            print(frameIndex, original, control)
-            assert (original - float(control)) < 1e-7
-        if allFramesProperty is not None:
-            assert allFramesProperty in lines[frameID + 1]
-        if perFrameProperties is not None:
-            assert perFrameProperties[frameIndex] in lines[frameID + 1]
-        for atomID in range(len(myUniverse.atoms)):
-            thisline = lines[frameID + 2 + atomID]
-            print(thisline)
-            assert thisline.split()[0] == myUniverse.atoms.types[atomID]
-            assert len(thisline.split()) == numberOfproperties
-            for name in passedValues.keys():
-                if len(passedValues[name].shape) == 2:
-                    assert (
-                        int((thisline.split()[WhereIsTheProperty[name]]))
-                        == passedValues[name][frameIndex, atomID]
-                    )
-                else:
-                    for i, d in enumerate(passedValues[name][frameIndex, atomID]):
-                        assert (
-                            int((thisline.split()[WhereIsTheProperty[name] + i])) == d
-                        )
-
-            for i in range(3):
-                assert (
-                    float(thisline.split()[i + 1])
-                    == myUniverse.atoms.positions[atomID][i]
-                )
+        box = myUniverse.dimensions
+        coords = atoms.positions
+        print(f"in frame: {frameIndex}")
+        __frameConfrontation(
+            lines[frameID : frameID + nat + 2],
+            nat,
+            coords,
+            box,
+            types,
+            allFramesProperty,
+            perFrameProperties[frameIndex] if perFrameProperties is not None else None,
+            **{k: passedValues[k][frameIndex] for k in passedValues},
+        )
 
 
 def checkStringDataFromHDF5(
@@ -83,57 +101,28 @@ def checkStringDataFromHDF5(
     perFrameProperties: list = None,
     **passedValues,
 ):
+    trajectory = myUniverse["Trajectory"]
+    boxes = myUniverse["Box"]
     lines = stringData.getvalue().splitlines()
-    nat = int(lines[0])
     types = myUniverse["Types"].asstr()
-    assert int(lines[0]) == myUniverse["Trajectory"].shape[1]
-    # assert lines[2].split()[0] == atoms.types[0]
+    nat = len(types)
+
+    # REMARKS: works only for static number of atoms during simulation
     for frameIndex, (coords, box) in enumerate(
-        zip(myUniverse["Trajectory"][frameSlice], myUniverse["Box"][frameSlice])
+        zip(trajectory[frameSlice], boxes[frameSlice])
     ):
         frameID = frameIndex * (nat + 2)
-        assert int(lines[frameID]) == nat
-        Lattice = __LatticeFinder.search(lines[frameID + 1]).group(1).split()
-        Properties = __PropertiesFinder.search(lines[frameID + 1]).group(1).split(":")
-        WhereIsTheProperty = dict()
-        for name in passedValues.keys():
-            assert name in Properties
-            mapPos = Properties.index(name)
-            WhereIsTheProperty[name] = numpy.sum(
-                [int(k) for k in Properties[2:mapPos:3]]
-            )
-        numberOfproperties = int(numpy.sum([int(k) for k in Properties[2::3]]))
-
-        universeBox = triclinic_vectors(box).flatten()
-        print(frameIndex, universeBox)
-        print(Lattice)
-        print(box)
-        x, y, z = numpy.array([float(l) for l in Lattice]).reshape(3, 3)
-        print(triclinic_box(x, y, z))
-        for original, control in zip(universeBox, Lattice):
-            assert (original - float(control)) < 1e-7
-        if allFramesProperty is not None:
-            assert allFramesProperty in lines[frameID + 1]
-        if perFrameProperties is not None:
-            assert perFrameProperties[frameIndex] in lines[frameID + 1]
-        for atomID in range(nat):
-            thisline = lines[frameID + 2 + atomID]
-            assert thisline.split()[0] == types[atomID]
-            assert len(thisline.split()) == numberOfproperties
-            for name in passedValues.keys():
-                if len(passedValues[name].shape) == 2:
-                    assert (
-                        int((thisline.split()[WhereIsTheProperty[name]]))
-                        == passedValues[name][frameIndex, atomID]
-                    )
-                else:
-                    for i, d in enumerate(passedValues[name][frameIndex, atomID]):
-                        assert (
-                            int((thisline.split()[WhereIsTheProperty[name] + i])) == d
-                        )
-
-            for i in range(3):
-                assert float(thisline.split()[i + 1]) == coords[atomID][i]
+        print(f"in frame: {frameIndex}")
+        __frameConfrontation(
+            lines[frameID : frameID + nat + 2],
+            nat,
+            coords,
+            box,
+            types,
+            allFramesProperty,
+            perFrameProperties[frameIndex] if perFrameProperties is not None else None,
+            **{k: passedValues[k][frameIndex] for k in passedValues},
+        )
 
 
 def getUniverseWithWaterMolecules(n_residues=10):
