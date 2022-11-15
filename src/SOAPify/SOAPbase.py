@@ -64,7 +64,7 @@ def SOAPdistance(x: np.ndarray, y: np.ndarray, n: int = 1) -> float:
     try:
         return np.sqrt(2.0 - 2.0 * KernelSoap(x, y, n))
     except FloatingPointError:
-        return 0
+        return 0.0
 
 
 def SOAPdistanceNormalized(x: np.ndarray, y: np.ndarray) -> float:
