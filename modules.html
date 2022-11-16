@@ -1,18 +1,22 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SOAPify &mdash; SOAPify 0.1 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <title>SOAPify &mdash; SOAPify 0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
-  <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -35,7 +39,7 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="readme_link.html">SOAPify, HDF5er and ReferenceMaker</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">SOAPify</a><ul>
@@ -76,30 +80,70 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <div class="section" id="soapify">
-<h1>SOAPify<a class="headerlink" href="#soapify" title="Permalink to this headline">¶</a></h1>
+  <section id="soapify">
+<h1>SOAPify<a class="headerlink" href="#soapify" title="Permalink to this heading"></a></h1>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="SOAPify.html">SOAPify package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SOAPify.html">SOAPify package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="SOAPify.html#SOAPify.SOAPClassify.SOAPReferences"><code class="docutils literal notranslate"><span class="pre">SOAPReferences</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="SOAPify.html#SOAPify.SOAPClassify.SOAPReferences.lmax"><code class="docutils literal notranslate"><span class="pre">SOAPReferences.lmax</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="SOAPify.html#SOAPify.SOAPClassify.SOAPReferences.names"><code class="docutils literal notranslate"><span class="pre">SOAPReferences.names</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="SOAPify.html#SOAPify.SOAPClassify.SOAPReferences.nmax"><code class="docutils literal notranslate"><span class="pre">SOAPReferences.nmax</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="SOAPify.html#SOAPify.SOAPClassify.SOAPReferences.spectra"><code class="docutils literal notranslate"><span class="pre">SOAPReferences.spectra</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="SOAPify.html#SOAPify.SOAPClassify.SOAPclassification"><code class="docutils literal notranslate"><span class="pre">SOAPclassification</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="SOAPify.html#SOAPify.SOAPClassify.SOAPclassification.distances"><code class="docutils literal notranslate"><span class="pre">SOAPclassification.distances</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="SOAPify.html#SOAPify.SOAPClassify.SOAPclassification.legend"><code class="docutils literal notranslate"><span class="pre">SOAPclassification.legend</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="SOAPify.html#SOAPify.SOAPClassify.SOAPclassification.references"><code class="docutils literal notranslate"><span class="pre">SOAPclassification.references</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="SOAPify.html#SOAPify.SOAPClassify.classify"><code class="docutils literal notranslate"><span class="pre">classify()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="SOAPify.html#SOAPify.SOAPClassify.classifyWithSOAP"><code class="docutils literal notranslate"><span class="pre">classifyWithSOAP()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="SOAPify.html#SOAPify.SOAPClassify.createReferencesFromTrajectory"><code class="docutils literal notranslate"><span class="pre">createReferencesFromTrajectory()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="SOAPify.html#SOAPify.SOAPClassify.getDistanceBetween"><code class="docutils literal notranslate"><span class="pre">getDistanceBetween()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="SOAPify.html#SOAPify.SOAPClassify.getDistancesFromRef"><code class="docutils literal notranslate"><span class="pre">getDistancesFromRef()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="SOAPify.html#SOAPify.SOAPClassify.getDistancesFromRefNormalized"><code class="docutils literal notranslate"><span class="pre">getDistancesFromRefNormalized()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="SOAPify.html#SOAPify.SOAPClassify.getReferencesFromDataset"><code class="docutils literal notranslate"><span class="pre">getReferencesFromDataset()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="SOAPify.html#SOAPify.SOAPClassify.loadRefs"><code class="docutils literal notranslate"><span class="pre">loadRefs()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="SOAPify.html#SOAPify.SOAPClassify.mergeReferences"><code class="docutils literal notranslate"><span class="pre">mergeReferences()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="SOAPify.html#SOAPify.SOAPClassify.saveReferences"><code class="docutils literal notranslate"><span class="pre">saveReferences()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="SOAPify.html#SOAPify.SOAPbase.KernelSoap"><code class="docutils literal notranslate"><span class="pre">KernelSoap()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="SOAPify.html#SOAPify.SOAPbase.SOAPdistance"><code class="docutils literal notranslate"><span class="pre">SOAPdistance()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="SOAPify.html#SOAPify.SOAPbase.SOAPdistanceNormalized"><code class="docutils literal notranslate"><span class="pre">SOAPdistanceNormalized()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="SOAPify.html#SOAPify.SOAPbase.simpleKernelSoap"><code class="docutils literal notranslate"><span class="pre">simpleKernelSoap()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="SOAPify.html#SOAPify.SOAPbase.simpleSOAPdistance"><code class="docutils literal notranslate"><span class="pre">simpleSOAPdistance()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="SOAPify.html#SOAPify.Saponify.saponify"><code class="docutils literal notranslate"><span class="pre">saponify()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="SOAPify.html#SOAPify.Saponify.saponifyGroup"><code class="docutils literal notranslate"><span class="pre">saponifyGroup()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </div>
-</div>
-<div class="section" id="hdf5er">
-<h1>HDF5er<a class="headerlink" href="#hdf5er" title="Permalink to this headline">¶</a></h1>
+</section>
+<section id="hdf5er">
+<h1>HDF5er<a class="headerlink" href="#hdf5er" title="Permalink to this heading"></a></h1>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="HDF5er.html">HDF5er package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="HDF5er.html">HDF5er package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="HDF5er.html#HDF5er.HDF5erUtils.exportChunk2HDF5"><code class="docutils literal notranslate"><span class="pre">exportChunk2HDF5()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="HDF5er.html#HDF5er.HDF5erUtils.isTrajectoryGroup"><code class="docutils literal notranslate"><span class="pre">isTrajectoryGroup()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="HDF5er.html#HDF5er.HDF5erUtils.patchBoxFromTopology"><code class="docutils literal notranslate"><span class="pre">patchBoxFromTopology()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="HDF5er.html#HDF5er.MDA2HDF5.MDA2HDF5"><code class="docutils literal notranslate"><span class="pre">MDA2HDF5()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="HDF5er.html#HDF5er.MDA2HDF5.Universe2HDF5"><code class="docutils literal notranslate"><span class="pre">Universe2HDF5()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="HDF5er.html#HDF5er.ase2HDF5.xyz2hdf5Converter"><code class="docutils literal notranslate"><span class="pre">xyz2hdf5Converter()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </div>
-</div>
-<div class="section" id="referencemaker">
-<h1>ReferenceMaker<a class="headerlink" href="#referencemaker" title="Permalink to this headline">¶</a></h1>
+</section>
+<section id="referencemaker">
+<h1>ReferenceMaker<a class="headerlink" href="#referencemaker" title="Permalink to this heading"></a></h1>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="ReferenceMaker.html">ReferenceMaker package</a></li>
 </ul>
 </div>
-</div>
+</section>
 
 
            </div>

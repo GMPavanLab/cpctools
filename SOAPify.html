@@ -1,18 +1,23 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SOAPify package &mdash; SOAPify 0.1 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <title>SOAPify package &mdash; SOAPify 0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
-  <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -35,11 +40,43 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="readme_link.html">SOAPify, HDF5er and ReferenceMaker</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">SOAPify</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">SOAPify package</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">SOAPify package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#SOAPify.SOAPClassify.SOAPReferences"><code class="docutils literal notranslate"><span class="pre">SOAPReferences</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#SOAPify.SOAPClassify.SOAPReferences.lmax"><code class="docutils literal notranslate"><span class="pre">SOAPReferences.lmax</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#SOAPify.SOAPClassify.SOAPReferences.names"><code class="docutils literal notranslate"><span class="pre">SOAPReferences.names</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#SOAPify.SOAPClassify.SOAPReferences.nmax"><code class="docutils literal notranslate"><span class="pre">SOAPReferences.nmax</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#SOAPify.SOAPClassify.SOAPReferences.spectra"><code class="docutils literal notranslate"><span class="pre">SOAPReferences.spectra</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#SOAPify.SOAPClassify.SOAPclassification"><code class="docutils literal notranslate"><span class="pre">SOAPclassification</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#SOAPify.SOAPClassify.SOAPclassification.distances"><code class="docutils literal notranslate"><span class="pre">SOAPclassification.distances</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#SOAPify.SOAPClassify.SOAPclassification.legend"><code class="docutils literal notranslate"><span class="pre">SOAPclassification.legend</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#SOAPify.SOAPClassify.SOAPclassification.references"><code class="docutils literal notranslate"><span class="pre">SOAPclassification.references</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#SOAPify.SOAPClassify.classify"><code class="docutils literal notranslate"><span class="pre">classify()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#SOAPify.SOAPClassify.classifyWithSOAP"><code class="docutils literal notranslate"><span class="pre">classifyWithSOAP()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#SOAPify.SOAPClassify.createReferencesFromTrajectory"><code class="docutils literal notranslate"><span class="pre">createReferencesFromTrajectory()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#SOAPify.SOAPClassify.getDistanceBetween"><code class="docutils literal notranslate"><span class="pre">getDistanceBetween()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#SOAPify.SOAPClassify.getDistancesFromRef"><code class="docutils literal notranslate"><span class="pre">getDistancesFromRef()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#SOAPify.SOAPClassify.getDistancesFromRefNormalized"><code class="docutils literal notranslate"><span class="pre">getDistancesFromRefNormalized()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#SOAPify.SOAPClassify.getReferencesFromDataset"><code class="docutils literal notranslate"><span class="pre">getReferencesFromDataset()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#SOAPify.SOAPClassify.loadRefs"><code class="docutils literal notranslate"><span class="pre">loadRefs()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#SOAPify.SOAPClassify.mergeReferences"><code class="docutils literal notranslate"><span class="pre">mergeReferences()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#SOAPify.SOAPClassify.saveReferences"><code class="docutils literal notranslate"><span class="pre">saveReferences()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#SOAPify.SOAPbase.KernelSoap"><code class="docutils literal notranslate"><span class="pre">KernelSoap()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#SOAPify.SOAPbase.SOAPdistance"><code class="docutils literal notranslate"><span class="pre">SOAPdistance()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#SOAPify.SOAPbase.SOAPdistanceNormalized"><code class="docutils literal notranslate"><span class="pre">SOAPdistanceNormalized()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#SOAPify.SOAPbase.simpleKernelSoap"><code class="docutils literal notranslate"><span class="pre">simpleKernelSoap()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#SOAPify.SOAPbase.simpleSOAPdistance"><code class="docutils literal notranslate"><span class="pre">simpleSOAPdistance()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#SOAPify.Saponify.saponify"><code class="docutils literal notranslate"><span class="pre">saponify()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#SOAPify.Saponify.saponifyGroup"><code class="docutils literal notranslate"><span class="pre">saponifyGroup()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="modules.html#hdf5er">HDF5er</a></li>
@@ -71,9 +108,336 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <div class="section" id="soapify-package">
-<h1>SOAPify package<a class="headerlink" href="#soapify-package" title="Permalink to this headline">¶</a></h1>
-</div>
+  <section id="soapify-package">
+<h1>SOAPify package<a class="headerlink" href="#soapify-package" title="Permalink to this heading"></a></h1>
+<span class="target" id="module-SOAPify.SOAPClassify"></span><dl class="py class">
+<dt class="sig sig-object py" id="SOAPify.SOAPClassify.SOAPReferences">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">SOAPify.SOAPClassify.</span></span><span class="sig-name descname"><span class="pre">SOAPReferences</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spectra</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">np.ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lmax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nmax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#SOAPify.SOAPClassify.SOAPReferences" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Utility class to store the information about the SOAP classification of a system.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="SOAPify.SOAPClassify.SOAPReferences.lmax">
+<span class="sig-name descname"><span class="pre">lmax</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#SOAPify.SOAPClassify.SOAPReferences.lmax" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="SOAPify.SOAPClassify.SOAPReferences.names">
+<span class="sig-name descname"><span class="pre">names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#SOAPify.SOAPClassify.SOAPReferences.names" title="Permalink to this definition"></a></dt>
+<dd><p>stores the names of the references</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="SOAPify.SOAPClassify.SOAPReferences.nmax">
+<span class="sig-name descname"><span class="pre">nmax</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#SOAPify.SOAPClassify.SOAPReferences.nmax" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="SOAPify.SOAPClassify.SOAPReferences.spectra">
+<span class="sig-name descname"><span class="pre">spectra</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">np.ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#SOAPify.SOAPClassify.SOAPReferences.spectra" title="Permalink to this definition"></a></dt>
+<dd><p>stores the SOAP vector of the references</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="SOAPify.SOAPClassify.SOAPclassification">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">SOAPify.SOAPClassify.</span></span><span class="sig-name descname"><span class="pre">SOAPclassification</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">distances</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">np.ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">references</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">np.ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#SOAPify.SOAPClassify.SOAPclassification" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Utility class to store the information about the SOAP classification of a system.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="SOAPify.SOAPClassify.SOAPclassification.distances">
+<span class="sig-name descname"><span class="pre">distances</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">np.ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#SOAPify.SOAPClassify.SOAPclassification.distances" title="Permalink to this definition"></a></dt>
+<dd><p>stores the (per frame) per atom information about the distance from the closes reference fingerprint</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="SOAPify.SOAPClassify.SOAPclassification.legend">
+<span class="sig-name descname"><span class="pre">legend</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#SOAPify.SOAPClassify.SOAPclassification.legend" title="Permalink to this definition"></a></dt>
+<dd><p>stores the references legend</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="SOAPify.SOAPClassify.SOAPclassification.references">
+<span class="sig-name descname"><span class="pre">references</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">np.ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#SOAPify.SOAPClassify.SOAPclassification.references" title="Permalink to this definition"></a></dt>
+<dd><p>stores the (per frame) per atom index of the closest reference</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SOAPify.SOAPClassify.classify">
+<span class="sig-prename descclassname"><span class="pre">SOAPify.SOAPClassify.</span></span><span class="sig-name descname"><span class="pre">classify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">SOAPTrajData</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">references</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#SOAPify.SOAPClassify.SOAPReferences" title="SOAPify.SOAPClassify.SOAPReferences"><span class="pre">SOAPReferences</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">distanceCalculator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doNormalize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#SOAPify.SOAPClassify.SOAPclassification" title="SOAPify.SOAPClassify.SOAPclassification"><span class="pre">SOAPclassification</span></a></span></span><a class="headerlink" href="#SOAPify.SOAPClassify.classify" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SOAPify.SOAPClassify.classifyWithSOAP">
+<span class="sig-prename descclassname"><span class="pre">SOAPify.SOAPClassify.</span></span><span class="sig-name descname"><span class="pre">classifyWithSOAP</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">SOAPTrajData</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hdf5FileReference</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">File</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">referenceAddresses</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#SOAPify.SOAPClassify.SOAPclassification" title="SOAPify.SOAPClassify.SOAPclassification"><span class="pre">SOAPclassification</span></a></span></span><a class="headerlink" href="#SOAPify.SOAPClassify.classifyWithSOAP" title="Permalink to this definition"></a></dt>
+<dd><p>classifies all atoms in a system, given the precalculated set of SOAP fingerprints, and the references.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>SOAPTrajData</strong> (<em>h5py.Dataset</em>) – The hdf5 dataset that contaisn the SOAP fingerprints</p></li>
+<li><p><strong>hdf5FileReference</strong> (<em>h5py.File</em>) – the hdf5 file that contains the references</p></li>
+<li><p><strong>referenceAddresses</strong> (<em>list</em>) – a list of the addresses of the references and/or of the groups that contain the references in hdf5FileReference</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the information of the whole trajectory divided frame by frame and atom by atom, along with the legend</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#SOAPify.SOAPClassify.SOAPclassification" title="SOAPify.SOAPClassify.SOAPclassification">SOAPclassification</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SOAPify.SOAPClassify.createReferencesFromTrajectory">
+<span class="sig-prename descclassname"><span class="pre">SOAPify.SOAPClassify.</span></span><span class="sig-name descname"><span class="pre">createReferencesFromTrajectory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5SOAPDataSet</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">addresses</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lmax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nmax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doNormalize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#SOAPify.SOAPClassify.SOAPReferences" title="SOAPify.SOAPClassify.SOAPReferences"><span class="pre">SOAPReferences</span></a></span></span><a class="headerlink" href="#SOAPify.SOAPClassify.createReferencesFromTrajectory" title="Permalink to this definition"></a></dt>
+<dd><p>Generate a SOAPReferences object by storing the data found from h5SOAPDataSet.
+The atoms are selected trough the addresses dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>h5SOAPDataSet</strong> (<em>h5py.Dataset</em>) – the dataset with the SOAP fingerprints</p></li>
+<li><p><strong>addresses</strong> (<em>dict</em>) – the dictionary with the names and the addresses of the fingerprints.
+The keys will be used as the names of the references and the values
+assigned to the keys must be tuples or similar with the number of
+the chosen frame and the atom number (for example <code class="docutils literal notranslate"><span class="pre">dict(exaple=(framenum,</span> <span class="pre">atomID))</span></code>)</p></li>
+<li><p><strong>doNormalize</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True normalizes the SOAP vector before storing them. Defaults to True.</p></li>
+<li><p><strong>settingsUsedInDscribe</strong> (<em>dscribeSettings</em><em>|</em><em>None</em><em>, </em><em>optional</em>) – If none the SOAP vector are
+not preprpcessed, if not none the SOAP vectors are decompressed,
+as dscribe omits the symmetric part of the spectra. Defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>_description_</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#SOAPify.SOAPClassify.SOAPReferences" title="SOAPify.SOAPClassify.SOAPReferences">SOAPReferences</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SOAPify.SOAPClassify.getDistanceBetween">
+<span class="sig-prename descclassname"><span class="pre">SOAPify.SOAPClassify.</span></span><span class="sig-name descname"><span class="pre">getDistanceBetween</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spectra</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distanceCalculator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#SOAPify.SOAPClassify.getDistanceBetween" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SOAPify.SOAPClassify.getDistancesFromRef">
+<span class="sig-prename descclassname"><span class="pre">SOAPify.SOAPClassify.</span></span><span class="sig-name descname"><span class="pre">getDistancesFromRef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">SOAPTrajData</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">references</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#SOAPify.SOAPClassify.SOAPReferences" title="SOAPify.SOAPClassify.SOAPReferences"><span class="pre">SOAPReferences</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">distanceCalculator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doNormalize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#SOAPify.SOAPClassify.getDistancesFromRef" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SOAPify.SOAPClassify.getDistancesFromRefNormalized">
+<span class="sig-prename descclassname"><span class="pre">SOAPify.SOAPClassify.</span></span><span class="sig-name descname"><span class="pre">getDistancesFromRefNormalized</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">SOAPTrajData</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">references</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#SOAPify.SOAPClassify.SOAPReferences" title="SOAPify.SOAPClassify.SOAPReferences"><span class="pre">SOAPReferences</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#SOAPify.SOAPClassify.getDistancesFromRefNormalized" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SOAPify.SOAPClassify.getReferencesFromDataset">
+<span class="sig-prename descclassname"><span class="pre">SOAPify.SOAPClassify.</span></span><span class="sig-name descname"><span class="pre">getReferencesFromDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dataset</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#SOAPify.SOAPClassify.getReferencesFromDataset" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SOAPify.SOAPClassify.loadRefs">
+<span class="sig-prename descclassname"><span class="pre">SOAPify.SOAPClassify.</span></span><span class="sig-name descname"><span class="pre">loadRefs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hdf5FileReference</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">File</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">referenceAddresses</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">np.ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#SOAPify.SOAPClassify.loadRefs" title="Permalink to this definition"></a></dt>
+<dd><p>loads the references given in referenceAddresses from an hdf5 file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>hdf5FileReference</strong> (<em>of the groups that contain the references in</em>) – the hdf5 file that contains the references</p></li>
+<li><p><strong>referenceAddresses</strong> (<em>list</em>) – a list of the addresses of the references and/or</p></li>
+<li><p><strong>hdf5FileReference</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>returns a tuple with the fingerprint and the relative names of the references</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tuple[np.ndarray[float],list[str]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SOAPify.SOAPClassify.mergeReferences">
+<span class="sig-prename descclassname"><span class="pre">SOAPify.SOAPClassify.</span></span><span class="sig-name descname"><span class="pre">mergeReferences</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#SOAPify.SOAPClassify.SOAPReferences" title="SOAPify.SOAPClassify.SOAPReferences"><span class="pre">SOAPReferences</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#SOAPify.SOAPClassify.SOAPReferences" title="SOAPify.SOAPClassify.SOAPReferences"><span class="pre">SOAPReferences</span></a></span></span><a class="headerlink" href="#SOAPify.SOAPClassify.mergeReferences" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SOAPify.SOAPClassify.saveReferences">
+<span class="sig-prename descclassname"><span class="pre">SOAPify.SOAPClassify.</span></span><span class="sig-name descname"><span class="pre">saveReferences</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5position</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">h5py.Group</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">h5py.File</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targetDatasetName</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#SOAPify.SOAPClassify.SOAPReferences" title="SOAPify.SOAPClassify.SOAPReferences"><span class="pre">SOAPReferences</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#SOAPify.SOAPClassify.saveReferences" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<span class="target" id="module-SOAPify.SOAPbase"></span><dl class="py function">
+<dt class="sig sig-object py" id="SOAPify.SOAPbase.KernelSoap">
+<span class="sig-prename descclassname"><span class="pre">SOAPify.SOAPbase.</span></span><span class="sig-name descname"><span class="pre">KernelSoap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#SOAPify.SOAPbase.KernelSoap" title="Permalink to this definition"></a></dt>
+<dd><p>The SOAP Kernel with a variable power</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>np.ndarray</em>) – a SOAP fingerprint</p></li>
+<li><p><strong>y</strong> (<em>np.ndarray</em>) – a SOAP fingerprint</p></li>
+<li><p><strong>n</strong> (<em>int</em>) – the power to elevate the result of the kernel</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>kernel value</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SOAPify.SOAPbase.SOAPdistance">
+<span class="sig-prename descclassname"><span class="pre">SOAPify.SOAPbase.</span></span><span class="sig-name descname"><span class="pre">SOAPdistance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#SOAPify.SOAPbase.SOAPdistance" title="Permalink to this definition"></a></dt>
+<dd><p>the SOAP distance between two SOAP fingerprints</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>np.ndarray</em>) – a SOAP fingerprint</p></li>
+<li><p><strong>y</strong> (<em>np.ndarray</em>) – a SOAP fingerprint</p></li>
+<li><p><strong>n</strong> (<em>int</em>) – the power to elevate the result of the kernel</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the distance between the two fingerprints, between 0 and <span class="math notranslate nohighlight">\(\sqrt{2}\)</span></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SOAPify.SOAPbase.SOAPdistanceNormalized">
+<span class="sig-prename descclassname"><span class="pre">SOAPify.SOAPbase.</span></span><span class="sig-name descname"><span class="pre">SOAPdistanceNormalized</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#SOAPify.SOAPbase.SOAPdistanceNormalized" title="Permalink to this definition"></a></dt>
+<dd><p>the SOAP distance between two normalized SOAP fingerprints
+The pre-normalized vectors should net some performace over the classic kernel</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>np.ndarray</em>) – a normalized SOAP fingerprint</p></li>
+<li><p><strong>y</strong> (<em>np.ndarray</em>) – a normalized SOAP fingerprint</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the distance between the two fingerprints, between 0 and 2</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SOAPify.SOAPbase.simpleKernelSoap">
+<span class="sig-prename descclassname"><span class="pre">SOAPify.SOAPbase.</span></span><span class="sig-name descname"><span class="pre">simpleKernelSoap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#SOAPify.SOAPbase.simpleKernelSoap" title="Permalink to this definition"></a></dt>
+<dd><p>a simpler SOAP Kernel than <a class="reference internal" href="#SOAPify.SOAPbase.KernelSoap" title="SOAPify.SOAPbase.KernelSoap"><code class="xref py py-func docutils literal notranslate"><span class="pre">KernelSoap()</span></code></a>, power is always 1</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>np.ndarray</em>) – a SOAP fingerprint</p></li>
+<li><p><strong>y</strong> (<em>np.ndarray</em>) – a SOAP fingerprint</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>kernel value</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SOAPify.SOAPbase.simpleSOAPdistance">
+<span class="sig-prename descclassname"><span class="pre">SOAPify.SOAPbase.</span></span><span class="sig-name descname"><span class="pre">simpleSOAPdistance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#SOAPify.SOAPbase.simpleSOAPdistance" title="Permalink to this definition"></a></dt>
+<dd><p>a simpler SOAP distance than <a class="reference internal" href="#SOAPify.SOAPbase.SOAPdistance" title="SOAPify.SOAPbase.SOAPdistance"><code class="xref py py-func docutils literal notranslate"><span class="pre">SOAPdistance()</span></code></a>, power is always 1</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>np.ndarray</em>) – a SOAP fingerprint</p></li>
+<li><p><strong>y</strong> (<em>np.ndarray</em>) – a SOAP fingerprint</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the distance between the two fingerprints, between 0 and <span class="math notranslate nohighlight">\(\sqrt{2}\)</span></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<span class="target" id="module-SOAPify.Saponify"></span><dl class="py function">
+<dt class="sig sig-object py" id="SOAPify.Saponify.saponify">
+<span class="sig-prename descclassname"><span class="pre">SOAPify.Saponify.</span></span><span class="sig-name descname"><span class="pre">saponify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trajContainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">h5py.Group</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">h5py.File</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SOAPoutContainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">h5py.Group</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">h5py.File</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SOAPrcut</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SOAPnmax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SOAPlmax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SOAPOutputChunkDim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SOAPnJobs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SOAPatomMask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">centersMask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SOAP_respectPBC</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SOAPkwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">useSoapFrom</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'dscribe'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#SOAPify.Saponify.saponify" title="Permalink to this definition"></a></dt>
+<dd><p>Calculates the SOAP fingerprints for each atom in a given hdf5 trajectory</p>
+<p>This routine sets up a SOAP engine to calculate the SOAP fingerprints for all
+the atoms in a given trajectory. The user can choose the otpio</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>trajFname</strong> (<em>str</em>) – The name of the hdf5 file in wich the trajectory is stored</p></li>
+<li><p><strong>trajectoryGroupPath</strong> (<em>str</em>) – the path of the group that contains the trajectory in trajFname</p></li>
+<li><p><strong>outputFname</strong> (<em>str</em>) – the name of the hdf5 file that will contain the ouput or the SOAP analysis</p></li>
+<li><p><strong>exportDatasetName</strong> (<em>str</em>) – the name of the dataset that will contain the SOAP</p></li>
+<li><p><strong>results</strong> – </p></li>
+<li><p><strong>&quot;SOAP&quot;</strong> (<em>it will be saved in the group called</em>) – </p></li>
+<li><p><strong>SOAPOutputChunkDim</strong> (<em>int</em><em>, </em><em>optional</em>) – The dimension of the chunck of data</p></li>
+<li><p><strong>100.</strong> (<em>in the SOAP results dataset. Defaults to</em>) – </p></li>
+<li><p><strong>SOAPnJobs</strong> (<em>int</em><em>, </em><em>optional</em>) – the number of concurrent SOAP calculations</p></li>
+<li><p><strong>1.</strong> (<em>(</em><em>option passed to dscribe's SOAP</em><em>)</em><em>. Defaults to</em>) – </p></li>
+<li><p><strong>SOAPatomMask</strong> (<em>str</em><em>, </em><em>optional</em>) – the symbols of the atoms whose SOAP</p></li>
+<li><p><strong>calculated</strong> (<em>fingerprint will be</em>) – </p></li>
+<li><p><strong>SOAPrcut</strong> (<em>float</em><em>, </em><em>optional</em>) – The cutoff for local region in angstroms.</p></li>
+<li><p><strong>angstrom</strong> (<em>Should be bigger than 1</em>) – </p></li>
+<li><p><strong>SOAPnmax</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of radial basis functions (option</p></li>
+<li><p><strong>8.</strong> (<em>(</em><em>option passed to dscribe's SOAP</em><em>)</em><em>. Defaults to</em>) – </p></li>
+<li><p><strong>SOAPlmax</strong> (<em>int</em><em>, </em><em>optional</em>) – The maximum degree of spherical harmonics</p></li>
+<li><p><strong>8.</strong> – </p></li>
+<li><p><strong>SOAP_respectPBC</strong> (<em>bool</em><em>, </em><em>optional</em>) – Determines whether the system is</p></li>
+<li><p><strong>periodic</strong> (<em>considered to be</em>) – </p></li>
+<li><p><strong>SOAPkwargs</strong> (<em>dict</em><em>, </em><em>optional</em>) – additional keyword arguments to be passed to the SOAP engine. Defaults to {}.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SOAPify.Saponify.saponifyGroup">
+<span class="sig-prename descclassname"><span class="pre">SOAPify.Saponify.</span></span><span class="sig-name descname"><span class="pre">saponifyGroup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trajContainers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">h5py.Group</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">h5py.File</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SOAPoutContainers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">h5py.Group</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">h5py.File</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SOAPrcut</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SOAPnmax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SOAPlmax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SOAPOutputChunkDim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SOAPnJobs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SOAPatomMask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">centersMask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SOAP_respectPBC</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SOAPkwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">useSoapFrom</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'dscribe'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#SOAPify.Saponify.saponifyGroup" title="Permalink to this definition"></a></dt>
+<dd><p>From a trajectory stored in a group calculates and stores the SOAP
+descriptor in the given group/file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>trajContainers</strong> (<em>h5py.Group</em>) – The file/group that contains the trajectories</p></li>
+<li><p><strong>SOAPoutContainers</strong> (<em>h5py.Group</em>) – The file/group that will store the SOAP results</p></li>
+<li><p><strong>SOAPOutputChunkDim</strong> (<em>int</em><em>, </em><em>optional</em>) – The dimension of the chunck of data</p></li>
+<li><p><strong>100.</strong> (<em>in the SOAP results dataset. Defaults to</em>) – </p></li>
+<li><p><strong>SOAPnJobs</strong> (<em>int</em><em>, </em><em>optional</em>) – the number of concurrent SOAP calculations</p></li>
+<li><p><strong>1.</strong> (<em>(</em><em>option passed to dscribe's SOAP</em><em>)</em><em>. Defaults to</em>) – </p></li>
+<li><p><strong>SOAPatomMask</strong> (<em>str</em><em>, </em><em>optional</em>) – the symbols of the atoms whose SOAP</p></li>
+<li><p><strong>calculated</strong> (<em>fingerprint will be</em>) – </p></li>
+<li><p><strong>SOAPrcut</strong> (<em>float</em><em>, </em><em>optional</em>) – The cutoff for local region in angstroms.</p></li>
+<li><p><strong>angstrom</strong> (<em>Should be bigger than 1</em>) – </p></li>
+<li><p><strong>SOAPnmax</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of radial basis functions (option</p></li>
+<li><p><strong>8.</strong> (<em>(</em><em>option passed to dscribe's SOAP</em><em>)</em><em>. Defaults to</em>) – </p></li>
+<li><p><strong>SOAPlmax</strong> (<em>int</em><em>, </em><em>optional</em>) – The maximum degree of spherical harmonics</p></li>
+<li><p><strong>8.</strong> – </p></li>
+<li><p><strong>SOAP_respectPBC</strong> (<em>bool</em><em>, </em><em>optional</em>) – Determines whether the system is</p></li>
+<li><p><strong>periodic</strong> (<em>considered to be</em>) – </p></li>
+<li><p><strong>SOAPkwargs</strong> (<em>dict</em><em>, </em><em>optional</em>) – additional keyword arguments to be passed to the SOAP engine. Defaults to {}.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<span class="target" id="module-SOAPify"></span></section>
 
 
            </div>
