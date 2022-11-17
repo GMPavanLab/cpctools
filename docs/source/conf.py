@@ -43,6 +43,9 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinx.ext.coverage",  # to be removed
     "sphinx.ext.githubpages",
+    "sphinx.ext.intersphinx",
+    # TODO: convert to autoSummary!
+    # "sphinx.ext.autosummary",
     # "sphinx.ext.todo",
 ]
 
@@ -54,6 +57,13 @@ extensions = [
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
+# -- Options for intersphinx -------------------------------------------------
+intersphinx_mapping = {
+    "rtd": ("https://docs.readthedocs.io/en/stable/", None),
+    "python": ("https://docs.python.org/3/", None),
+    "sphinx": ("https://www.sphinx-doc.org/en/master/", None),
+}
+intersphinx_disabled_domains = ["std"]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.

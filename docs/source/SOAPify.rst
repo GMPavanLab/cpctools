@@ -38,6 +38,16 @@ SOAPify package
    :private-members:
 
 ..
+   SOAPify.utils---------
+
+.. automodule:: SOAPify.utils
+   :members:
+   :show-inheritance:
+   :special-members:
+   :private-members:
+
+
+..
    Module contents
    ---------------
 

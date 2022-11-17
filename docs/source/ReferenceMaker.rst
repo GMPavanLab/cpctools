@@ -10,6 +10,8 @@ ReferenceMaker package
 .. automodule:: ReferenceMaker.dhfat3049
    :members:
    :show-inheritance:
+   :special-members:
+   :private-members:
 ..
    ReferenceMaker.distanceVisualizer module
    ----------------------------------------
@@ -17,6 +19,8 @@ ReferenceMaker package
 .. automodule:: ReferenceMaker.distanceVisualizer
    :members:   
    :show-inheritance:
+   :special-members:
+   :private-members:
 ..
    ReferenceMaker.ico5083 module
    -----------------------------
@@ -24,6 +28,8 @@ ReferenceMaker package
 .. automodule:: ReferenceMaker.ico5083
    :members:
    :show-inheritance:
+   :special-members:
+   :private-members:
 ..
    ReferenceMaker.printNPExamples module
    -------------------------------------
@@ -31,6 +37,8 @@ ReferenceMaker package
 .. automodule:: ReferenceMaker.printNPExamples
    :members:
    :show-inheritance:
+   :special-members:
+   :private-members:
 ..
    ReferenceMaker.referenceSaponificator module
    --------------------------------------------
@@ -38,6 +46,8 @@ ReferenceMaker package
 .. automodule:: ReferenceMaker.referenceSaponificator
    :members:
    :show-inheritance:
+   :special-members:
+   :private-members:
 ..
    ReferenceMaker.th4116 module
    ----------------------------
@@ -45,6 +55,8 @@ ReferenceMaker package
 .. automodule:: ReferenceMaker.th4116
    :members:
    :show-inheritance:
+   :special-members:
+   :private-members:
 ..
    Module contents
    ---------------
@@ -52,3 +64,5 @@ ReferenceMaker package
 .. automodule:: ReferenceMaker
    :members:
    :show-inheritance:
+   :special-members:
+   :private-members:
