@@ -4,7 +4,7 @@ import numpy
 from ase.data import atomic_numbers, chemical_symbols
 import ase
 from .utils import orderByZ, _getRSindex, getAddressesQuippyLikeDscribe
-from typing import Iterable
+from typing import Iterable, Literal
 
 try:
     from dscribe.descriptors import SOAP as dscribeSOAP
@@ -18,6 +18,10 @@ try:
     HAVE_QUIPPY = True
 except ImportError:
     HAVE_QUIPPY = False
+
+KNOWNSOAPENGINES = Literal["dscribe", "quippy"]
+"""Literal type for the Known SOAP engine
+"""
 
 
 def centerMaskCreator(
@@ -225,7 +229,7 @@ def getSoapEngine(
     centersMask: Iterable = None,
     SOAP_respectPBC: bool = True,
     SOAPkwargs: dict = {},
-    useSoapFrom: "str" = "dscribe",
+    useSoapFrom: KNOWNSOAPENGINES = "dscribe",
 ) -> SOAPengineContainer:
     """Returns a soap engine already set up
 

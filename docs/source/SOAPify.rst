@@ -28,6 +28,16 @@ SOAPify package
    :private-members:
 
 ..
+   SOAPify.SOAPengine module
+   -----------------------
+
+.. automodule:: SOAPify.SOAPengine
+   :members:
+   :show-inheritance:
+   :special-members:
+   :private-members:
+
+..
    Module contents
    ---------------
 
