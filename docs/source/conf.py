@@ -12,6 +12,10 @@
 #
 import os
 import sys
+from SOAPify import __version__
+
+version = __version__
+
 
 sys.path.insert(0, os.path.abspath("../../src"))
 print(sys.path)
@@ -23,7 +27,7 @@ copyright = "2021, Daniele Rapetti"
 author = "Daniele Rapetti"
 
 # The full version, including alpha/beta/rc tags
-release = "0.1"
+release = version
 
 
 # -- General configuration ---------------------------------------------------
@@ -36,7 +40,7 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
-    # "sphinx.ext.coverage",  # to be removed
+    "sphinx.ext.coverage",  # to be removed
     "sphinx.ext.githubpages",
     # "sphinx.ext.todo",
 ]
@@ -68,5 +72,8 @@ html_theme = "sphinx_rtd_theme"
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
 
-# --- Todo settings
+# -- Options for ToDO output -------------------------------------------------
 todo_include_todos = True
+
+# -- Options for coverage output ---------------------------------------------
+coverage_show_missing_items = True

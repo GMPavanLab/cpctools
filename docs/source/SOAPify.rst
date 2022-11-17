@@ -9,7 +9,6 @@ SOAPify package
 
 .. automodule:: SOAPify.SOAPClassify
    :members:
-   :undoc-members:
    :show-inheritance:
 ..
    SOAPify.SOAPbase module
@@ -17,7 +16,6 @@ SOAPify package
 
 .. automodule:: SOAPify.SOAPbase
    :members:
-   :undoc-members:
    :show-inheritance:
 ..
    SOAPify.Saponify module
@@ -25,13 +23,14 @@ SOAPify package
 
 .. automodule:: SOAPify.Saponify
    :members:
-   :undoc-members:
    :show-inheritance:
+   :special-members:
+   :private-members:
+
 ..
    Module contents
    ---------------
 
 .. automodule:: SOAPify
    :members:
-   :undoc-members:
    :show-inheritance:

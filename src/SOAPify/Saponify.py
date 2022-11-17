@@ -9,10 +9,7 @@ from HDF5er import (
 from .SOAPengine import SOAPengineContainer, getSoapEngine
 
 
-__all__ = ["saponify", "saponifyGroup"]
-
-
-def saponifyWorker(
+def _saponifyWorker(
     trajGroup: h5py.Group,
     SOAPoutDataset: h5py.Dataset,
     soapEngine: SOAPengineContainer,
@@ -85,7 +82,7 @@ def saponifyWorker(
             print(f"delta create= {t2-t1}")
 
 
-def applySOAP(
+def _applySOAP(
     trajContainer: h5py.Group,
     SOAPoutContainer: h5py.Group,
     key: str,
@@ -110,7 +107,7 @@ def applySOAP(
         )
     SOAPout = SOAPoutContainer[key]
     SOAPout.resize((len(trajContainer["Trajectory"]), nCenters, NofFeatures))
-    saponifyWorker(
+    _saponifyWorker(
         trajContainer,
         SOAPout,
         soapEngine,
@@ -174,7 +171,7 @@ def saponifyGroup(
                     SOAPkwargs=SOAPkwargs,
                     useSoapFrom=useSoapFrom,
                 )
-            applySOAP(
+            _applySOAP(
                 traj,
                 SOAPoutContainers,
                 key,
@@ -239,7 +236,7 @@ def saponify(
             useSoapFrom=useSoapFrom,
         )
         exportDatasetName = trajContainer.name.split("/")[-1]
-        applySOAP(
+        _applySOAP(
             trajContainer,
             SOAPoutContainer,
             exportDatasetName,

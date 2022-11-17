@@ -10,10 +10,18 @@ Welcome to SOAPify's documentation!
    :parser: myst_parser.sphinx_
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :maxdepth: 3
+   :caption: modules
 
    modules
+
+
+.. toctree::
+   :maxdepth: 3
+   :caption: Utils
+
+   Utils
+   
 
 Indices and tables
 ==================
@@ -21,3 +29,5 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
+.. include::python.txt
