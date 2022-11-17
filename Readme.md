@@ -20,7 +20,7 @@ pip install quippy-ase
 
 (pypi support is incoming!)
 
-Now with a (very basic) documentation! https://gmpavanlab.github.io/SOAPify/SOAPify.html
+Now with a (very basic) [documentation](https://gmpavanlab.github.io/SOAPify/SOAPify.html)!
 
 ## SOAPify
 
