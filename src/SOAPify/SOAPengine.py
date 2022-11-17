@@ -19,15 +19,26 @@ try:
 except ImportError:
     HAVE_QUIPPY = False
 
-KNOWNSOAPENGINES = Literal["dscribe", "quippy"]
-"""Literal type for the Known SOAP engine
-"""
+KNOWNSOAPENGINES = Literal[
+    "dscribe", "quippy"
+]  #:Literal type for the Known SOAP engine
 
 
 def centerMaskCreator(
     SOAPatomMask: "list[str]",
     symbols: "list[str]",
-):
+) -> "list[int]":
+    """given the list of types of atoms to select and the list od types of atoms in the topology returns the mask of the selected species
+
+        the mask is 1 if the atom i is in the `SOAPatomMask` list, else is 0
+
+    Args:
+        SOAPatomMask (list[str]): the mask to apply
+        symbols (list[str]): the list of the type of atoms in the trajectory
+
+    Returns:
+        list[int]: the mask of selected atoms
+    """
     return [i for i in range(len(symbols)) if symbols[i] in SOAPatomMask]
 
 
@@ -88,6 +99,7 @@ class SOAPengineContainer(abc.ABC):
 
     @abc.abstractmethod
     def get_location(self, specie1, specie2):  # pragma: no cover
+        """returns the slice where the two asked species are stored in the ouput array"""
         pass
 
     @abc.abstractmethod
@@ -140,6 +152,7 @@ class dscribeSOAPengineContainer(SOAPengineContainer):
         return self.SOAPengine.crossover
 
     def get_location(self, specie1, specie2):
+        """returns the slice where the two asked species are stored in the ouput array"""
         return self.SOAPengine.get_location((specie1, specie2))
 
     def __call__(self, atoms, **kwargs):
@@ -207,6 +220,7 @@ class quippySOAPengineContainer(SOAPengineContainer):
         return True
 
     def get_location(self, specie1, specie2):
+        """returns the slice where the two asked species are stored in the ouput array"""
         a, b = orderByZ([specie1, specie2])
         return self._slices[a + b]
 
@@ -231,10 +245,27 @@ def getSoapEngine(
     SOAPkwargs: dict = {},
     useSoapFrom: KNOWNSOAPENGINES = "dscribe",
 ) -> SOAPengineContainer:
-    """Returns a soap engine already set up
+    """set up a soap engine with the given settings
+
+    please visit the manual of the relative soap engine for the calculation parameters
+
+    `SOAPatomMask` and `centersMask` are mutually exclusive:
+    - `centerMask` is a list of atoms whose SOAP fingerprints will be calculate
+    - `SOAPatomMask` is the list of species of atoms that will be used  create a `centerMask`
+
+    Args:
+        atomNames (list[str]): The list of species present in the system
+        SOAPrcut (float): the SOAP cut offf
+        SOAPnmax (int, optional): The number of radial basis functions (option passed to the desired SOAP engine). Defaults to 8.
+        SOAPlmax (int, optional): The maximum degree of spherical harmonics (option passed to the desired SOAP engine). Defaults to 8.
+        SOAPatomMask (list[str], optional): the symbols of the atoms whose SOAP fingerprint will be calculated (option passed to getSoapEngine). Defaults to None.
+        centersMask (Iterable, optional): the indexes of the atoms whose SOAP fingerprint will be calculated (option passed getSoapEngine). Defaults to None.
+        SOAP_respectPBC (bool, optional): Determines whether the system is considered to be periodic (option passed to the desired SOAP engine). Defaults to True.
+        SOAPkwargs (dict, optional): additional keyword arguments to be passed to the SOAP engine. Defaults to {}.
+        useSoapFrom (KNOWNSOAPENGINES, optional): This string determines the selected SOAP engine for the calculations. Defaults to "dscribe".
 
     Returns:
-        SOAP: the soap engine already set up
+        SOAPengineContainer: the soap engine set up for the calcualations
     """
     if SOAPnmax <= 0:
         raise ValueError("SOAPnmax must be a positive non zero integer")
@@ -245,9 +276,15 @@ def getSoapEngine(
     mySOAPkwargs = SOAPkwargs.copy()
     species = list(set(atomNames))
     if SOAPatomMask is not None and centersMask is not None:
-        raise Exception(f"saponify: You can't use both SOAPatomMask and centersMask")
-    if SOAPatomMask is not None:
-        centersMask = centerMaskCreator(SOAPatomMask, atomNames)
+        raise ValueError(f"saponify: You can't use both SOAPatomMask and centersMask")
+    centersMask_ = (
+        centerMaskCreator(SOAPatomMask, atomNames)
+        if SOAPatomMask is not None
+        else centersMask.copy()
+        if centersMask is not None
+        else None
+    )
+
     species = orderByZ(species)
     if useSoapFrom == "dscribe":
         if not HAVE_DSCRIBE:
@@ -266,7 +303,7 @@ def getSoapEngine(
                 mySOAPkwargs["sparse"] = False
                 warnings.warn("sparse output is not supported yet, switching to dense")
         return dscribeSOAPengineContainer(
-            dscribeSOAP(**mySOAPkwargs), centersMask, "dscribe"
+            dscribeSOAP(**mySOAPkwargs), centersMask_, "dscribe"
         )
     elif useSoapFrom == "quippy":
         if not HAVE_QUIPPY:
@@ -333,7 +370,7 @@ def getSoapEngine(
         Zs, theZs = species_z, thesps
 
         # TODO: Z and theZs personalized
-        if SOAPatomMask is None and centersMask is not None:
+        if SOAPatomMask is None and centersMask_ is not None:
             raise NotImplementedError(
                 "WARNING: the quippy interface works only with SOAPatomMask"
             )
@@ -345,6 +382,6 @@ def getSoapEngine(
             settings += f" {key}={value}"
         settings += f" n_species={len(species_z)} species_Z={{{thesps}}}"
         settings += f" n_Z={len(Zs)} Z={{{theZs}}}"
-        return quippySOAPengineContainer(Descriptor(settings), centersMask, "quippy")
+        return quippySOAPengineContainer(Descriptor(settings), centersMask_, "quippy")
     else:
         raise NotImplementedError(f"{useSoapFrom} is not implemented yet")

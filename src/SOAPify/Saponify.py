@@ -140,7 +140,7 @@ def saponifyGroup(
     """From a trajectory stored in a group calculates and stores the SOAP
     descriptor in the given group/file
 
-    SOAPatomMask and centersMask are mutually exclusive (see :func:`SOAPify.SOAPengine.getSoapEngine`)
+    `SOAPatomMask` and `centersMask` are mutually exclusive (see :func:`SOAPify.SOAPengine.getSoapEngine`)
 
     Args:
         trajContainers (h5py.Group|h5py.File): The file/group that contains the trajectories
@@ -171,7 +171,7 @@ def saponifyGroup(
                     SOAPnmax=SOAPnmax,
                     SOAPlmax=SOAPlmax,
                     SOAPatomMask=SOAPatomMask,
-                    centersMask=centersMask,
+                    centersMask_=centersMask,
                     SOAP_respectPBC=SOAP_respectPBC,
                     SOAPkwargs=SOAPkwargs,
                     useSoapFrom=useSoapFrom,
@@ -218,6 +218,7 @@ def saponify(
         SOAPlmax (int, optional): The maximum degree of spherical harmonics (option passed to the desired SOAP engine). Defaults to 8.
         SOAP_respectPBC (bool, optional): Determines whether the system is considered to be periodic (option passed to the desired SOAP engine). Defaults to True.
         SOAPkwargs (dict, optional): additional keyword arguments to be passed to the SOAP engine. Defaults to {}.
+        useSoapFrom (KNOWNSOAPENGINES, optional): This string determines the selected SOAP engine for the calculations. Defaults to "dscribe".
     """
     if isTrajectoryGroup(trajContainer):
         symbols = trajContainer["Types"].asstr()[:]
@@ -227,7 +228,7 @@ def saponify(
             SOAPnmax=SOAPnmax,
             SOAPlmax=SOAPlmax,
             SOAPatomMask=SOAPatomMask,
-            centersMask=centersMask,
+            centersMask_=centersMask,
             SOAP_respectPBC=SOAP_respectPBC,
             SOAPkwargs=SOAPkwargs,
             useSoapFrom=useSoapFrom,
