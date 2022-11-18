@@ -13,8 +13,9 @@ Welcome to SOAPify's documentation!
    :maxdepth: 3
    :caption: modules
 
-   modules
-
+   SOAPify
+   HDF5er
+   ReferenceMaker
 
 .. toctree::
    :maxdepth: 3

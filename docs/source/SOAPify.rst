@@ -1,52 +1,5 @@
-SOAPify package
+SOAPify
 ===============
-..
-   Submodules
-   ----------
-
-   SOAPify.SOAPClassify module
-   ---------------------------
-
-.. automodule:: SOAPify.SOAPClassify
-   :members:
-   :show-inheritance:
-..
-   SOAPify.SOAPbase module
-   -----------------------
-
-.. automodule:: SOAPify.SOAPbase
-   :members:
-   :show-inheritance:
-..
-   SOAPify.Saponify module
-   -----------------------
-
-.. automodule:: SOAPify.Saponify
-   :members:
-   :show-inheritance:
-   :special-members:
-   :private-members:
-
-..
-   SOAPify.SOAPengine module
-   -----------------------
-
-.. automodule:: SOAPify.SOAPengine
-   :members:
-   :show-inheritance:
-   :special-members:
-   :private-members:
-
-..
-   SOAPify.utils---------
-
-.. automodule:: SOAPify.utils
-   :members:
-   :show-inheritance:
-   :special-members:
-   :private-members:
-
-
 ..
    Module contents
    ---------------
@@ -54,3 +7,17 @@ SOAPify package
 .. automodule:: SOAPify
    :members:
    :show-inheritance:
+   :special-members:
+   :private-members:
+
+.. autosummary::
+   :recursive:
+   :toctree: generated
+   
+
+   SOAPify.utils
+   SOAPify.Saponify
+   SOAPify.SOAPengine
+   SOAPify.SOAPbase
+   SOAPify.SOAPClassify
+   

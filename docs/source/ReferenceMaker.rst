@@ -1,68 +1,22 @@
-ReferenceMaker package
+ReferenceMaker
 ======================
-..
-   Submodules
-   ----------
 
-   ReferenceMaker.dhfat3049 module
-   -------------------------------
-
-.. automodule:: ReferenceMaker.dhfat3049
-   :members:
-   :show-inheritance:
-   :special-members:
-   :private-members:
-..
-   ReferenceMaker.distanceVisualizer module
-   ----------------------------------------
-
-.. automodule:: ReferenceMaker.distanceVisualizer
-   :members:   
-   :show-inheritance:
-   :special-members:
-   :private-members:
-..
-   ReferenceMaker.ico5083 module
-   -----------------------------
-
-.. automodule:: ReferenceMaker.ico5083
-   :members:
-   :show-inheritance:
-   :special-members:
-   :private-members:
-..
-   ReferenceMaker.printNPExamples module
-   -------------------------------------
-
-.. automodule:: ReferenceMaker.printNPExamples
-   :members:
-   :show-inheritance:
-   :special-members:
-   :private-members:
-..
-   ReferenceMaker.referenceSaponificator module
-   --------------------------------------------
-
-.. automodule:: ReferenceMaker.referenceSaponificator
-   :members:
-   :show-inheritance:
-   :special-members:
-   :private-members:
-..
-   ReferenceMaker.th4116 module
-   ----------------------------
-
-.. automodule:: ReferenceMaker.th4116
-   :members:
-   :show-inheritance:
-   :special-members:
-   :private-members:
-..
-   Module contents
-   ---------------
+**Warning:** ReferenceMaker is not up to date with :py:mod:`SOAPify.SOAPClassify`
 
 .. automodule:: ReferenceMaker
    :members:
    :show-inheritance:
    :special-members:
    :private-members:
+
+.. autosummary::
+   :recursive:
+   :toctree: generated
+
+   ReferenceMaker.dhfat3049
+   ReferenceMaker.distanceVisualizer
+   ReferenceMaker.ico5083
+   ReferenceMaker.printNPExamples
+   ReferenceMaker.referenceSaponificator
+   ReferenceMaker.th4116
+   
