@@ -1,4 +1,3 @@
-from tabnanny import check
 import h5py
 from sys import getsizeof
 import numpy
@@ -61,7 +60,7 @@ def exportChunk2HDF5(
 
 def patchBoxFromTopology(hdf5TrajFile: str, topologyFile: str):
     """Patch the non orthogonal box in the trajectory.
-    
+
     This was a workaround for a now solved bug in MDA, it can be used to change the box in a trajectory
     NOTE: this will only change the box, it will not modify the coordinates!
 
