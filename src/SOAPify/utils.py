@@ -241,8 +241,8 @@ def fillSOAPVectorFromdscribe(
     atomTypes: list = [None],
     atomicSlices: dict = None,
 ) -> numpy.ndarray:
-    """Given the result of a SOAP calculation from dscribe returns the SOAP power
-        spectrum with also the symmetric part explicitly stored, see the note in https://singroup.github.io/dscribe/1.2.x/tutorials/descriptors/soap.html
+    """Given the result of a SOAP calculation from dscribe returns the SOAP power spectrum
+        with also the symmetric part explicitly stored, see the note in https://singroup.github.io/dscribe/1.2.x/tutorials/descriptors/soap.html
 
         No controls are implemented on the shape of the soapFromdscribe vector.
 
