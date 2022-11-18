@@ -41,13 +41,19 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx_autodoc_typehints",
     "sphinx.ext.viewcode",
-    "sphinx.ext.coverage",  # to be removed
+    "sphinx.ext.coverage",
     "sphinx.ext.githubpages",
     "sphinx.ext.intersphinx",
-    # TODO: convert to autoSummary!
-    # "sphinx.ext.autosummary",
+    "sphinx.ext.autosummary",
     # "sphinx.ext.todo",
 ]
+
+autodoc_default_options = {
+    "special-members": "__init__",
+    "inherited-members": True,
+    "show-inheritance": True,
+    "ignore-module-all": True,
+}
 
 # source_suffix = {
 #    ".rst": "restructuredtext",
