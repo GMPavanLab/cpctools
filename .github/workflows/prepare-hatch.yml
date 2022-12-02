@@ -12,12 +12,12 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     steps:
-    - name: Set Up Python ${{ python-version }}
-      uses: actions/setup-python@v3
-      with:
-        python-version: ${{ python-version }}
-        cache: 'pip'
-    - name: Update pip
-      run: python -m pip install --upgrade pip
-    - name: Install hatch
-      run: python  -m pip install hatch
+      - name: Set Up Python ${{ python-version }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ python-version }}
+          cache: 'pip'
+      - name: Update pip
+        run: python -m pip install --upgrade pip
+      - name: Install hatch
+        run: python  -m pip install hatch
