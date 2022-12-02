@@ -61,6 +61,7 @@ python = ["3.8", "3.9"]
 extra-dependencies = [
     "sphinx",
     "docutils<0.18",
+    #"mpl-sphinx-theme",
     "sphinx-rtd-theme",
     "myst-parser",
     "sphinx-autodoc-typehints",

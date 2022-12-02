@@ -14,6 +14,7 @@ Welcome to SOAPify's documentation!
    :caption: Modules
 
    modules
+   
 ...
    SOAPify
    HDF5er
