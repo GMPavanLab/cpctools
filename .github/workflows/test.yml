@@ -23,16 +23,12 @@ jobs:
         uses: actions/checkout@v2
         # Setup which version of Python to use
       - name: Set Up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v3
+        uses: ./.github/workflows/prepare-hatch.yml
         with:
           python-version: ${{ matrix.python-version }}
         # Display the Python version being used
       - name: Display Python version
         run: python -c "import sys; print(sys.version)"
-
-      - name: Install requisites
-        run: |
-          python -m pip install --upgrade pip hatch        
 
       - name: Run tests
         run: hatch run test.py${{ matrix.python-version }}:cov
