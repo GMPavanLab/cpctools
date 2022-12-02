@@ -35,8 +35,8 @@ path = "src/SOAPify/__init__.py"
 sources = ["src"]
 only-packages = true
 
-[tool.hatch.envs.default]
-skip-install = false
+#[tool.hatch.envs.default]
+#skip-install = false
 
 [tool.hatch.envs.test]
 pre-install-commands = ["which python"]
@@ -58,9 +58,16 @@ python = ["3.8", "3.9"]
 
 
 [tool.hatch.envs.docs]
-pre-install-commands = ['cd docs && pip install -r requirements.txt']
+extra-dependencies = [
+    "sphinx",
+    "docutils<0.18",
+    "sphinx-rtd-theme",
+    "myst-parser",
+    "sphinx-autodoc-typehints",
 
-extra-dependencies = ["dscribe >1.2.0, <=1.2.2", "quippy-ase"]
+    "dscribe >1.2.0, <=1.2.2",
+    "quippy-ase",
+]
 
 [tool.hatch.envs.docs.scripts]
 cov = 'cd docs && make coverage'
