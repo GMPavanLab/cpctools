@@ -2,17 +2,15 @@ import h5py
 import time
 from typing import Iterable
 
+
 from HDF5er import (
     HDF52AseAtomsChunckedwithSymbols as HDF2ase,
     isTrajectoryGroup,
 )
-from .SOAPengine import SOAPengineContainer, getSoapEngine
+from .SOAPengine import SOAPengineContainer, getSoapEngine, KNOWNSOAPENGINES
 
 
-__all__ = ["saponify", "saponifyGroup"]
-
-
-def saponifyWorker(
+def _saponifyWorker(
     trajGroup: h5py.Group,
     SOAPoutDataset: h5py.Dataset,
     soapEngine: SOAPengineContainer,
@@ -22,15 +20,11 @@ def saponifyWorker(
     """Calculates the soap descriptor and store the result in the given dataset
 
     Args:
-        trajGroup (h5py.Group): the grooput that contains the trajectory (must
-        contain Box,Trajectory and Types subgroups)
-        SOAPoutDataset (h5py.Dataset): The preformed dataset for storing the
-        SOAP results
-        soapEngine (SOAP): The soap engine already set up
-        SOAPOutputChunkDim (int, optional): The dimension of the chunck of data
-        in the SOAP results dataset. Defaults to 100.
-        SOAPnJobs (int, optional): the number of concurrent SOAP calculations
-        (option passed to dscribe's SOAP). Defaults to 1.
+        trajGroup (h5py.Group): the grooput that contains the trajectory (must contain "Box", "Trajectory" and "Types" datasets)
+        SOAPoutDataset (h5py.Dataset): The preformed dataset for storing the SOAP results
+        soapEngine (SOAPengineContainer): The soap engine already set up
+        SOAPOutputChunkDim (int, optional): The dimension of the chunck of data in the SOAP results dataset. Defaults to 100.
+        SOAPnJobs (int, optional): the number of concurrent SOAP calculations (option passed to the desired SOAP engine). Defaults to 1.
     """
     symbols = trajGroup["Types"].asstr()[:]
     SOAPoutDataset.attrs["SOAPengine"] = soapEngine.SOAPenginekind
@@ -85,7 +79,7 @@ def saponifyWorker(
             print(f"delta create= {t2-t1}")
 
 
-def applySOAP(
+def _applySOAP(
     trajContainer: h5py.Group,
     SOAPoutContainer: h5py.Group,
     key: str,
@@ -93,6 +87,16 @@ def applySOAP(
     SOAPOutputChunkDim: int = 100,
     SOAPnJobs: int = 1,
 ):
+    """helper function: applies the soap engine to the given trajectory within the trajContainer
+
+    Args:
+        trajContainer (h5py.Group): The group or the file that contains the trajectory, must have the following dataset in '/': "Box", "Trajectory" and "Types"
+        SOAPoutContainer (h5py.Group): The group where the dataset with the  SOAP fingerprints will be saved
+        key (str): the name of the dataset to be saved, if exist will be overidden
+        soapEngine (SOAPengineContainer): the contained of the soap engine
+        SOAPOutputChunkDim (int, optional): The chunk of trajectory that will be loaded in memory to be calculated, if key is a new dataset will also be the size of the main chunck of data of the SOAP dataset . Defaults to 100.
+        SOAPnJobs (int, optional): Number of concurrent SOAP calculations. Defaults to 1.
+    """
     NofFeatures = soapEngine.features
     symbols = trajContainer["Types"].asstr()[:]
     nCenters = (
@@ -110,7 +114,7 @@ def applySOAP(
         )
     SOAPout = SOAPoutContainer[key]
     SOAPout.resize((len(trajContainer["Trajectory"]), nCenters, NofFeatures))
-    saponifyWorker(
+    _saponifyWorker(
         trajContainer,
         SOAPout,
         soapEngine,
@@ -131,29 +135,27 @@ def saponifyGroup(
     centersMask: Iterable = None,  # TODO: document this
     SOAP_respectPBC: bool = True,
     SOAPkwargs: dict = dict(),
-    useSoapFrom: str = "dscribe",
+    useSoapFrom: KNOWNSOAPENGINES = "dscribe",
 ):
     """From a trajectory stored in a group calculates and stores the SOAP
     descriptor in the given group/file
 
+    `SOAPatomMask` and `centersMask` are mutually exclusive (see :func:`SOAPify.SOAPengine.getSoapEngine`)
+
     Args:
-        trajContainers (h5py.Group): The file/group that contains the trajectories
-        SOAPoutContainers (h5py.Group): The file/group that will store the SOAP results
-        SOAPOutputChunkDim (int, optional): The dimension of the chunck of data
-        in the SOAP results dataset. Defaults to 100.
-        SOAPnJobs (int, optional): the number of concurrent SOAP calculations
-        (option passed to dscribe's SOAP). Defaults to 1.
-        SOAPatomMask (str, optional): the symbols of the atoms whose SOAP
-        fingerprint will be calculated (option passed to dscribe's SOAP). Defaults to None.
-        SOAPrcut (float, optional): The cutoff for local region in angstroms.
-        Should be bigger than 1 angstrom (option passed to dscribe's SOAP). Defaults to 8.0.
-        SOAPnmax (int, optional): The number of radial basis functions (option
-        passed to dscribe's SOAP). Defaults to 8.
-        SOAPlmax (int, optional): The maximum degree of spherical harmonics
-        (option passed to dscribe's SOAP). Defaults to 8.
-        SOAP_respectPBC (bool, optional): Determines whether the system is
-        considered to be periodic (option passed to dscribe's SOAP). Defaults to True.
-        SOAPkwargs (dict, optional): additional keyword arguments to be passed to the SOAP engine. Defaults to {}.
+        trajContainers (h5py.Group|h5py.File): The file/group that contains the trajectories
+        SOAPoutContainers (h5py.Group|h5py.File): The file/group that will store the SOAP results
+        SOAPrcut (float): The cutoff for local region in angstroms. Should be bigger than 1 angstrom (option passed to the desired SOAP engine). Defaults to 8.0.
+        SOAPnmax (int): The number of radial basis functions (option passed to the desired SOAP engine). Defaults to 8.
+        SOAPlmax (int): The maximum degree of spherical harmonics (option passed to the desired SOAP engine). Defaults to 8.
+        SOAPOutputChunkDim (int, optional): The dimension of the chunck of data in the SOAP results dataset. Defaults to 100.
+        SOAPnJobs (int, optional): the number of concurrent SOAP calculations (option passed to the desired SOAP engine). Defaults to 1.
+        SOAPatomMask (list[str], optional): the symbols of the atoms whose SOAP fingerprint will be calculated (option passed to getSoapEngine). Defaults to None.
+        centersMask (Iterable, optional): the indexes of the atoms whose SOAP fingerprint will be calculated (option passed getSoapEngine). Defaults to None.
+        SOAP_respectPBC (bool, optional): Determines whether the system is considered to be periodic (option passed to the desired SOAP engine). Defaults to True.
+        SOAPkwargs (dict, optional): additional keyword arguments to be passed to the selected SOAP engine. Defaults to {}.
+        useSoapFrom (KNOWNSOAPENGINES, optional): This string determines the selected SOAP engine for the calculations. Defaults to "dscribe".
+
     """
     soapEngine = None
     print(f"using {useSoapFrom} to calculate SOAP")
@@ -174,7 +176,7 @@ def saponifyGroup(
                     SOAPkwargs=SOAPkwargs,
                     useSoapFrom=useSoapFrom,
                 )
-            applySOAP(
+            _applySOAP(
                 traj,
                 SOAPoutContainers,
                 key,
@@ -207,23 +209,16 @@ def saponify(
         trajFname (str): The name of the hdf5 file in wich the trajectory is stored
         trajectoryGroupPath (str): the path of the group that contains the trajectory in trajFname
         outputFname (str): the name of the hdf5 file that will contain the ouput or the SOAP analysis
-        exportDatasetName (str): the name of the dataset that will contain the SOAP
-        results, it will be saved in the group called "SOAP"
-        SOAPOutputChunkDim (int, optional): The dimension of the chunck of data
-        in the SOAP results dataset. Defaults to 100.
-        SOAPnJobs (int, optional): the number of concurrent SOAP calculations
-        (option passed to dscribe's SOAP). Defaults to 1.
-        SOAPatomMask (str, optional): the symbols of the atoms whose SOAP
-        fingerprint will be calculated (option passed to dscribe's SOAP). Defaults to None.
-        SOAPrcut (float, optional): The cutoff for local region in angstroms.
-        Should be bigger than 1 angstrom (option passed to dscribe's SOAP). Defaults to 8.0.
-        SOAPnmax (int, optional): The number of radial basis functions (option
-        passed to dscribe's SOAP). Defaults to 8.
-        SOAPlmax (int, optional): The maximum degree of spherical harmonics
-        (option passed to dscribe's SOAP). Defaults to 8.
-        SOAP_respectPBC (bool, optional): Determines whether the system is
-        considered to be periodic (option passed to dscribe's SOAP). Defaults to True.
+        exportDatasetName (str): the name of the dataset that will contain the SOAP results, it will be saved in the group called "SOAP"
+        SOAPOutputChunkDim (int, optional): The dimension of the chunck of data in the SOAP results dataset. Defaults to 100.
+        SOAPnJobs (int, optional): the number of concurrent SOAP calculations (option passed to the desired SOAP engine). Defaults to 1.
+        SOAPatomMask (str, optional): the symbols of the atoms whose SOAP fingerprint will be calculated (option passed to the desired SOAP engine). Defaults to None.
+        SOAPrcut (float, optional): The cutoff for local region in angstroms. Should be bigger than 1 angstrom (option passed to the desired SOAP engine). Defaults to 8.0.
+        SOAPnmax (int, optional): The number of radial basis functions (option passed to the desired SOAP engine). Defaults to 8.
+        SOAPlmax (int, optional): The maximum degree of spherical harmonics (option passed to the desired SOAP engine). Defaults to 8.
+        SOAP_respectPBC (bool, optional): Determines whether the system is considered to be periodic (option passed to the desired SOAP engine). Defaults to True.
         SOAPkwargs (dict, optional): additional keyword arguments to be passed to the SOAP engine. Defaults to {}.
+        useSoapFrom (KNOWNSOAPENGINES, optional): This string determines the selected SOAP engine for the calculations. Defaults to "dscribe".
     """
     if isTrajectoryGroup(trajContainer):
         symbols = trajContainer["Types"].asstr()[:]
@@ -239,7 +234,7 @@ def saponify(
             useSoapFrom=useSoapFrom,
         )
         exportDatasetName = trajContainer.name.split("/")[-1]
-        applySOAP(
+        _applySOAP(
             trajContainer,
             SOAPoutContainer,
             exportDatasetName,

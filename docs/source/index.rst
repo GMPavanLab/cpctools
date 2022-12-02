@@ -6,16 +6,25 @@
 Welcome to SOAPify's documentation!
 ===================================
 
-.. include:: readme_link
-
+.. include:: Readme.md
+   :parser: myst_parser.sphinx_
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :maxdepth: 3
+   :caption: Modules
 
-   readme_link
    modules
+...
+   SOAPify
+   HDF5er
+   ReferenceMaker
 
+.. toctree::
+   :maxdepth: 3
+   :caption: Utils
+
+   Utils
+   
 
 Indices and tables
 ==================

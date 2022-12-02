@@ -12,6 +12,8 @@
 #
 import os
 import sys
+import SOAPify
+
 
 sys.path.insert(0, os.path.abspath("../../src"))
 print(sys.path)
@@ -23,8 +25,8 @@ copyright = "2021, Daniele Rapetti"
 author = "Daniele Rapetti"
 
 # The full version, including alpha/beta/rc tags
-release = "0.1"
-
+release = SOAPify.__version__
+version = release
 
 # -- General configuration ---------------------------------------------------
 
@@ -35,7 +37,21 @@ extensions = [
     "myst_parser",
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",
+    "sphinx_autodoc_typehints",
+    "sphinx.ext.viewcode",
+    "sphinx.ext.coverage",
+    "sphinx.ext.githubpages",
+    "sphinx.ext.intersphinx",
+    "sphinx.ext.autosummary",
+    # "sphinx.ext.todo",
 ]
+
+autodoc_default_options = {
+    "special-members": "__init__",
+    "inherited-members": True,
+    "show-inheritance": True,
+    "ignore-module-all": True,
+}
 
 # source_suffix = {
 #    ".rst": "restructuredtext",
@@ -45,6 +61,13 @@ extensions = [
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
+# -- Options for intersphinx -------------------------------------------------
+intersphinx_mapping = {
+    "rtd": ("https://docs.readthedocs.io/en/stable/", None),
+    "python": ("https://docs.python.org/3/", None),
+    "sphinx": ("https://www.sphinx-doc.org/en/master/", None),
+}
+intersphinx_disabled_domains = ["std"]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -63,3 +86,9 @@ html_theme = "sphinx_rtd_theme"
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
+
+# -- Options for ToDO output -------------------------------------------------
+todo_include_todos = True
+
+# -- Options for coverage output ---------------------------------------------
+coverage_show_missing_items = True

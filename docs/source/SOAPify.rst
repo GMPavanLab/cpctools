@@ -1,37 +1,23 @@
-SOAPify package
+SOAPify
 ===============
-..
-   Submodules
-   ----------
-
-   SOAPify.SOAPClassify module
-   ---------------------------
-
-.. automodule:: SOAPify.SOAPClassify
-   :members:
-   :undoc-members:
-   :show-inheritance:
-..
-   SOAPify.SOAPbase module
-   -----------------------
-
-.. automodule:: SOAPify.SOAPbase
-   :members:
-   :undoc-members:
-   :show-inheritance:
-..
-   SOAPify.Saponify module
-   -----------------------
-
-.. automodule:: SOAPify.Saponify
-   :members:
-   :undoc-members:
-   :show-inheritance:
 ..
    Module contents
    ---------------
 
 .. automodule:: SOAPify
    :members:
-   :undoc-members:
    :show-inheritance:
+   :special-members:
+   :private-members:
+
+.. autosummary::
+   :recursive:
+   :toctree: generated
+   
+
+   SOAPify.utils
+   SOAPify.Saponify
+   SOAPify.SOAPengine
+   SOAPify.SOAPbase
+   SOAPify.SOAPClassify
+   

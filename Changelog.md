@@ -28,6 +28,8 @@ Until we get to a release version you may encounter different broken interface p
 - removed a bug in `getXYZfromHDF5`: now boxes are exported correctly
 - some QoL improvements behind the curtains and in the tests
 - added CI for documentation
+- merged src/HDF5er/MDA2HDF5.py and src/HDF5er/ase2HDF5.py into src/HDF5er/ToHDF5.py
+- Heavy changes in the documentation
 
 ## Changes since v0.0.2a
 

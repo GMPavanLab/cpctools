@@ -1,61 +1,22 @@
-ReferenceMaker package
+ReferenceMaker
 ======================
-..
-   Submodules
-   ----------
 
-   ReferenceMaker.dhfat3049 module
-   -------------------------------
-
-.. automodule:: ReferenceMaker.dhfat3049
-   :members:
-   :undoc-members:
-   :show-inheritance:
-..
-   ReferenceMaker.distanceVisualizer module
-   ----------------------------------------
-
-.. automodule:: ReferenceMaker.distanceVisualizer
-   :members:
-   :undoc-members:
-   :show-inheritance:
-..
-   ReferenceMaker.ico5083 module
-   -----------------------------
-
-.. automodule:: ReferenceMaker.ico5083
-   :members:
-   :undoc-members:
-   :show-inheritance:
-..
-   ReferenceMaker.printNPExamples module
-   -------------------------------------
-
-.. automodule:: ReferenceMaker.printNPExamples
-   :members:
-   :undoc-members:
-   :show-inheritance:
-..
-   ReferenceMaker.referenceSaponificator module
-   --------------------------------------------
-
-.. automodule:: ReferenceMaker.referenceSaponificator
-   :members:
-   :undoc-members:
-   :show-inheritance:
-..
-   ReferenceMaker.th4116 module
-   ----------------------------
-
-.. automodule:: ReferenceMaker.th4116
-   :members:
-   :undoc-members:
-   :show-inheritance:
-..
-   Module contents
-   ---------------
+**Warning:** ReferenceMaker is not up to date with :py:mod:`SOAPify.SOAPClassify`
 
 .. automodule:: ReferenceMaker
    :members:
-   :undoc-members:
    :show-inheritance:
+   :special-members:
+   :private-members:
+
+.. autosummary::
+   :recursive:
+   :toctree: generated
+
+   ReferenceMaker.dhfat3049
+   ReferenceMaker.distanceVisualizer
+   ReferenceMaker.ico5083
+   ReferenceMaker.printNPExamples
+   ReferenceMaker.referenceSaponificator
+   ReferenceMaker.th4116
+   
