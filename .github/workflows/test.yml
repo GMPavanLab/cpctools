@@ -16,10 +16,10 @@ jobs:
       matrix:
         # Run in all these versions of Python
         python-version: [3.8, 3.9]
-    call-workflow-passing-data:
-        uses: ./.github/workflows/prepare-hatch.yml
-        with:
-          python-version: ${{ matrix.python-version }}
+    uses: ./.github/workflows/prepare-hatch.yml
+    with:
+      python-version: ${{ matrix.python-version }}
+      
     steps:
         # Checkout the latest code from the repo
       - name: Checkout repo
