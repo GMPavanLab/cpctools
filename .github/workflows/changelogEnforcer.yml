@@ -1,3 +1,4 @@
+---
 name: "EnforceChangelog"
 on:
   pull_request:
@@ -8,10 +9,10 @@ on:
     types: [opened, synchronize, reopened, ready_for_review, labeled, unlabeled]
 
 jobs:
-  # Enforces the update of a changelog file on every pull request 
+  # Enforces the update of a changelog file on every pull request
   changelog:
     runs-on: ubuntu-latest
     steps:
-    - uses: dangoslen/changelog-enforcer@v3
-      with:
-        changeLogPath: './Changelog.md'
+      - uses: dangoslen/changelog-enforcer@v3
+        with:
+          changeLogPath: './Changelog.md'

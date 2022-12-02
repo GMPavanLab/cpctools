@@ -1,3 +1,5 @@
+---
+name: "prepare-hatch"
 on:
   workflow_call:
     inputs:
@@ -7,6 +9,7 @@ on:
     secrets:
       envPAT:
         required: true
+
 jobs:
   prepare-hatch:
     runs-on: ubuntu-latest
