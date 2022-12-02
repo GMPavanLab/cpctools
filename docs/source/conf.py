@@ -12,9 +12,7 @@
 #
 import os
 import sys
-from SOAPify import __version__
-
-version = __version__
+import SOAPify
 
 
 sys.path.insert(0, os.path.abspath("../../src"))
@@ -27,8 +25,8 @@ copyright = "2021, Daniele Rapetti"
 author = "Daniele Rapetti"
 
 # The full version, including alpha/beta/rc tags
-release = version
-
+release = SOAPify.__version__
+version = release
 
 # -- General configuration ---------------------------------------------------
 
