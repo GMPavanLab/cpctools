@@ -1,0 +1,45 @@
+﻿SOAPify.SOAPClassify
+====================
+
+.. automodule:: SOAPify.SOAPClassify
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      classify
+      classifyWithSOAP
+      createReferencesFromTrajectory
+      getDistanceBetween
+      getDistancesFromRef
+      getDistancesFromRefNormalized
+      getReferencesFromDataset
+      loadRefs
+      mergeReferences
+      saveReferences
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      SOAPReferences
+      SOAPclassification
+   
+   
+
+   
+   
+   
+
+
+

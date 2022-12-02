@@ -1,33 +1,5 @@
-HDF5er package
+HDF5er
 ==============
-..
-   Submodules
-   ----------
-..
-   HDF5er.HDF5erUtils module
-   -------------------------
-
-.. automodule:: HDF5er.HDF5erUtils
-   :members:
-   :undoc-members:
-   :show-inheritance:
-..
-   HDF5er.MDA2HDF5 module
-   ----------------------
-
-.. automodule:: HDF5er.MDA2HDF5
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-..
-   HDF5er.ase2HDF5 module
-   ----------------------
-
-.. automodule:: HDF5er.ase2HDF5
-   :members:
-   :undoc-members:
-   :show-inheritance:
 
 ..
    Module contents
@@ -35,5 +7,14 @@ HDF5er package
 
 .. automodule:: HDF5er
    :members:
-   :undoc-members:
    :show-inheritance:
+   :special-members:
+   :private-members:
+
+.. autosummary::
+   :recursive:
+   :toctree: generated
+   
+   HDF5er.HDF5erUtils
+   HDF5er.HDF5To
+   HDF5er.ToHDF5

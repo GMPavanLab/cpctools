@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HDF5er package &mdash; SOAPify 0.1 documentation</title>
+  <title>HDF5er &mdash; SOAPify v0.0.3 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -20,8 +20,8 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="ReferenceMaker package" href="ReferenceMaker.html" />
-    <link rel="prev" title="SOAPify package" href="SOAPify.html" /> 
+    <link rel="next" title="HDF5er.HDF5erUtils" href="generated/HDF5er.HDF5erUtils.html" />
+    <link rel="prev" title="SOAPify.SOAPClassify" href="generated/SOAPify.SOAPClassify.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -31,6 +31,9 @@
         <div class="wy-side-nav-search" >
             <a href="index.html" class="icon icon-home"> SOAPify
           </a>
+              <div class="version">
+                v0.0.3
+              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -39,23 +42,26 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Modules</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="readme_link.html">SOAPify, HDF5er and ReferenceMaker</a></li>
 <li class="toctree-l1"><a class="reference internal" href="modules.html">SOAPify</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html#hdf5er">HDF5er</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">HDF5er package</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#HDF5er.HDF5erUtils.exportChunk2HDF5"><code class="docutils literal notranslate"><span class="pre">exportChunk2HDF5()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#HDF5er.HDF5erUtils.isTrajectoryGroup"><code class="docutils literal notranslate"><span class="pre">isTrajectoryGroup()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#HDF5er.HDF5erUtils.patchBoxFromTopology"><code class="docutils literal notranslate"><span class="pre">patchBoxFromTopology()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#HDF5er.MDA2HDF5.MDA2HDF5"><code class="docutils literal notranslate"><span class="pre">MDA2HDF5()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#HDF5er.MDA2HDF5.Universe2HDF5"><code class="docutils literal notranslate"><span class="pre">Universe2HDF5()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#HDF5er.ase2HDF5.xyz2hdf5Converter"><code class="docutils literal notranslate"><span class="pre">xyz2hdf5Converter()</span></code></a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">HDF5er</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/HDF5er.HDF5erUtils.html">HDF5er.HDF5erUtils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/HDF5er.HDF5To.html">HDF5er.HDF5To</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/HDF5er.ToHDF5.html">HDF5er.ToHDF5</a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="modules.html#referencemaker">ReferenceMaker</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Utils</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Citation.html">Citing SOAPify</a></li>
+<li class="toctree-l1"><a class="reference internal" href="About.html">About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Changelog.html">Changelog</a></li>
 </ul>
 
         </div>
@@ -73,7 +79,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home"></a></li>
           <li class="breadcrumb-item"><a href="modules.html">SOAPify</a></li>
-      <li class="breadcrumb-item active">HDF5er package</li>
+      <li class="breadcrumb-item active">HDF5er</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/HDF5er.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -83,109 +89,33 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="hdf5er-package">
-<h1>HDF5er package<a class="headerlink" href="#hdf5er-package" title="Permalink to this heading"></a></h1>
-<span class="target" id="module-HDF5er.HDF5erUtils"></span><dl class="py function">
-<dt class="sig sig-object py" id="HDF5er.HDF5erUtils.exportChunk2HDF5">
-<span class="sig-prename descclassname"><span class="pre">HDF5er.HDF5erUtils.</span></span><span class="sig-name descname"><span class="pre">exportChunk2HDF5</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trajFolder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Group</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intervalStart</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intervalEnd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boxes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list[list[list[3</span> <span class="pre">*</span> <span class="pre">float]]]</span> <span class="pre">|</span> <span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coordinates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#HDF5er.HDF5erUtils.exportChunk2HDF5" title="Permalink to this definition"></a></dt>
-<dd><p>Export a chunk of atom information in an h5py.Group</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>trajFolder</strong> (<em>h5py.Group</em>) – the group in the hdf5 file</p></li>
-<li><p><strong>intervalStart</strong> (<em>int</em>) – the first frame to save within the group</p></li>
-<li><p><strong>intervalEnd</strong> (<em>int</em>) – the last frame to save within the group</p></li>
-<li><p><strong>boxes</strong> (<em>list</em>) – the list of the boxes, frame per frame (for each frame 6 floats representing the dimension and the angles of the box)</p></li>
-<li><p><strong>coordinates</strong> (<em>list</em>) – the list of the coordinates, frame per frame (for each frame a list that contains the coordinates of all atoms in that frame)</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="HDF5er.HDF5erUtils.isTrajectoryGroup">
-<span class="sig-prename descclassname"><span class="pre">HDF5er.HDF5erUtils.</span></span><span class="sig-name descname"><span class="pre">isTrajectoryGroup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trajGroup</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Group</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#HDF5er.HDF5erUtils.isTrajectoryGroup" title="Permalink to this definition"></a></dt>
-<dd><p>Checks if the given group is a trajectory group</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>trajGroup</strong> (<em>h5py.Group</em>) – the group to check</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>True if the group is a trajectory group, False otherwise</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>bool</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="HDF5er.HDF5erUtils.patchBoxFromTopology">
-<span class="sig-prename descclassname"><span class="pre">HDF5er.HDF5erUtils.</span></span><span class="sig-name descname"><span class="pre">patchBoxFromTopology</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hdf5TrajFile</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">topologyFile</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#HDF5er.HDF5erUtils.patchBoxFromTopology" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<span class="target" id="module-HDF5er.MDA2HDF5"></span><dl class="py function">
-<dt class="sig sig-object py" id="HDF5er.MDA2HDF5.MDA2HDF5">
-<span class="sig-prename descclassname"><span class="pre">HDF5er.MDA2HDF5.</span></span><span class="sig-name descname"><span class="pre">MDA2HDF5</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">MDAUniverseOrSelection</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MDAnalysis.Universe</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">MDAnalysis.AtomGroup</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targetHDF5File</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">groupName</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trajChunkSize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">override</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attrs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trajslice</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">slice</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">slice(None,</span> <span class="pre">None,</span> <span class="pre">None)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#HDF5er.MDA2HDF5.MDA2HDF5" title="Permalink to this definition"></a></dt>
-<dd><p>Opens or creates the given HDF5 file, request the user’s chosen group, then uploads an mda.Universe or an mda.AtomGroup to a h5py.Group in an hdf5 file</p>
-<blockquote>
-<div><p><strong>WARNING</strong>: in the HDF5 file if the chosen group is already present it will be overwritten by the new data</p>
-</div></blockquote>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>MDAUniverseOrSelection</strong> (<em>MDAnalysis.Universe</em><em> or </em><em>MDAnalysis.AtomGroup</em>) – the container with the trajectory data</p></li>
-<li><p><strong>targetHDF5File</strong> (<em>str</em>) – the name of HDF5 file</p></li>
-<li><p><strong>groupName</strong> (<em>str</em>) – the name of the group in wich save the trajectory data within the <cite>targetHDF5File</cite></p></li>
-<li><p><strong>trajChunkSize</strong> (<em>int</em><em>, </em><em>optional</em>) – The desired dimension of the chunks of data that are stored in the hdf5 file. Defaults to 100.</p></li>
-<li><p><strong>override</strong> (<em>bool</em><em>, </em><em>optional</em>) – If true the hdf5 file will be completely overwritten. Defaults to False.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="HDF5er.MDA2HDF5.Universe2HDF5">
-<span class="sig-prename descclassname"><span class="pre">HDF5er.MDA2HDF5.</span></span><span class="sig-name descname"><span class="pre">Universe2HDF5</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">MDAUniverseOrSelection</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MDAnalysis.Universe</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">MDAnalysis.AtomGroup</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trajFolder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Group</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trajChunkSize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trajslice</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">slice</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">slice(None,</span> <span class="pre">None,</span> <span class="pre">None)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#HDF5er.MDA2HDF5.Universe2HDF5" title="Permalink to this definition"></a></dt>
-<dd><p>Uploads an mda.Universe or an mda.AtomGroup to a h5py.Group in an hdf5 file</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>MDAUniverseOrSelection</strong> (<em>MDAnalysis.Universe</em><em> or </em><em>MDAnalysis.AtomGroup</em>) – the container with the trajectory data</p></li>
-<li><p><strong>trajFolder</strong> (<em>h5py.Group</em>) – the group in which store the trajectory in the hdf5 file</p></li>
-<li><p><strong>trajChunkSize</strong> (<em>int</em><em>, </em><em>optional</em>) – The desired dimension of the chunks of data that are stored in the hdf5 file. Defaults to 100.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<span class="target" id="module-HDF5er.ase2HDF5"></span><dl class="py function">
-<dt class="sig sig-object py" id="HDF5er.ase2HDF5.xyz2hdf5Converter">
-<span class="sig-prename descclassname"><span class="pre">HDF5er.ase2HDF5.</span></span><span class="sig-name descname"><span class="pre">xyz2hdf5Converter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xyzName</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boxfilename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Group</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#HDF5er.ase2HDF5.xyz2hdf5Converter" title="Permalink to this definition"></a></dt>
-<dd><p>Generate an HDF5 trajectory from an xyz file and a box file</p>
-<blockquote>
-<div><p>This function reads an xyz file with ase and then export it to an trajectory in and hdf5 file,
-the user should pass the group within the hdf5file to this function</p>
-</div></blockquote>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>xyzName</strong> (<em>str</em>) – the filename of the xyz trajaectory</p></li>
-<li><p><strong>boxfilename</strong> (<em>str</em>) – the filename of the  per frame box dimensions</p></li>
-<li><p><strong>group</strong> (<em>h5py.Group</em>) – the group within the hdf5 file where the trajectroy will be saved</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<span class="target" id="module-HDF5er"></span></section>
+  <section id="hdf5er">
+<h1>HDF5er<a class="headerlink" href="#hdf5er" title="Permalink to this heading"></a></h1>
+<span class="target" id="module-HDF5er"></span><table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/HDF5er.HDF5erUtils.html#module-HDF5er.HDF5erUtils" title="HDF5er.HDF5erUtils"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HDF5er.HDF5erUtils</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/HDF5er.HDF5To.html#module-HDF5er.HDF5To" title="HDF5er.HDF5To"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HDF5er.HDF5To</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/HDF5er.ToHDF5.html#module-HDF5er.ToHDF5" title="HDF5er.ToHDF5"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HDF5er.ToHDF5</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="SOAPify.html" class="btn btn-neutral float-left" title="SOAPify package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="ReferenceMaker.html" class="btn btn-neutral float-right" title="ReferenceMaker package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="generated/SOAPify.SOAPClassify.html" class="btn btn-neutral float-left" title="SOAPify.SOAPClassify" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="generated/HDF5er.HDF5erUtils.html" class="btn btn-neutral float-right" title="HDF5er.HDF5erUtils" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

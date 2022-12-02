@@ -1,0 +1,30 @@
+﻿SOAPify.Saponify
+================
+
+.. automodule:: SOAPify.Saponify
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      saponify
+      saponifyGroup
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

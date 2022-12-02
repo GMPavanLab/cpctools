@@ -1,0 +1,32 @@
+﻿HDF5er.HDF5To
+=============
+
+.. automodule:: HDF5er.HDF5To
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      HDF52AseAtomsChunckedwithSymbols
+      getXYZfromMDA
+      getXYZfromTrajGroup
+      saveXYZfromTrajGroup
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

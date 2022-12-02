@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SOAPify.SOAPClassify &mdash; SOAPify v0.0.3 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="HDF5er" href="../HDF5er.html" />
+    <link rel="prev" title="SOAPify.SOAPbase" href="SOAPify.SOAPbase.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> SOAPify
+          </a>
+              <div class="version">
+                v0.0.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Modules</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../modules.html">SOAPify</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../SOAPify.html">SOAPify</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="SOAPify.utils.html">SOAPify.utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="SOAPify.Saponify.html">SOAPify.Saponify</a></li>
+<li class="toctree-l3"><a class="reference internal" href="SOAPify.SOAPengine.html">SOAPify.SOAPengine</a></li>
+<li class="toctree-l3"><a class="reference internal" href="SOAPify.SOAPbase.html">SOAPify.SOAPbase</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">SOAPify.SOAPClassify</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#SOAPify.SOAPClassify.SOAPReferences"><code class="docutils literal notranslate"><span class="pre">SOAPReferences</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#SOAPify.SOAPClassify.SOAPclassification"><code class="docutils literal notranslate"><span class="pre">SOAPclassification</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#SOAPify.SOAPClassify.classify"><code class="docutils literal notranslate"><span class="pre">classify()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#SOAPify.SOAPClassify.classifyWithSOAP"><code class="docutils literal notranslate"><span class="pre">classifyWithSOAP()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#SOAPify.SOAPClassify.createReferencesFromTrajectory"><code class="docutils literal notranslate"><span class="pre">createReferencesFromTrajectory()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#SOAPify.SOAPClassify.getDistanceBetween"><code class="docutils literal notranslate"><span class="pre">getDistanceBetween()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#SOAPify.SOAPClassify.getDistancesFromRef"><code class="docutils literal notranslate"><span class="pre">getDistancesFromRef()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#SOAPify.SOAPClassify.getDistancesFromRefNormalized"><code class="docutils literal notranslate"><span class="pre">getDistancesFromRefNormalized()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#SOAPify.SOAPClassify.getReferencesFromDataset"><code class="docutils literal notranslate"><span class="pre">getReferencesFromDataset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#SOAPify.SOAPClassify.loadRefs"><code class="docutils literal notranslate"><span class="pre">loadRefs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#SOAPify.SOAPClassify.mergeReferences"><code class="docutils literal notranslate"><span class="pre">mergeReferences()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#SOAPify.SOAPClassify.saveReferences"><code class="docutils literal notranslate"><span class="pre">saveReferences()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html#hdf5er">HDF5er</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html#referencemaker">ReferenceMaker</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Utils</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../Tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Citation.html">Citing SOAPify</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../About.html">About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SOAPify</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../modules.html">SOAPify</a></li>
+          <li class="breadcrumb-item"><a href="../SOAPify.html">SOAPify</a></li>
+      <li class="breadcrumb-item active">SOAPify.SOAPClassify</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/generated/SOAPify.SOAPClassify.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-SOAPify.SOAPClassify">
+<span id="soapify-soapclassify"></span><h1>SOAPify.SOAPClassify<a class="headerlink" href="#module-SOAPify.SOAPClassify" title="Permalink to this heading"></a></h1>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#SOAPify.SOAPClassify.classify" title="SOAPify.SOAPClassify.classify"><code class="xref py py-obj docutils literal notranslate"><span class="pre">classify</span></code></a>(SOAPTrajData, references, ...[, ...])</p></td>
+<td><p>generates the distances from the given references and then classyfy all of the atoms by the colosest element in the dictionary</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#SOAPify.SOAPClassify.classifyWithSOAP" title="SOAPify.SOAPClassify.classifyWithSOAP"><code class="xref py py-obj docutils literal notranslate"><span class="pre">classifyWithSOAP</span></code></a>(SOAPTrajData, ...)</p></td>
+<td><p>classifies all atoms in a system, given the precalculated set of SOAP fingerprints, and the references.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#SOAPify.SOAPClassify.createReferencesFromTrajectory" title="SOAPify.SOAPClassify.createReferencesFromTrajectory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">createReferencesFromTrajectory</span></code></a>(...[, ...])</p></td>
+<td><p>Generate a SOAPReferences object by storing the data found from h5SOAPDataSet.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#SOAPify.SOAPClassify.getDistanceBetween" title="SOAPify.SOAPClassify.getDistanceBetween"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getDistanceBetween</span></code></a>(data, spectra, ...)</p></td>
+<td><p>Generate an array with the distances between the the data and the given collection of <cite>spectra</cite></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#SOAPify.SOAPClassify.getDistancesFromRef" title="SOAPify.SOAPClassify.getDistancesFromRef"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getDistancesFromRef</span></code></a>(SOAPTrajData, ...[, ...])</p></td>
+<td><p>generates the distances between a SOAP-hdf5 trajectory and the given references</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#SOAPify.SOAPClassify.getDistancesFromRefNormalized" title="SOAPify.SOAPClassify.getDistancesFromRefNormalized"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getDistancesFromRefNormalized</span></code></a>(SOAPTrajData, ...)</p></td>
+<td><p>shortcut for <cite>SOAPify.SOAPClassify.getDistancesFromRef(SOAPTrajData,references,True)</cite>, see <a class="reference internal" href="#SOAPify.SOAPClassify.getDistancesFromRef" title="SOAPify.SOAPClassify.getDistancesFromRef"><code class="xref py py-func docutils literal notranslate"><span class="pre">SOAPify.SOAPClassify.getDistancesFromRef()</span></code></a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#SOAPify.SOAPClassify.getReferencesFromDataset" title="SOAPify.SOAPClassify.getReferencesFromDataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getReferencesFromDataset</span></code></a>(dataset)</p></td>
+<td><p>Given a <cite>h5py.Dataset</cite> returns a <cite>SOAPReferences</cite> with the initializated data</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#SOAPify.SOAPClassify.loadRefs" title="SOAPify.SOAPClassify.loadRefs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">loadRefs</span></code></a>(hdf5FileReference, referenceAddresses)</p></td>
+<td><p>loads the references given in referenceAddresses from an hdf5 file</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#SOAPify.SOAPClassify.mergeReferences" title="SOAPify.SOAPClassify.mergeReferences"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mergeReferences</span></code></a>(*x)</p></td>
+<td><p>Merges a list of <cite>SOAPReferences</cite> into a single object</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#SOAPify.SOAPClassify.saveReferences" title="SOAPify.SOAPClassify.saveReferences"><code class="xref py py-obj docutils literal notranslate"><span class="pre">saveReferences</span></code></a>(h5position, ...)</p></td>
+<td><p>Export the given references in the indicated group/hdf5 file</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Classes</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#SOAPify.SOAPClassify.SOAPReferences" title="SOAPify.SOAPClassify.SOAPReferences"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SOAPReferences</span></code></a>(names, spectra, lmax, nmax)</p></td>
+<td><p>Utility class to store the spectra selected for a environments dictionary.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#SOAPify.SOAPClassify.SOAPclassification" title="SOAPify.SOAPClassify.SOAPclassification"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SOAPclassification</span></code></a>(distances, references, legend)</p></td>
+<td><p>Utility class to store the information about the SOAP classification of a system.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py class">
+<dt class="sig sig-object py" id="SOAPify.SOAPClassify.SOAPReferences">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">SOAPify.SOAPClassify.</span></span><span class="sig-name descname"><span class="pre">SOAPReferences</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spectra</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lmax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nmax</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/SOAPify/SOAPClassify.html#SOAPReferences"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#SOAPify.SOAPClassify.SOAPReferences" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Utility class to store the spectra selected for a environments dictionary.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="SOAPify.SOAPClassify.SOAPReferences.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spectra</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lmax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nmax</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#SOAPify.SOAPClassify.SOAPReferences.__init__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="SOAPify.SOAPClassify.SOAPReferences.names">
+<span class="sig-name descname"><span class="pre">names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#SOAPify.SOAPClassify.SOAPReferences.names" title="Permalink to this definition"></a></dt>
+<dd><p>stores the names of the references</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="SOAPify.SOAPClassify.SOAPReferences.spectra">
+<span class="sig-name descname"><span class="pre">spectra</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">np.ndarray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#SOAPify.SOAPClassify.SOAPReferences.spectra" title="Permalink to this definition"></a></dt>
+<dd><p>stores the SOAP vector of the references</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="SOAPify.SOAPClassify.SOAPclassification">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">SOAPify.SOAPClassify.</span></span><span class="sig-name descname"><span class="pre">SOAPclassification</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">distances</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">references</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/SOAPify/SOAPClassify.html#SOAPclassification"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#SOAPify.SOAPClassify.SOAPclassification" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Utility class to store the information about the SOAP classification of a system.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="SOAPify.SOAPClassify.SOAPclassification.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">distances</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">references</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#SOAPify.SOAPClassify.SOAPclassification.__init__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="SOAPify.SOAPClassify.SOAPclassification.distances">
+<span class="sig-name descname"><span class="pre">distances</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">np.ndarray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#SOAPify.SOAPClassify.SOAPclassification.distances" title="Permalink to this definition"></a></dt>
+<dd><p>stores the (per frame) per atom information about the distance from the closes reference fingerprint</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="SOAPify.SOAPClassify.SOAPclassification.legend">
+<span class="sig-name descname"><span class="pre">legend</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#SOAPify.SOAPClassify.SOAPclassification.legend" title="Permalink to this definition"></a></dt>
+<dd><p>stores the references legend</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="SOAPify.SOAPClassify.SOAPclassification.references">
+<span class="sig-name descname"><span class="pre">references</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">np.ndarray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#SOAPify.SOAPClassify.SOAPclassification.references" title="Permalink to this definition"></a></dt>
+<dd><p>stores the (per frame) per atom index of the closest reference</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SOAPify.SOAPClassify.classify">
+<span class="sig-prename descclassname"><span class="pre">SOAPify.SOAPClassify.</span></span><span class="sig-name descname"><span class="pre">classify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">SOAPTrajData</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">references</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distanceCalculator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doNormalize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/SOAPify/SOAPClassify.html#classify"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#SOAPify.SOAPClassify.classify" title="Permalink to this definition"></a></dt>
+<dd><p>generates the distances from the given references and then classyfy all of the atoms by the colosest element in the dictionary</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>SOAPTrajData</strong> (<em>h5py.Dataset</em>) – the dataset containing the SOAP trajectory</p></li>
+<li><p><strong>references</strong> (<a class="reference internal" href="#SOAPify.SOAPClassify.SOAPReferences" title="SOAPify.SOAPClassify.SOAPReferences"><em>SOAPReferences</em></a>) – the contatiner of the references</p></li>
+<li><p><strong>distanceCalculator</strong> (<em>Callable</em>) – the function to calculate the distances</p></li>
+<li><p><strong>doNormalize</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – informs the function if the given data needs to be normalized before caclulating the distanceis already normalized. Defaults to False.. Defaults to False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The result of the classification</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#SOAPify.SOAPClassify.SOAPclassification" title="SOAPify.SOAPClassify.SOAPclassification">SOAPclassification</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SOAPify.SOAPClassify.classifyWithSOAP">
+<span class="sig-prename descclassname"><span class="pre">SOAPify.SOAPClassify.</span></span><span class="sig-name descname"><span class="pre">classifyWithSOAP</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">SOAPTrajData</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hdf5FileReference</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">referenceAddresses</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/SOAPify/SOAPClassify.html#classifyWithSOAP"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#SOAPify.SOAPClassify.classifyWithSOAP" title="Permalink to this definition"></a></dt>
+<dd><p>classifies all atoms in a system, given the precalculated set of SOAP fingerprints, and the references.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>SOAPTrajData</strong> (<em>h5py.Dataset</em>) – The hdf5 dataset that contaisn the SOAP fingerprints</p></li>
+<li><p><strong>hdf5FileReference</strong> (<em>h5py.File</em>) – the hdf5 file that contains the references</p></li>
+<li><p><strong>referenceAddresses</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a>) – a list of the addresses of the references and/or of the groups that contain the references in hdf5FileReference</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the information of the whole trajectory divided frame by frame and atom by atom, along with the legend</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#SOAPify.SOAPClassify.SOAPclassification" title="SOAPify.SOAPClassify.SOAPclassification">SOAPclassification</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SOAPify.SOAPClassify.createReferencesFromTrajectory">
+<span class="sig-prename descclassname"><span class="pre">SOAPify.SOAPClassify.</span></span><span class="sig-name descname"><span class="pre">createReferencesFromTrajectory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5SOAPDataSet</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">addresses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lmax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nmax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doNormalize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/SOAPify/SOAPClassify.html#createReferencesFromTrajectory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#SOAPify.SOAPClassify.createReferencesFromTrajectory" title="Permalink to this definition"></a></dt>
+<dd><p>Generate a SOAPReferences object by storing the data found from h5SOAPDataSet.
+The atoms are selected trough the addresses dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>h5SOAPDataSet</strong> (<em>h5py.Dataset</em>) – the dataset with the SOAP fingerprints</p></li>
+<li><p><strong>addresses</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – the dictionary with the names and the addresses of the fingerprints.
+The keys will be used as the names of the references and the values
+assigned to the keys must be tuples or similar with the number of
+the chosen frame and the atom number (for example <code class="docutils literal notranslate"><span class="pre">dict(exaple=(framenum,</span> <span class="pre">atomID))</span></code>)</p></li>
+<li><p><strong>doNormalize</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – If True normalizes the SOAP vector before storing them. Defaults to True.</p></li>
+<li><p><strong>settingsUsedInDscribe</strong> (<em>dscribeSettings</em><em>|</em><em>None</em><em>, </em><em>optional</em>) – If none the SOAP vector are
+not preprpcessed, if not none the SOAP vectors are decompressed,
+as dscribe omits the symmetric part of the spectra. Defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>_description_</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#SOAPify.SOAPClassify.SOAPReferences" title="SOAPify.SOAPClassify.SOAPReferences">SOAPReferences</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SOAPify.SOAPClassify.getDistanceBetween">
+<span class="sig-prename descclassname"><span class="pre">SOAPify.SOAPClassify.</span></span><span class="sig-name descname"><span class="pre">getDistanceBetween</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spectra</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distanceCalculator</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/SOAPify/SOAPClassify.html#getDistanceBetween"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#SOAPify.SOAPClassify.getDistanceBetween" title="Permalink to this definition"></a></dt>
+<dd><p>Generate an array with the distances between the the data and the given collection of <cite>spectra</cite></p>
+<blockquote>
+<div><p>TODO: enforce the np.ndarray</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>np.ndarray</em>) – the array of the data</p></li>
+<li><p><strong>spectra</strong> (<em>np.ndarray</em>) – the references</p></li>
+<li><p><strong>distanceCalculator</strong> (<em>Callable</em>) – the function to calculate the distances</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the array of the distances (the shape is <cite>(data.shape[0], spectra.shape[0])</cite>)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SOAPify.SOAPClassify.getDistancesFromRef">
+<span class="sig-prename descclassname"><span class="pre">SOAPify.SOAPClassify.</span></span><span class="sig-name descname"><span class="pre">getDistancesFromRef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">SOAPTrajData</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">references</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distanceCalculator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doNormalize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/SOAPify/SOAPClassify.html#getDistancesFromRef"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#SOAPify.SOAPClassify.getDistancesFromRef" title="Permalink to this definition"></a></dt>
+<dd><p>generates the distances between a SOAP-hdf5 trajectory and the given references</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>SOAPTrajData</strong> (<em>h5py.Dataset</em>) – the dataset containing the SOAP trajectory</p></li>
+<li><p><strong>references</strong> (<a class="reference internal" href="#SOAPify.SOAPClassify.SOAPReferences" title="SOAPify.SOAPClassify.SOAPReferences"><em>SOAPReferences</em></a>) – the contatiner of the references</p></li>
+<li><p><strong>distanceCalculator</strong> (<em>Callable</em>) – the function to calculate the distances</p></li>
+<li><p><strong>doNormalize</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – informs the function if the given data needs to be normalized before caclulating the distanceis already normalized. Defaults to False.. Defaults to False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the “trajectory” of distance from the given references</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SOAPify.SOAPClassify.getDistancesFromRefNormalized">
+<span class="sig-prename descclassname"><span class="pre">SOAPify.SOAPClassify.</span></span><span class="sig-name descname"><span class="pre">getDistancesFromRefNormalized</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">SOAPTrajData</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">references</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/SOAPify/SOAPClassify.html#getDistancesFromRefNormalized"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#SOAPify.SOAPClassify.getDistancesFromRefNormalized" title="Permalink to this definition"></a></dt>
+<dd><p>shortcut for <cite>SOAPify.SOAPClassify.getDistancesFromRef(SOAPTrajData,references,True)</cite>, see <a class="reference internal" href="#SOAPify.SOAPClassify.getDistancesFromRef" title="SOAPify.SOAPClassify.getDistancesFromRef"><code class="xref py py-func docutils literal notranslate"><span class="pre">SOAPify.SOAPClassify.getDistancesFromRef()</span></code></a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SOAPify.SOAPClassify.getReferencesFromDataset">
+<span class="sig-prename descclassname"><span class="pre">SOAPify.SOAPClassify.</span></span><span class="sig-name descname"><span class="pre">getReferencesFromDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/SOAPify/SOAPClassify.html#getReferencesFromDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#SOAPify.SOAPClassify.getReferencesFromDataset" title="Permalink to this definition"></a></dt>
+<dd><p>Given a <cite>h5py.Dataset</cite> returns a <cite>SOAPReferences</cite> with the initializated data</p>
+<blockquote>
+<div><p>TODO: check if the dataset contains the needed references</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dataset</strong> (<em>h5py.Dataset</em>) – the dataset with the references</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the prepared references container</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#SOAPify.SOAPClassify.SOAPReferences" title="SOAPify.SOAPClassify.SOAPReferences">SOAPReferences</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SOAPify.SOAPClassify.loadRefs">
+<span class="sig-prename descclassname"><span class="pre">SOAPify.SOAPClassify.</span></span><span class="sig-name descname"><span class="pre">loadRefs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hdf5FileReference</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">referenceAddresses</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/SOAPify/SOAPClassify.html#loadRefs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#SOAPify.SOAPClassify.loadRefs" title="Permalink to this definition"></a></dt>
+<dd><p>loads the references given in referenceAddresses from an hdf5 file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>hdf5FileReference</strong> (<em>of the groups that contain the references in</em>) – the hdf5 file that contains the references</p></li>
+<li><p><strong>referenceAddresses</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a>) – a list of the addresses of the references and/or</p></li>
+<li><p><strong>hdf5FileReference</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>returns a tuple with the fingerprint and the relative names of the references</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.11)">tuple</a>[np.ndarray[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)">float</a>],<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)">str</a>]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SOAPify.SOAPClassify.mergeReferences">
+<span class="sig-prename descclassname"><span class="pre">SOAPify.SOAPClassify.</span></span><span class="sig-name descname"><span class="pre">mergeReferences</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/SOAPify/SOAPClassify.html#mergeReferences"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#SOAPify.SOAPClassify.mergeReferences" title="Permalink to this definition"></a></dt>
+<dd><p>Merges a list of <cite>SOAPReferences</cite> into a single object</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.11)"><strong>ValueError</strong></a> – if the lmax and the nmax of the references are not the same</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a new <cite>SOAPReferences</cite> that contains the concatenated list of references</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#SOAPify.SOAPClassify.SOAPReferences" title="SOAPify.SOAPClassify.SOAPReferences">SOAPReferences</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SOAPify.SOAPClassify.saveReferences">
+<span class="sig-prename descclassname"><span class="pre">SOAPify.SOAPClassify.</span></span><span class="sig-name descname"><span class="pre">saveReferences</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targetDatasetName</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/SOAPify/SOAPClassify.html#saveReferences"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#SOAPify.SOAPClassify.saveReferences" title="Permalink to this definition"></a></dt>
+<dd><p>Export the given references in the indicated group/hdf5 file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>h5position</strong> (<em>h5py.Group</em><em>|</em><em>h5py.File</em>) – The file object of the group where to save the references</p></li>
+<li><p><strong>targetDatasetName</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – the name to give to the list of references</p></li>
+<li><p><strong>refs</strong> (<a class="reference internal" href="#SOAPify.SOAPClassify.SOAPReferences" title="SOAPify.SOAPClassify.SOAPReferences"><em>SOAPReferences</em></a>) – the <cite>SOAPReferences</cite> object to be exported</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="SOAPify.SOAPbase.html" class="btn btn-neutral float-left" title="SOAPify.SOAPbase" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../HDF5er.html" class="btn btn-neutral float-right" title="HDF5er" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Daniele Rapetti.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

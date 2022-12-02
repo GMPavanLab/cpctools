@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SOAPify.utils &mdash; SOAPify v0.0.3 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="SOAPify.Saponify" href="SOAPify.Saponify.html" />
+    <link rel="prev" title="SOAPify" href="../SOAPify.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> SOAPify
+          </a>
+              <div class="version">
+                v0.0.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Modules</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../modules.html">SOAPify</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../SOAPify.html">SOAPify</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">SOAPify.utils</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#SOAPify.utils.fillSOAPVectorFromdscribe"><code class="docutils literal notranslate"><span class="pre">fillSOAPVectorFromdscribe()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#SOAPify.utils.getAddressesQuippyLikeDscribe"><code class="docutils literal notranslate"><span class="pre">getAddressesQuippyLikeDscribe()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#SOAPify.utils.getSlicesFromAttrs"><code class="docutils literal notranslate"><span class="pre">getSlicesFromAttrs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#SOAPify.utils.getdscribeSOAPMapping"><code class="docutils literal notranslate"><span class="pre">getdscribeSOAPMapping()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#SOAPify.utils.getquippySOAPMapping"><code class="docutils literal notranslate"><span class="pre">getquippySOAPMapping()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#SOAPify.utils.normalizeArray"><code class="docutils literal notranslate"><span class="pre">normalizeArray()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#SOAPify.utils.orderByZ"><code class="docutils literal notranslate"><span class="pre">orderByZ()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="SOAPify.Saponify.html">SOAPify.Saponify</a></li>
+<li class="toctree-l3"><a class="reference internal" href="SOAPify.SOAPengine.html">SOAPify.SOAPengine</a></li>
+<li class="toctree-l3"><a class="reference internal" href="SOAPify.SOAPbase.html">SOAPify.SOAPbase</a></li>
+<li class="toctree-l3"><a class="reference internal" href="SOAPify.SOAPClassify.html">SOAPify.SOAPClassify</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html#hdf5er">HDF5er</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html#referencemaker">ReferenceMaker</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Utils</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../Tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Citation.html">Citing SOAPify</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../About.html">About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SOAPify</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../modules.html">SOAPify</a></li>
+          <li class="breadcrumb-item"><a href="../SOAPify.html">SOAPify</a></li>
+      <li class="breadcrumb-item active">SOAPify.utils</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/generated/SOAPify.utils.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-SOAPify.utils">
+<span id="soapify-utils"></span><h1>SOAPify.utils<a class="headerlink" href="#module-SOAPify.utils" title="Permalink to this heading"></a></h1>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#SOAPify.utils.fillSOAPVectorFromdscribe" title="SOAPify.utils.fillSOAPVectorFromdscribe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fillSOAPVectorFromdscribe</span></code></a>(soapFromdscribe, ...)</p></td>
+<td><p>Given the result of a SOAP calculation from dscribe returns the SOAP power spectrum</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#SOAPify.utils.getAddressesQuippyLikeDscribe" title="SOAPify.utils.getAddressesQuippyLikeDscribe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getAddressesQuippyLikeDscribe</span></code></a>(lmax, nmax, ...)</p></td>
+<td><p>Given the lmax and nmax of a SOAP calculation and the species of the atoms returns an array of idexes for reordering the quippy results as the dscribe results</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#SOAPify.utils.getSlicesFromAttrs" title="SOAPify.utils.getSlicesFromAttrs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getSlicesFromAttrs</span></code></a>(attrs)</p></td>
+<td><p>Given the attributes of from a SOAP dataset returns the slices of the SOAP vector that contains the pair information</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#SOAPify.utils.getdscribeSOAPMapping" title="SOAPify.utils.getdscribeSOAPMapping"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getdscribeSOAPMapping</span></code></a>(lmax, nmax, species[, ...])</p></td>
+<td><p>return a list of string with the identities of the data returned from dscribe,</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#SOAPify.utils.getquippySOAPMapping" title="SOAPify.utils.getquippySOAPMapping"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getquippySOAPMapping</span></code></a>(lmax, nmax, species[, ...])</p></td>
+<td><p>return a list of string with the identities of the data returned from quippy,</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#SOAPify.utils.normalizeArray" title="SOAPify.utils.normalizeArray"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalizeArray</span></code></a>(a)</p></td>
+<td><p>Normalizes the futher axis of the given array</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#SOAPify.utils.orderByZ" title="SOAPify.utils.orderByZ"><code class="xref py py-obj docutils literal notranslate"><span class="pre">orderByZ</span></code></a>(species)</p></td>
+<td><p>Orders the list of species by their atomic number</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py function">
+<dt class="sig sig-object py" id="SOAPify.utils.fillSOAPVectorFromdscribe">
+<span class="sig-prename descclassname"><span class="pre">SOAPify.utils.</span></span><span class="sig-name descname"><span class="pre">fillSOAPVectorFromdscribe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">soapFromdscribe</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atomTypes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[None]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atomicSlices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/SOAPify/utils.html#fillSOAPVectorFromdscribe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#SOAPify.utils.fillSOAPVectorFromdscribe" title="Permalink to this definition"></a></dt>
+<dd><dl>
+<dt>Given the result of a SOAP calculation from dscribe returns the SOAP power spectrum</dt><dd><p>with also the symmetric part explicitly stored, see the note in <a class="reference external" href="https://singroup.github.io/dscribe/1.2.x/tutorials/descriptors/soap.html">https://singroup.github.io/dscribe/1.2.x/tutorials/descriptors/soap.html</a></p>
+<p>No controls are implemented on the shape of the soapFromdscribe vector.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>soapFromdscribe</strong> (<em>numpy.ndarray</em>) – the result of the SOAP calculation from the dscribe utility</p></li>
+<li><p><strong>l_max</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – the l_max specified in the calculation.</p></li>
+<li><p><strong>n_max</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – the n_max specified in the calculation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The full soap spectrum, with the symmetric part sored explicitly</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SOAPify.utils.getAddressesQuippyLikeDscribe">
+<span class="sig-prename descclassname"><span class="pre">SOAPify.utils.</span></span><span class="sig-name descname"><span class="pre">getAddressesQuippyLikeDscribe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lmax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nmax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/SOAPify/utils.html#getAddressesQuippyLikeDscribe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#SOAPify.utils.getAddressesQuippyLikeDscribe" title="Permalink to this definition"></a></dt>
+<dd><p>Given the lmax and nmax of a SOAP calculation and the species of the atoms returns an array of idexes for reordering the quippy results as the dscribe results</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – the lmax specified in the calculation.</p></li>
+<li><p><strong>nmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – the nmax specified in the calculation.</p></li>
+<li><p><strong>species</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>]</em>) – the list of atomic species.</p></li>
+<li><p><strong>Returns</strong> – numpy.ndarray: an array of indexes</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SOAPify.utils.getSlicesFromAttrs">
+<span class="sig-prename descclassname"><span class="pre">SOAPify.utils.</span></span><span class="sig-name descname"><span class="pre">getSlicesFromAttrs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attrs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/SOAPify/utils.html#getSlicesFromAttrs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#SOAPify.utils.getSlicesFromAttrs" title="Permalink to this definition"></a></dt>
+<dd><p>Given the attributes of from a SOAP dataset returns the slices of the SOAP vector that contains the pair information</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>attrs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – the attributes of the SOAP dataset</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the slices of the SOAP vector to be extracted and the atomic types</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.11)">tuple</a>(<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)">list</a>,<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)">dict</a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SOAPify.utils.getdscribeSOAPMapping">
+<span class="sig-prename descclassname"><span class="pre">SOAPify.utils.</span></span><span class="sig-name descname"><span class="pre">getdscribeSOAPMapping</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lmax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nmax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crossover</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/SOAPify/utils.html#getdscribeSOAPMapping"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#SOAPify.utils.getdscribeSOAPMapping" title="Permalink to this definition"></a></dt>
+<dd><dl class="simple">
+<dt>return a list of string with the identities of the data returned from dscribe,</dt><dd><p>see the note in <a class="reference external" href="https://singroup.github.io/dscribe/1.2.x/tutorials/descriptors/soap.html">https://singroup.github.io/dscribe/1.2.x/tutorials/descriptors/soap.html</a></p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – the lmax specified in the calculation.</p></li>
+<li><p><strong>nmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – the nmax specified in the calculation.</p></li>
+<li><p><strong>species</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>]</em>) – the list of atomic species.</p></li>
+<li><p><strong>crossover</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – if True, the SOAP descriptors are generated for the mixed species</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>an array of strings with the mapping of the output of the analysis</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SOAPify.utils.getquippySOAPMapping">
+<span class="sig-prename descclassname"><span class="pre">SOAPify.utils.</span></span><span class="sig-name descname"><span class="pre">getquippySOAPMapping</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lmax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nmax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diagonalRadial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/SOAPify/utils.html#getquippySOAPMapping"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#SOAPify.utils.getquippySOAPMapping" title="Permalink to this definition"></a></dt>
+<dd><dl class="simple">
+<dt>return a list of string with the identities of the data returned from quippy,</dt><dd><p>see <a class="reference external" href="https://github.com/libAtoms/GAP/blob/main/descriptors.f95#L7588">https://github.com/libAtoms/GAP/blob/main/descriptors.f95#L7588</a></p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – the lmax specified in the calculation.</p></li>
+<li><p><strong>nmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – the nmax specified in the calculation.</p></li>
+<li><p><strong>species</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>]</em>) – the list of atomic species.</p></li>
+<li><p><strong>diagonalRadial</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – if True, Only return the n1=n2 elements of the power spectrum. <em>NOT IMPLEMENTED</em></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>an array of strings with the mapping of the output of the analysis</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SOAPify.utils.normalizeArray">
+<span class="sig-prename descclassname"><span class="pre">SOAPify.utils.</span></span><span class="sig-name descname"><span class="pre">normalizeArray</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/SOAPify/utils.html#normalizeArray"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#SOAPify.utils.normalizeArray" title="Permalink to this definition"></a></dt>
+<dd><p>Normalizes the futher axis of the given array</p>
+<p>(eg. in an array of shape (100,50,3) normalizes all the  5000 3D vectors)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>a</strong> (<em>numpy.ndarray</em>) – the arra to be normalized</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the normalized array</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SOAPify.utils.orderByZ">
+<span class="sig-prename descclassname"><span class="pre">SOAPify.utils.</span></span><span class="sig-name descname"><span class="pre">orderByZ</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">species</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/SOAPify/utils.html#orderByZ"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#SOAPify.utils.orderByZ" title="Permalink to this definition"></a></dt>
+<dd><p>Orders the list of species by their atomic number</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>species</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>]</em>) – the list of atomic species to be ordered</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the ordered list of atomic species</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)">str</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../SOAPify.html" class="btn btn-neutral float-left" title="SOAPify" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="SOAPify.Saponify.html" class="btn btn-neutral float-right" title="SOAPify.Saponify" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Daniele Rapetti.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

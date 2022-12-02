@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SOAPify, HDF5er and ReferenceMaker &mdash; SOAPify 0.1 documentation</title>
+  <title>SOAPify, HDF5er and ReferenceMaker &mdash; SOAPify v0.0.3 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -19,9 +19,7 @@
         <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="SOAPify" href="modules.html" />
-    <link rel="prev" title="Welcome to SOAPify’s documentation!" href="index.html" /> 
+    <link rel="search" title="Search" href="search.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -31,6 +29,9 @@
         <div class="wy-side-nav-search" >
             <a href="index.html" class="icon icon-home"> SOAPify
           </a>
+              <div class="version">
+                v0.0.3
+              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -39,17 +40,18 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">SOAPify, HDF5er and ReferenceMaker</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#soapify">SOAPify</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#hdf5er">HDF5er</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#referencemaker">ReferenceMaker</a></li>
-</ul>
-</li>
+              <p class="caption" role="heading"><span class="caption-text">Modules</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="modules.html">SOAPify</a></li>
 <li class="toctree-l1"><a class="reference internal" href="modules.html#hdf5er">HDF5er</a></li>
 <li class="toctree-l1"><a class="reference internal" href="modules.html#referencemaker">ReferenceMaker</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Utils</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Citation.html">Citing SOAPify</a></li>
+<li class="toctree-l1"><a class="reference internal" href="About.html">About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Changelog.html">Changelog</a></li>
 </ul>
 
         </div>
@@ -68,7 +70,7 @@
       <li><a href="index.html" class="icon icon-home"></a></li>
       <li class="breadcrumb-item active">SOAPify, HDF5er and ReferenceMaker</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="_sources/readme_link.md.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/Readme.md.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -79,6 +81,11 @@
   <section id="soapify-hdf5er-and-referencemaker">
 <h1>SOAPify, HDF5er and ReferenceMaker<a class="headerlink" href="#soapify-hdf5er-and-referencemaker" title="Permalink to this heading"></a></h1>
 <p><a class="reference external" href="https://www.mdanalysis.org"><img alt="Powered by MDAnalysis" src="https://img.shields.io/badge/powered%20by-MDAnalysis-orange.svg?logoWidth=16&amp;logo=data:image/x-icon;base64,AAABAAEAEBAAAAEAIAAoBAAAFgAAACgAAAAQAAAAIAAAAAEAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJD+XwCY/fEAkf3uAJf97wGT/a+HfHaoiIWE7n9/f+6Hh4fvgICAjwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACT/yYAlP//AJ///wCg//8JjvOchXly1oaGhv+Ghob/j4+P/39/f3IAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJH8aQCY/8wAkv2kfY+elJ6al/yVlZX7iIiI8H9/f7h/f38UAAAAAAAAAAAAAAAAAAAAAAAAAAB/f38egYF/noqAebF8gYaagnx3oFpUUtZpaWr/WFhY8zo6OmT///8BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgICAn46Ojv+Hh4b/jouJ/4iGhfcAAADnAAAA/wAAAP8AAADIAAAAAwCj/zIAnf2VAJD/PAAAAAAAAAAAAAAAAICAgNGHh4f/gICA/4SEhP+Xl5f/AwMD/wAAAP8AAAD/AAAA/wAAAB8Aov9/ALr//wCS/Z0AAAAAAAAAAAAAAACBgYGOjo6O/4mJif+Pj4//iYmJ/wAAAOAAAAD+AAAA/wAAAP8AAABhAP7+FgCi/38Axf4fAAAAAAAAAAAAAAAAiIiID4GBgYKCgoKogoB+fYSEgZhgYGDZXl5e/m9vb/9ISEjpEBAQxw8AAFQAAAAAAAAANQAAADcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjo6Mb5iYmP+cnJz/jY2N95CQkO4pKSn/AAAA7gAAAP0AAAD7AAAAhgAAAAEAAAAAAAAAAACL/gsAkv2uAJX/QQAAAAB9fX3egoKC/4CAgP+NjY3/c3Nz+wAAAP8AAAD/AAAA/wAAAPUAAAAcAAAAAAAAAAAAnP4NAJL9rgCR/0YAAAAAfX19w4ODg/98fHz/i4uL/4qKivwAAAD/AAAA/wAAAP8AAAD1AAAAGwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALGxsVyqqqr/mpqa/6mpqf9KSUn/AAAA5QAAAPkAAAD5AAAAhQAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADkUFBSuZ2dn/3V1df8uLi7bAAAATgBGfyQAAAA2AAAAMwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB0AAADoAAAA/wAAAP8AAAD/AAAAWgC3/2AAnv3eAJ/+dgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA9AAAA/wAAAP8AAAD/AAAA/wAKDzEAnP3WAKn//wCS/OgAf/8MAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIQAAANwAAADtAAAA7QAAAMAAABUMAJn9gwCe/e0Aj/2LAP//AQAAAAAAAAAA" /></a> <a class="reference external" href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg" /></a> <a class="reference external" href="https://github.com/pypa/hatch"><img alt="Hatch project" src="https://img.shields.io/badge/%F0%9F%A5%9A-Hatch-4051b5.svg" /></a> <a class="reference external" href="https://spdx.org/licenses/"><img alt="License - MIT" src="https://img.shields.io/badge/license-MIT-9400d3.svg" /></a></p>
+<p>SOAPify is python 3.8/3.9 library aimed at simplify the analysis of Molecular Dynamics simulation using the Smooth Overlap of Atomic Position (SOAP) in context that includes the time along the geometrical informations of the frames of the simulation.</p>
+<p>SOAPify uses <code class="docutils literal notranslate"><span class="pre">h5py</span></code> for caching the results of the various analysis.</p>
+<p>SOAPify offers a suite for a (basic) state analysis for the simulation.</p>
+<section id="how-to-install">
+<h2>How To Install<a class="headerlink" href="#how-to-install" title="Permalink to this heading"></a></h2>
 <p>To set up the environment and install <em>SOAPify</em> run the following in the repository folder:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3 -m venv ./venv --prompt SOAPify
 <span class="nb">source</span> ./venv/bin/activate
@@ -92,7 +99,8 @@ pip install quippy-ase
 </pre></div>
 </div>
 <p>(pypi support is incoming!)</p>
-<p>Now with a (very basic) documentation! https://gmpavanlab.github.io/SOAPify/SOAPify.html</p>
+<p>Now with a (very basic) <a class="reference external" href="https://gmpavanlab.github.io/SOAPify/SOAPify.html">documentation</a>!</p>
+</section>
 <section id="soapify">
 <h2>SOAPify<a class="headerlink" href="#soapify" title="Permalink to this heading"></a></h2>
 <p>This package contains a toolbox to calculate the <a class="reference external" href="https://doi.org/10.1103/PhysRevB.87.184115">SOAP fingerprints</a> of a system of atoms.</p>
@@ -122,10 +130,7 @@ pip install quippy-ase
 
            </div>
           </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to SOAPify’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="modules.html" class="btn btn-neutral float-right" title="SOAPify" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-    </div>
+          <footer>
 
   <hr/>
 

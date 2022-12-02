@@ -1,0 +1,31 @@
+﻿HDF5er.HDF5erUtils
+==================
+
+.. automodule:: HDF5er.HDF5erUtils
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      exportChunk2HDF5
+      isTrajectoryGroup
+      patchBoxFromTopology
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

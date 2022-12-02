@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HDF5er.ToHDF5 &mdash; SOAPify v0.0.3 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> SOAPify
+          </a>
+              <div class="version">
+                v0.0.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Modules</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">SOAPify</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html#hdf5er">HDF5er</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html#referencemaker">ReferenceMaker</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Utils</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../Tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Citation.html">Citing SOAPify</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../About.html">About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">SOAPify</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">HDF5er.ToHDF5</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for HDF5er.ToHDF5</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">h5py</span>
+<span class="kn">from</span> <span class="nn">MDAnalysis</span> <span class="kn">import</span> <span class="n">Universe</span> <span class="k">as</span> <span class="n">mdaUniverse</span><span class="p">,</span> <span class="n">AtomGroup</span> <span class="k">as</span> <span class="n">mdaAtomGroup</span>
+<span class="kn">from</span> <span class="nn">ase.io</span> <span class="kn">import</span> <span class="n">iread</span> <span class="k">as</span> <span class="n">aseIRead</span>
+<span class="kn">from</span> <span class="nn">ase.io</span> <span class="kn">import</span> <span class="n">read</span> <span class="k">as</span> <span class="n">aseRead</span>
+<span class="kn">from</span> <span class="nn">.HDF5erUtils</span> <span class="kn">import</span> <span class="n">exportChunk2HDF5</span>
+
+
+<div class="viewcode-block" id="Universe2HDF5"><a class="viewcode-back" href="../../generated/HDF5er.ToHDF5.html#HDF5er.ToHDF5.Universe2HDF5">[docs]</a><span class="k">def</span> <span class="nf">Universe2HDF5</span><span class="p">(</span>
+    <span class="n">u</span><span class="p">:</span> <span class="s2">&quot;mdaUniverse | mdaAtomGroup&quot;</span><span class="p">,</span>
+    <span class="n">trajFolder</span><span class="p">:</span> <span class="n">h5py</span><span class="o">.</span><span class="n">Group</span><span class="p">,</span>
+    <span class="n">trajChunkSize</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
+    <span class="n">trajslice</span><span class="p">:</span> <span class="nb">slice</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Uploads an mda.Universe or an mda.AtomGroup to a h5py.Group in an hdf5 file</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        MDAUniverseOrSelection (MDAnalysis.Universe or MDAnalysis.AtomGroup): the container with the trajectory data</span>
+<span class="sd">        trajFolder (h5py.Group): the group in which store the trajectory in the hdf5 file</span>
+<span class="sd">        trajChunkSize (int, optional): The desired dimension of the chunks of data that are stored in the hdf5 file. Defaults to 100.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">atoms</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">atoms</span>
+    <span class="n">universe</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">universe</span>
+    <span class="n">nat</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">atoms</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s2">&quot;Types&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">trajFolder</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+        <span class="n">trajFolder</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="s2">&quot;Types&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">nat</span><span class="p">),</span> <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">atoms</span><span class="o">.</span><span class="n">types</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s2">&quot;Trajectory&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">trajFolder</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+        <span class="n">trajFolder</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span>
+            <span class="s2">&quot;Trajectory&quot;</span><span class="p">,</span>
+            <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">nat</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+            <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">,</span>
+            <span class="n">chunks</span><span class="o">=</span><span class="p">(</span><span class="n">trajChunkSize</span><span class="p">,</span> <span class="n">nat</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+            <span class="n">maxshape</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">nat</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="s2">&quot;Box&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">trajFolder</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+        <span class="n">trajFolder</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span>
+            <span class="s2">&quot;Box&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">,</span> <span class="n">chunks</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">maxshape</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="n">frameNum</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">first</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">boxes</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">atomicframes</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">frame</span> <span class="ow">in</span> <span class="n">universe</span><span class="o">.</span><span class="n">trajectory</span><span class="p">[</span><span class="n">trajslice</span><span class="p">]:</span>
+        <span class="n">boxes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">universe</span><span class="o">.</span><span class="n">dimensions</span><span class="p">)</span>
+        <span class="n">atomicframes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">atoms</span><span class="o">.</span><span class="n">positions</span><span class="p">)</span>
+        <span class="n">frameNum</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">frameNum</span> <span class="o">%</span> <span class="n">trajChunkSize</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">exportChunk2HDF5</span><span class="p">(</span><span class="n">trajFolder</span><span class="p">,</span> <span class="n">first</span><span class="p">,</span> <span class="n">frameNum</span><span class="p">,</span> <span class="n">boxes</span><span class="p">,</span> <span class="n">atomicframes</span><span class="p">)</span>
+
+            <span class="n">first</span> <span class="o">=</span> <span class="n">frameNum</span>
+            <span class="n">boxes</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">atomicframes</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># in the case that there are some dangling frames</span>
+    <span class="k">if</span> <span class="n">frameNum</span> <span class="o">!=</span> <span class="n">first</span><span class="p">:</span>
+        <span class="n">exportChunk2HDF5</span><span class="p">(</span><span class="n">trajFolder</span><span class="p">,</span> <span class="n">first</span><span class="p">,</span> <span class="n">frameNum</span><span class="p">,</span> <span class="n">boxes</span><span class="p">,</span> <span class="n">atomicframes</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MDA2HDF5"><a class="viewcode-back" href="../../generated/HDF5er.ToHDF5.html#HDF5er.ToHDF5.MDA2HDF5">[docs]</a><span class="k">def</span> <span class="nf">MDA2HDF5</span><span class="p">(</span>
+    <span class="n">MDAUniverseOrSelection</span><span class="p">:</span> <span class="s2">&quot;mdaUniverse | mdaAtomGroup&quot;</span><span class="p">,</span>
+    <span class="n">targetHDF5File</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">groupName</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">trajChunkSize</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
+    <span class="n">override</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">attrs</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">trajslice</span><span class="p">:</span> <span class="nb">slice</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Opens or creates the given HDF5 file, request the user&#39;s chosen group, then uploads an mda.Universe or an mda.AtomGroup to a h5py.Group in an hdf5 file</span>
+
+<span class="sd">        **WARNING**: in the HDF5 file if the chosen group is already present it will be overwritten by the new data</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        MDAUniverseOrSelection (MDAnalysis.Universe or MDAnalysis.AtomGroup): the container with the trajectory data</span>
+<span class="sd">        targetHDF5File (str): the name of HDF5 file</span>
+<span class="sd">        groupName (str): the name of the group in wich save the trajectory data within the `targetHDF5File`</span>
+<span class="sd">        trajChunkSize (int, optional): The desired dimension of the chunks of data that are stored in the hdf5 file. Defaults to 100.</span>
+<span class="sd">        override (bool, optional): If true the hdf5 file will be completely overwritten. Defaults to False.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">targetHDF5File</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span> <span class="k">if</span> <span class="n">override</span> <span class="k">else</span> <span class="s2">&quot;a&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">newTraj</span><span class="p">:</span>
+        <span class="n">trajGroup</span> <span class="o">=</span> <span class="n">newTraj</span><span class="o">.</span><span class="n">require_group</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Trajectories/</span><span class="si">{</span><span class="n">groupName</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">Universe2HDF5</span><span class="p">(</span>
+            <span class="n">MDAUniverseOrSelection</span><span class="p">,</span>
+            <span class="n">trajGroup</span><span class="p">,</span>
+            <span class="n">trajChunkSize</span><span class="o">=</span><span class="n">trajChunkSize</span><span class="p">,</span>
+            <span class="n">trajslice</span><span class="o">=</span><span class="n">trajslice</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">attrs</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">attrs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">trajGroup</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">attrs</span><span class="p">[</span><span class="n">key</span><span class="p">])</span></div>
+
+
+<span class="c1"># TODO: convert use exportChunk2HDF5</span>
+<div class="viewcode-block" id="xyz2hdf5Converter"><a class="viewcode-back" href="../../generated/HDF5er.ToHDF5.html#HDF5er.ToHDF5.xyz2hdf5Converter">[docs]</a><span class="k">def</span> <span class="nf">xyz2hdf5Converter</span><span class="p">(</span><span class="n">xyzName</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">boxfilename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">group</span><span class="p">:</span> <span class="n">h5py</span><span class="o">.</span><span class="n">Group</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Generate an HDF5 trajectory from an xyz file and a box file</span>
+
+<span class="sd">        This function reads an xyz file with ase and then export it to an trajectory in and hdf5 file,</span>
+<span class="sd">        the user should pass the group within the hdf5file to this function</span>
+
+<span class="sd">        **NB**: this is &quot;legacy code&quot;, use with caution</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        xyzName (str): the filename of the xyz trajaectory</span>
+<span class="sd">        boxfilename (str): the filename of the  per frame box dimensions</span>
+<span class="sd">        group (h5py.Group): the group within the hdf5 file where the trajectroy will be saved</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">frame</span> <span class="o">=</span> <span class="n">aseRead</span><span class="p">(</span><span class="n">xyzName</span><span class="p">)</span>
+    <span class="n">nat</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">frame</span><span class="o">.</span><span class="n">get_positions</span><span class="p">())</span>
+    <span class="k">if</span> <span class="s2">&quot;Types&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">group</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+        <span class="n">group</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span>
+            <span class="s2">&quot;Types&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">nat</span><span class="p">),</span> <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">frame</span><span class="o">.</span><span class="n">get_chemical_symbols</span><span class="p">()</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="s2">&quot;Trajectory&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">group</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+        <span class="n">group</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span>
+            <span class="s2">&quot;Trajectory&quot;</span><span class="p">,</span>
+            <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">nat</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+            <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">,</span>
+            <span class="n">chunks</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">nat</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+            <span class="n">maxshape</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">nat</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="s2">&quot;Box&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">group</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+        <span class="n">group</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span>
+            <span class="s2">&quot;Box&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">,</span> <span class="n">chunks</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">maxshape</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="n">xyz</span> <span class="o">=</span> <span class="n">aseIRead</span><span class="p">(</span><span class="n">xyzName</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">boxfilename</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">bf</span><span class="p">:</span>
+        <span class="n">frameNum</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">first</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">boxes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">atomicframes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">box</span><span class="p">,</span> <span class="n">frame</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">bf</span><span class="p">,</span> <span class="n">xyz</span><span class="p">):</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="n">box</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="n">boxInfo</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span> <span class="mf">90.0</span><span class="p">,</span> <span class="mf">90.0</span><span class="p">,</span> <span class="mf">90.0</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">boxes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">boxInfo</span><span class="p">)</span>
+            <span class="n">atomicframes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">frame</span><span class="o">.</span><span class="n">get_positions</span><span class="p">())</span>
+            <span class="n">frameNum</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">frameNum</span> <span class="o">%</span> <span class="mi">20</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">group</span><span class="p">[</span><span class="s2">&quot;Box&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">resize</span><span class="p">((</span><span class="n">frameNum</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+                <span class="n">group</span><span class="p">[</span><span class="s2">&quot;Trajectory&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">resize</span><span class="p">((</span><span class="n">frameNum</span><span class="p">,</span> <span class="n">nat</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">first</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">frameNum</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">,</span>
+                    <span class="nb">len</span><span class="p">(</span><span class="n">boxes</span><span class="p">),</span>
+                    <span class="nb">len</span><span class="p">(</span><span class="n">group</span><span class="p">[</span><span class="s2">&quot;Box&quot;</span><span class="p">][</span><span class="n">first</span><span class="p">:</span><span class="n">frameNum</span><span class="p">]),</span>
+                <span class="p">)</span>
+
+                <span class="n">group</span><span class="p">[</span><span class="s2">&quot;Box&quot;</span><span class="p">][</span><span class="n">first</span><span class="p">:</span><span class="n">frameNum</span><span class="p">]</span> <span class="o">=</span> <span class="n">boxes</span>
+                <span class="n">group</span><span class="p">[</span><span class="s2">&quot;Trajectory&quot;</span><span class="p">][</span><span class="n">first</span><span class="p">:</span><span class="n">frameNum</span><span class="p">]</span> <span class="o">=</span> <span class="n">atomicframes</span>
+
+                <span class="n">first</span> <span class="o">=</span> <span class="n">frameNum</span>
+                <span class="n">boxes</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">atomicframes</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="n">frameNum</span> <span class="o">!=</span> <span class="n">first</span><span class="p">:</span>
+            <span class="n">group</span><span class="p">[</span><span class="s2">&quot;Box&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">resize</span><span class="p">((</span><span class="n">frameNum</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+            <span class="n">group</span><span class="p">[</span><span class="s2">&quot;Trajectory&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">resize</span><span class="p">((</span><span class="n">frameNum</span><span class="p">,</span> <span class="n">nat</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">first</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">frameNum</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">,</span>
+                <span class="nb">len</span><span class="p">(</span><span class="n">boxes</span><span class="p">),</span>
+                <span class="nb">len</span><span class="p">(</span><span class="n">group</span><span class="p">[</span><span class="s2">&quot;Box&quot;</span><span class="p">][</span><span class="n">first</span><span class="p">:</span><span class="n">frameNum</span><span class="p">]),</span>
+            <span class="p">)</span>
+            <span class="n">group</span><span class="p">[</span><span class="s2">&quot;Box&quot;</span><span class="p">][</span><span class="n">first</span><span class="p">:</span><span class="n">frameNum</span><span class="p">]</span> <span class="o">=</span> <span class="n">boxes</span>
+            <span class="n">group</span><span class="p">[</span><span class="s2">&quot;Trajectory&quot;</span><span class="p">][</span><span class="n">first</span><span class="p">:</span><span class="n">frameNum</span><span class="p">]</span> <span class="o">=</span> <span class="n">atomicframes</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Daniele Rapetti.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

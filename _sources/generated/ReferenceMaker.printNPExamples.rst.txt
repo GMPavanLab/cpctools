@@ -1,0 +1,29 @@
+﻿ReferenceMaker.printNPExamples
+==============================
+
+.. automodule:: ReferenceMaker.printNPExamples
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      printNPExamples
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

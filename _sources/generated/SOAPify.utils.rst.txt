@@ -1,0 +1,35 @@
+﻿SOAPify.utils
+=============
+
+.. automodule:: SOAPify.utils
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      fillSOAPVectorFromdscribe
+      getAddressesQuippyLikeDscribe
+      getSlicesFromAttrs
+      getdscribeSOAPMapping
+      getquippySOAPMapping
+      normalizeArray
+      orderByZ
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

@@ -1,0 +1,33 @@
+﻿SOAPify.SOAPbase
+================
+
+.. automodule:: SOAPify.SOAPbase
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      KernelSoap
+      SOAPdistance
+      SOAPdistanceNormalized
+      simpleKernelSoap
+      simpleSOAPdistance
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

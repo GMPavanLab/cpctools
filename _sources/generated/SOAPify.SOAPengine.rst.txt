@@ -1,0 +1,44 @@
+﻿SOAPify.SOAPengine
+==================
+
+.. automodule:: SOAPify.SOAPengine
+
+   
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      KNOWNSOAPENGINES
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      centerMaskCreator
+      getSoapEngine
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      SOAPengineContainer
+      dscribeSOAPengineContainer
+      quippySOAPengineContainer
+   
+   
+
+   
+   
+   
+
+
+

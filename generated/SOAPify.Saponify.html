@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SOAPify.Saponify &mdash; SOAPify v0.0.3 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="SOAPify.SOAPengine" href="SOAPify.SOAPengine.html" />
+    <link rel="prev" title="SOAPify.utils" href="SOAPify.utils.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> SOAPify
+          </a>
+              <div class="version">
+                v0.0.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Modules</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../modules.html">SOAPify</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../SOAPify.html">SOAPify</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="SOAPify.utils.html">SOAPify.utils</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">SOAPify.Saponify</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#SOAPify.Saponify.saponify"><code class="docutils literal notranslate"><span class="pre">saponify()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#SOAPify.Saponify.saponifyGroup"><code class="docutils literal notranslate"><span class="pre">saponifyGroup()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="SOAPify.SOAPengine.html">SOAPify.SOAPengine</a></li>
+<li class="toctree-l3"><a class="reference internal" href="SOAPify.SOAPbase.html">SOAPify.SOAPbase</a></li>
+<li class="toctree-l3"><a class="reference internal" href="SOAPify.SOAPClassify.html">SOAPify.SOAPClassify</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html#hdf5er">HDF5er</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html#referencemaker">ReferenceMaker</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Utils</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../Tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Citation.html">Citing SOAPify</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../About.html">About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SOAPify</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../modules.html">SOAPify</a></li>
+          <li class="breadcrumb-item"><a href="../SOAPify.html">SOAPify</a></li>
+      <li class="breadcrumb-item active">SOAPify.Saponify</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/generated/SOAPify.Saponify.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-SOAPify.Saponify">
+<span id="soapify-saponify"></span><h1>SOAPify.Saponify<a class="headerlink" href="#module-SOAPify.Saponify" title="Permalink to this heading"></a></h1>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#SOAPify.Saponify.saponify" title="SOAPify.Saponify.saponify"><code class="xref py py-obj docutils literal notranslate"><span class="pre">saponify</span></code></a>(trajContainer, SOAPoutContainer, ...)</p></td>
+<td><p>Calculates the SOAP fingerprints for each atom in a given hdf5 trajectory</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#SOAPify.Saponify.saponifyGroup" title="SOAPify.Saponify.saponifyGroup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">saponifyGroup</span></code></a>(trajContainers, ...[, ...])</p></td>
+<td><p>From a trajectory stored in a group calculates and stores the SOAP descriptor in the given group/file</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py function">
+<dt class="sig sig-object py" id="SOAPify.Saponify.saponify">
+<span class="sig-prename descclassname"><span class="pre">SOAPify.Saponify.</span></span><span class="sig-name descname"><span class="pre">saponify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trajContainer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SOAPoutContainer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SOAPrcut</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SOAPnmax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SOAPlmax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SOAPOutputChunkDim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SOAPnJobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SOAPatomMask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">centersMask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SOAP_respectPBC</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SOAPkwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">useSoapFrom</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'dscribe'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/SOAPify/Saponify.html#saponify"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#SOAPify.Saponify.saponify" title="Permalink to this definition"></a></dt>
+<dd><p>Calculates the SOAP fingerprints for each atom in a given hdf5 trajectory</p>
+<p>This routine sets up a SOAP engine to calculate the SOAP fingerprints for all
+the atoms in a given trajectory. The user can choose the otpio</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>trajFname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – The name of the hdf5 file in wich the trajectory is stored</p></li>
+<li><p><strong>trajectoryGroupPath</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – the path of the group that contains the trajectory in trajFname</p></li>
+<li><p><strong>outputFname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – the name of the hdf5 file that will contain the ouput or the SOAP analysis</p></li>
+<li><p><strong>exportDatasetName</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – the name of the dataset that will contain the SOAP results, it will be saved in the group called “SOAP”</p></li>
+<li><p><strong>SOAPOutputChunkDim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>optional</em>) – The dimension of the chunck of data in the SOAP results dataset. Defaults to 100.</p></li>
+<li><p><strong>SOAPnJobs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>optional</em>) – the number of concurrent SOAP calculations (option passed to the desired SOAP engine). Defaults to 1.</p></li>
+<li><p><strong>SOAPatomMask</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – the symbols of the atoms whose SOAP fingerprint will be calculated (option passed to the desired SOAP engine). Defaults to None.</p></li>
+<li><p><strong>SOAPrcut</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – The cutoff for local region in angstroms. Should be bigger than 1 angstrom (option passed to the desired SOAP engine). Defaults to 8.0.</p></li>
+<li><p><strong>SOAPnmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>optional</em>) – The number of radial basis functions (option passed to the desired SOAP engine). Defaults to 8.</p></li>
+<li><p><strong>SOAPlmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>optional</em>) – The maximum degree of spherical harmonics (option passed to the desired SOAP engine). Defaults to 8.</p></li>
+<li><p><strong>SOAP_respectPBC</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – Determines whether the system is considered to be periodic (option passed to the desired SOAP engine). Defaults to True.</p></li>
+<li><p><strong>SOAPkwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a><em>, </em><em>optional</em>) – additional keyword arguments to be passed to the SOAP engine. Defaults to {}.</p></li>
+<li><p><strong>useSoapFrom</strong> (<em>KNOWNSOAPENGINES</em><em>, </em><em>optional</em>) – This string determines the selected SOAP engine for the calculations. Defaults to “dscribe”.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SOAPify.Saponify.saponifyGroup">
+<span class="sig-prename descclassname"><span class="pre">SOAPify.Saponify.</span></span><span class="sig-name descname"><span class="pre">saponifyGroup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trajContainers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SOAPoutContainers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SOAPrcut</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SOAPnmax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SOAPlmax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SOAPOutputChunkDim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SOAPnJobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SOAPatomMask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">centersMask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SOAP_respectPBC</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SOAPkwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">useSoapFrom</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'dscribe'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/SOAPify/Saponify.html#saponifyGroup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#SOAPify.Saponify.saponifyGroup" title="Permalink to this definition"></a></dt>
+<dd><p>From a trajectory stored in a group calculates and stores the SOAP
+descriptor in the given group/file</p>
+<p><cite>SOAPatomMask</cite> and <cite>centersMask</cite> are mutually exclusive (see <a class="reference internal" href="SOAPify.SOAPengine.html#SOAPify.SOAPengine.getSoapEngine" title="SOAPify.SOAPengine.getSoapEngine"><code class="xref py py-func docutils literal notranslate"><span class="pre">SOAPify.SOAPengine.getSoapEngine()</span></code></a>)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>trajContainers</strong> (<em>h5py.Group</em><em>|</em><em>h5py.File</em>) – The file/group that contains the trajectories</p></li>
+<li><p><strong>SOAPoutContainers</strong> (<em>h5py.Group</em><em>|</em><em>h5py.File</em>) – The file/group that will store the SOAP results</p></li>
+<li><p><strong>SOAPrcut</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – The cutoff for local region in angstroms. Should be bigger than 1 angstrom (option passed to the desired SOAP engine). Defaults to 8.0.</p></li>
+<li><p><strong>SOAPnmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – The number of radial basis functions (option passed to the desired SOAP engine). Defaults to 8.</p></li>
+<li><p><strong>SOAPlmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – The maximum degree of spherical harmonics (option passed to the desired SOAP engine). Defaults to 8.</p></li>
+<li><p><strong>SOAPOutputChunkDim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>optional</em>) – The dimension of the chunck of data in the SOAP results dataset. Defaults to 100.</p></li>
+<li><p><strong>SOAPnJobs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>optional</em>) – the number of concurrent SOAP calculations (option passed to the desired SOAP engine). Defaults to 1.</p></li>
+<li><p><strong>SOAPatomMask</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>]</em><em>, </em><em>optional</em>) – the symbols of the atoms whose SOAP fingerprint will be calculated (option passed to getSoapEngine). Defaults to None.</p></li>
+<li><p><strong>centersMask</strong> (<em>Iterable</em><em>, </em><em>optional</em>) – the indexes of the atoms whose SOAP fingerprint will be calculated (option passed getSoapEngine). Defaults to None.</p></li>
+<li><p><strong>SOAP_respectPBC</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – Determines whether the system is considered to be periodic (option passed to the desired SOAP engine). Defaults to True.</p></li>
+<li><p><strong>SOAPkwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a><em>, </em><em>optional</em>) – additional keyword arguments to be passed to the selected SOAP engine. Defaults to {}.</p></li>
+<li><p><strong>useSoapFrom</strong> (<em>KNOWNSOAPENGINES</em><em>, </em><em>optional</em>) – This string determines the selected SOAP engine for the calculations. Defaults to “dscribe”.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="SOAPify.utils.html" class="btn btn-neutral float-left" title="SOAPify.utils" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="SOAPify.SOAPengine.html" class="btn btn-neutral float-right" title="SOAPify.SOAPengine" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Daniele Rapetti.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
