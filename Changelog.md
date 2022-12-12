@@ -31,6 +31,7 @@ Until we get to a release version you may encounter different broken interface p
 - merged `src/HDF5er/MDA2HDF5.py` and `src/HDF5er/ase2HDF5.py` into `src/HDF5er/ToHDF5.py`
 - Heavy changes in the documentation
 - Now the documentation coverage should work
+- Documentation now should also be hosted by readthedocs.io
 
 ## Changes since v0.0.2a
 
