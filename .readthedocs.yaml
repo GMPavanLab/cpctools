@@ -12,5 +12,5 @@ build:
   commands:
     - pip install hatch
     - hatch run docs:build
-    - mkdir -p _readthedocs/html/
-    - cp --recursive docs/build/html/ _readthedocs/html/
+    - mkdir -p _readthedocs/html
+    - cp -p docs/build/html/ _readthedocs/
