@@ -28,7 +28,9 @@ pip install quippy-ase
 
 (pypi support is incoming!)
 
-Now with a (very basic) [documentation](https://gmpavanlab.github.io/SOAPify/SOAPify.html)!
+Now with a (very basic) [documentation](https://gmpavanlab.github.io/SOAPify/SOAPify.html) of the latest version pushed to the main branch!
+
+A more complete history of the documetation is avaiable on [read the docs](https://soapify.readthedocs.io/en/latest/), with storage of the old
 
 ## SOAPify
 
