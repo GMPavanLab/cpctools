@@ -1,4 +1,4 @@
-name: Sphinx build and deploy documentation
+name: Sphinx build and deploy documentation on gh-pages
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build-documentation:
+  build-main-documentation:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -20,12 +20,6 @@ jobs:
       run: python  -m pip install hatch
     - name: Build HTML
       run: python -m hatch run docs:build
-    - id: versioning
-      run: |
-        t=$(python -m hatch version)
-        echo "VERSION=${t%.*}.x" >> $GITHUB_OUTPUT
-    - name: out
-      run: echo ${{ steps.versioning.outputs.VERSION}}
     - name: Upload artifacts
       uses: actions/upload-artifact@v3
       with:
