@@ -26,7 +26,7 @@ pip install "dscribe >1.2.0 <=1.2.2"
 pip install quippy-ase
 ```
 
-(pypi support is incoming!)
+(PyPI support is incoming!)
 
 Now with a (very basic) [documentation](https://gmpavanlab.github.io/SOAPify/SOAPify.html) of the latest version pushed to the main branch!
 

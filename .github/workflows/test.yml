@@ -35,4 +35,4 @@ jobs:
           python -m pip install --upgrade pip hatch        
 
       - name: Run tests
-        run: hatch run test.py${{ matrix.python-version }}:cov
+        run: hatch run test.py${{ matrix.python-version }}:no-cov
