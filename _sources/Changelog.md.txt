@@ -2,6 +2,8 @@
 
 Until we get to a release version you may encounter different broken interface problem each time we increase a minor version.
 
+## Changes since v0.0.4
+
 ## Changes since v0.0.3
 
 - `getXYZfromTrajGroup` now accept IO objects as inputs
