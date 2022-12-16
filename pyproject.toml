@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "SOAPify-GMPavanLab"
 description = "A package for creating and studying SOAP fingerprints"
 readme = { "file" = "Readme.md", "content-type" = "text/markdown" }
-requires-python = ">=3.8, <=3.9"
+requires-python = ">=3.8, <3.10"
 license = "MIT"
 keywords = ["SOAP", "Molecular Dynamics", "simulation", "simulation analysis"]
 authors = [{ name = "Daniele Rapetti", email = "daniele.rapetti@polito.it" }]
