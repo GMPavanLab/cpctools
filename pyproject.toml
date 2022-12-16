@@ -8,7 +8,9 @@ dynamic = ["version"]
 description = "A package for creating and studying SOAP fingerprints"
 readme = { "file" = "Readme.md", "content-type" = "text/markdown" }
 license = "MIT"
-requires-python = ">=3.8"
+
+# We did not tested with 3.10 or newer
+requires-python = ">=3.8, <=3.9"
 authors = [{ name = "Daniele Rapetti", email = "daniele.rapetti@polito.it" }]
 classifiers = [
     "License :: OSI Approved :: MIT License",
