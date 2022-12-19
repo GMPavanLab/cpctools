@@ -101,7 +101,7 @@ def __prepareHeaders(
 def getXYZfromTrajGroup(
     filelike: IO,
     group: h5py.Group,
-    framesToExport: "List or slice" = slice(None),
+    framesToExport: "List | slice" = slice(None),
     allFramesProperty: str = "",
     perFrameProperties: "list[str]" = None,
     **additionalColumns,
@@ -123,11 +123,8 @@ def getXYZfromTrajGroup(
     """
 
     atomtypes = group["Types"].asstr()
-    frameSlice = framesToExport
-    if framesToExport is None:
-        frameSlice = slice(None)
-    boxes: h5py.Dataset = group["Box"][frameSlice]
-    coordData: h5py.Dataset = group["Trajectory"][frameSlice]
+    boxes: h5py.Dataset = group["Box"][framesToExport]
+    coordData: h5py.Dataset = group["Trajectory"][framesToExport]
 
     trajlen: int = coordData.shape[0]
     nat: int = coordData.shape[1]
@@ -171,14 +168,11 @@ def saveXYZfromTrajGroup(
         allFramesProperty (str, optional): A comment string that will be present in all of the frames. Defaults to "".
         perFrameProperties (list[str], optional): A list of comment. Defaults to None.
     """
-    frameSlice = framesToExport
-    if framesToExport is None:
-        frameSlice = slice(None)
     with open(filename, "w") as file:
         getXYZfromTrajGroup(
             file,
             group,
-            frameSlice,
+            framesToExport,
             allFramesProperty,
             perFrameProperties,
             **additionalColumns,
@@ -215,11 +209,8 @@ def getXYZfromMDA(
     atoms = trajToExport.atoms
     universe = trajToExport.universe
     atomtypes = atoms.types
-    frameSlice = framesToExport
-    if framesToExport is None:
-        frameSlice = slice(None)
     coordData: "MDAnalysis.Universe | MDAnalysis.AtomGroup" = universe.trajectory[
-        frameSlice
+        framesToExport
     ]
 
     trajlen: int = len(coordData)
@@ -228,7 +219,7 @@ def getXYZfromMDA(
     header: str = __prepareHeaders(
         additionalColumns, nframes=trajlen, nat=nat, allFramesProperty=allFramesProperty
     )
-    for frameIndex, frame in enumerate(universe.trajectory[frameSlice]):
+    for frameIndex, frame in enumerate(universe.trajectory[framesToExport]):
         coord = atoms.positions
         data = __writeAframe(
             header,

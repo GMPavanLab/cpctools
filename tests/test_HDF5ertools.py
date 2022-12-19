@@ -154,6 +154,7 @@ def test_copyMDA2HDF52xyzPerFrameProperty(input_framesSlice, tmp_path):
 def test_copyMDA2HDF52xyz_error1D(tmp_path):
     angles = (75.0, 60.0, 90.0)
     fourAtomsFiveFrames = giveUniverse(angles)
+    nframes = len(fourAtomsFiveFrames.trajectory)
     rng = numpy.random.default_rng(12345)
     OneDData = rng.integers(
         0,
@@ -166,6 +167,7 @@ def test_copyMDA2HDF52xyz_error1D(tmp_path):
         group = hdf5test["Trajectories/4Atoms5Frames"]
         stringData = StringIO()
         HDF5er.getXYZfromTrajGroup(stringData, group, OneDData=OneDData)
+        assert (2 + nframes) * nframes == len(str(stringData).splitlines())
 
 
 def test_copyMDA2HDF52xyz_error2D(tmp_path):
