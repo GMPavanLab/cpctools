@@ -57,6 +57,18 @@ def test_Saving_loadingOfSOAPreferences(tmp_path):
         assert a.lmax == bk.lmax
 
 
+@pytest.fixture(
+    scope="module",
+    params=[-1, 0, 1],
+)
+def shiftFixture(request):
+    return request.param
+
+
+nshift = shiftFixture
+lshift = shiftFixture
+
+
 def test_concatenationSOAPreferencesCompatibility(
     nshift, lshift, lMaxFixture, nMaxFixture
 ):
@@ -113,18 +125,6 @@ def test_concatenationOfSOAPreferences(randomSOAPReferences):
         )
         assert_array_equal(orig.names, conc.names[totalLength : totalLength + spectraL])
         totalLength += spectraL
-
-
-@pytest.fixture(
-    scope="module",
-    params=[-1, 0, 1],
-)
-def shiftFixture(request):
-    return request.param
-
-
-nshift = shiftFixture
-lshift = shiftFixture
 
 
 def test_fillSOAPVectorFromdscribeSingleVector(nMaxFixture, lMaxFixture):
