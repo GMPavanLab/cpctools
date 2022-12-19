@@ -161,6 +161,20 @@ def test_fillSOAPVectorFromdscribeArrayOfVector(nMaxFixture, lMaxFixture):
                     limited += 1
 
 
+def test_fillSOAPVectorFromdscribeArrayOfVector_wrongerrors(nMaxFixture, lMaxFixture):
+    nmax = nMaxFixture
+    lmax = lMaxFixture
+    expectedSize = (lmax + 1) * (nmax + 1) * nmax // 2
+    # wrong lmax/nmax
+    a = randint(0, 10, size=(5, 1 + expectedSize))
+    with pytest.raises(Exception):
+        SOAPify.fillSOAPVectorFromdscribe(a, lmax, nmax)
+    # too much dimensions
+    a = randint(0, 10, size=(3, 4, 5, expectedSize))
+    with pytest.raises(Exception):
+        SOAPify.fillSOAPVectorFromdscribe(a, lmax, nmax)
+
+
 def test_fillSOAPVectorFromdscribeArrayOfVectorMultiSpecies(nMaxFixture, lMaxFixture):
     species = ["H", "O"]
 
@@ -344,3 +358,5 @@ def test_centerMaskCreator():
         mask = [i for i in range(len(symbols)) if symbols[i] in SOAPatomMask]
         getMask = SOAPify.centerMaskCreator(SOAPatomMask, symbols)
         assert_array_equal(mask, getMask)
+
+
