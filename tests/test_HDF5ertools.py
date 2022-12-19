@@ -127,11 +127,12 @@ def test_copyMDA2HDF52xyzAllFrameProperty(input_framesSlice, tmp_path):
 def test_copyMDA2HDF52xyzPerFrameProperty(input_framesSlice, tmp_path):
     angles = (75.0, 60.0, 90.0)
     fourAtomsFiveFrames = giveUniverse(angles)
+    nframes = len(fourAtomsFiveFrames.trajectory)
     fname = tmp_path / "test.hdf5"
     HDF5er.MDA2HDF5(fourAtomsFiveFrames, fname, "4Atoms5Frames", override=True)
-    perFrameProperties = numpy.array([f'Originpf="-{i} -{i} -{i}"' for i in range(5)])[
-        input_framesSlice
-    ]
+    perFrameProperties = numpy.array(
+        [f'Originpf="-{i} -{i} -{i}"' for i in range(nframes)]
+    )[input_framesSlice]
 
     with h5py.File(fname, "r") as hdf5test:
         group = hdf5test["Trajectories/4Atoms5Frames"]
@@ -265,6 +266,19 @@ def test_headerPreparation(input_CreateParametersToExport, input_afp):
         assert input_afp in header
     assert nat == int(header[: header.find("\n")])
     assert header[-1] != "\n"
+
+
+def test_headerPreparation_failures(input_CreateParametersToExport):
+    nat = 10
+    nframes = 5
+    testData = input_CreateParametersToExport(nframes, nat)
+    perFrameProperties = numpy.array(
+        [f'Originpf="-{i} -{i} -{i}"' for i in range(nframes + 1)]
+    )
+    with pytest.raises(ValueError):
+        headerbis: str = HDF5er.HDF5To.__prepareHeaders(
+            testData, nframes=nframes, nat=nat, perFrameProperties=perFrameProperties
+        )
 
 
 @pytest.fixture
