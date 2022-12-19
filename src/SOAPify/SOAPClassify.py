@@ -124,7 +124,7 @@ def mergeReferences(*x: SOAPReferences) -> SOAPReferences:
     names = []
     for i in x:
         names += i.names
-        if x[0].nmax != i.nmax or x[0].nmax != i.lmax:
+        if x[0].nmax != i.nmax or x[0].lmax != i.lmax:
             raise ValueError("nmax or lmax are not the same in the two references")
     return SOAPReferences(
         names,

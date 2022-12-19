@@ -6,6 +6,7 @@ from SOAPify import SOAPReferences
 import h5py
 from ase.data import atomic_numbers
 from SOAPify.SOAPClassify import SOAPclassification
+import pytest
 
 
 def test_atomicnumberOredring():
@@ -56,6 +57,38 @@ def test_Saving_loadingOfSOAPreferences(tmp_path):
         assert a.lmax == bk.lmax
 
 
+@pytest.fixture(
+    scope="module",
+    params=[-1, 0, 1],
+)
+def shiftFixture(request):
+    return request.param
+
+
+nshift = shiftFixture
+lshift = shiftFixture
+
+
+def test_concatenationSOAPreferencesCompatibility(
+    nshift, lshift, lMaxFixture, nMaxFixture
+):
+    # lmax fixture can be 0, whit lshift -1 goes under 0, that is not  "matematically sensed",
+    # but this only tests if nmax and lmax are equal in the merge references, and not if the vectors are senses
+    a = SOAPReferences(["a", "b"], [[0, 0], [1, 1]], nMaxFixture, lMaxFixture)
+    b = SOAPReferences(
+        ["c", "d"], [[2, 2], [3, 3]], nMaxFixture + nshift, lMaxFixture + lshift
+    )
+    if lshift == 0 and nshift == 0:
+        # this must not throw!
+        try:
+            SOAPify.mergeReferences(a, b)
+        except ValueError:
+            pytest.fail("nmax and lmax are not changed: should not throw")
+        return
+    with pytest.raises(ValueError):
+        SOAPify.mergeReferences(a, b)
+
+
 def test_concatenationOfSOAPreferencesNamedArgumumets():
     a = SOAPReferences(["a", "b"], [[0, 0], [1, 1]], 8, 8)
     b = SOAPReferences(["c", "d"], [[2, 2], [3, 4]], 8, 8)
@@ -94,8 +127,8 @@ def test_concatenationOfSOAPreferences(randomSOAPReferences):
         totalLength += spectraL
 
 
-def test_fillSOAPVectorFromdscribeSingleVector(nMaxFixture,lMaxFixture):
-    nmax=nMaxFixture
+def test_fillSOAPVectorFromdscribeSingleVector(nMaxFixture, lMaxFixture):
+    nmax = nMaxFixture
     lmax = lMaxFixture
     a = randint(0, 10, size=int(((lmax + 1) * (nmax + 1) * nmax) / 2))
     b = SOAPify.fillSOAPVectorFromdscribe(a, lmax, nmax)
@@ -110,8 +143,8 @@ def test_fillSOAPVectorFromdscribeSingleVector(nMaxFixture,lMaxFixture):
                 limited += 1
 
 
-def test_fillSOAPVectorFromdscribeArrayOfVector(nMaxFixture,lMaxFixture):
-    nmax=nMaxFixture
+def test_fillSOAPVectorFromdscribeArrayOfVector(nMaxFixture, lMaxFixture):
+    nmax = nMaxFixture
     lmax = lMaxFixture
     a = randint(0, 10, size=(5, int(((lmax + 1) * (nmax + 1) * nmax) / 2)))
     b = SOAPify.fillSOAPVectorFromdscribe(a, lmax, nmax)
