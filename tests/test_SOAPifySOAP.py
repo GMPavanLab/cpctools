@@ -19,6 +19,26 @@ def fixture_AtomMask(request):
     return request.param
 
 
+def test_FeedingSaponifyANonTrajGroups(tmp_path):
+    fname = tmp_path / "wrongFIle.hdf5"
+    with h5py.File(fname, "w") as f:
+        f.create_group("Trajectories/notTraj")
+    with pytest.raises(ValueError):
+        n_max = 4
+        l_max = 4
+        rcut = 10.0
+        with h5py.File(fname, "a") as f:
+            soapGroup = f.require_group("SOAP")
+            trajGroup = f["Trajectories/notTraj"]
+            SOAPify.saponify(
+                trajGroup,
+                soapGroup,
+                rcut,
+                n_max,
+                l_max,
+            )
+
+
 def test_MultiAtomicSoapify(fixture_AtomMask, engineKind_fixture, tmp_path):
     nMol = 27
     u = getUniverseWithWaterMolecules(nMol)

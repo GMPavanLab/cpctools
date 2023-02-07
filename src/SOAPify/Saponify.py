@@ -32,10 +32,12 @@ def _saponifyWorker(
     SOAPoutDataset.attrs["n_max"] = soapEngine.nmax
     SOAPoutDataset.attrs["r_cut"] = soapEngine.rcut
     SOAPoutDataset.attrs["species"] = soapEngine.species
-    if soapEngine.centersMask is None:
-        if "centersIndexes" in SOAPoutDataset.attrs:
-            del SOAPoutDataset.attrs["centersIndexes"]
-    else:
+    # this should not be needed, given how the preparation of the dataset works
+    # if soapEngine.centersMask is None:
+    #     if "centersIndexes" in SOAPoutDataset.attrs:
+    #         del SOAPoutDataset.attrs["centersIndexes"]
+    # else:
+    if soapEngine.centersMask is not None:
         SOAPoutDataset.attrs.create("centersIndexes", soapEngine.centersMask)
         # print(centersMask)
         # print(SOAPoutDataset.attrs["centersIndexes"])
@@ -260,19 +262,4 @@ def saponify(
             doOverride=doOverride,
         )
     else:
-        raise Exception(f"saponify: The input object is not a trajectory group.")
-
-
-if __name__ == "__main__":
-    # this is an example script for Applying the SOAP analysis on a trajectory saved on an
-    # HDF5 file formatted with our HDF5er and save the result in another HDF5 file
-    with h5py.File("Water.hdf5", "r") as trajLoader, h5py.File(
-        "WaterSOAP.hdf5", "a"
-    ) as soapOffloader:
-        saponify(
-            trajLoader[f"Trajectories/1ns"],
-            soapOffloader.require_group("SOAP"),
-            SOAPatomMask="O",
-            SOAPOutputChunkDim=100,
-            SOAPnJobs=12,
-        )
+        raise ValueError(f"saponify: The input object is not a trajectory group.")
