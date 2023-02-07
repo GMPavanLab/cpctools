@@ -86,6 +86,7 @@ def _applySOAP(
     soapEngine: SOAPengineContainer,
     SOAPOutputChunkDim: int = 100,
     SOAPnJobs: int = 1,
+    doOverride: bool = False,
 ):
     """helper function: applies the soap engine to the given trajectory within the trajContainer
 
@@ -96,6 +97,7 @@ def _applySOAP(
         soapEngine (SOAPengineContainer): the contained of the soap engine
         SOAPOutputChunkDim (int, optional): The chunk of trajectory that will be loaded in memory to be calculated, if key is a new dataset will also be the size of the main chunck of data of the SOAP dataset . Defaults to 100.
         SOAPnJobs (int, optional): Number of concurrent SOAP calculations. Defaults to 1.
+        doOverride (bool, optional): if False will raise and exception if the user ask to override an already existing DataSet. Defaults to False.
     """
     NofFeatures = soapEngine.features
     symbols = trajContainer["Types"].asstr()[:]
@@ -103,6 +105,16 @@ def _applySOAP(
         len(symbols) if soapEngine.centersMask is None else len(soapEngine.centersMask)
     )
 
+    if key in SOAPoutContainer.keys():
+        if doOverride is False:
+            raise ValueError(
+                f"Are you sure that you want to override {SOAPoutContainer[key].name}?"
+            )
+        else:  # doOverride is True and key in SOAPoutContainer.keys():
+            # check if deleting the dataset is necessary:
+            oldshape = SOAPoutContainer[key].shape
+            if oldshape[1] != nCenters or oldshape[2] != NofFeatures:
+                del SOAPoutContainer[key]
     if key not in SOAPoutContainer.keys():
         SOAPoutContainer.create_dataset(
             key,
@@ -136,6 +148,7 @@ def saponifyGroup(
     SOAP_respectPBC: bool = True,
     SOAPkwargs: dict = dict(),
     useSoapFrom: KNOWNSOAPENGINES = "dscribe",
+    doOverride: bool = False,
 ):
     """From a trajectory stored in a group calculates and stores the SOAP
     descriptor in the given group/file
@@ -155,7 +168,7 @@ def saponifyGroup(
         SOAP_respectPBC (bool, optional): Determines whether the system is considered to be periodic (option passed to the desired SOAP engine). Defaults to True.
         SOAPkwargs (dict, optional): additional keyword arguments to be passed to the selected SOAP engine. Defaults to {}.
         useSoapFrom (KNOWNSOAPENGINES, optional): This string determines the selected SOAP engine for the calculations. Defaults to "dscribe".
-
+        doOverride (bool, optional): if False will raise and exception if the user ask to override an already existing DataSet. Defaults to False.
     """
     soapEngine = None
     print(f"using {useSoapFrom} to calculate SOAP")
@@ -183,6 +196,7 @@ def saponifyGroup(
                 soapEngine,
                 SOAPOutputChunkDim,
                 SOAPnJobs,
+                doOverride=doOverride,
             )
 
 
@@ -199,6 +213,7 @@ def saponify(
     SOAP_respectPBC: bool = True,
     SOAPkwargs: dict = {},
     useSoapFrom: str = "dscribe",
+    doOverride: bool = False,
 ):
     """Calculates the SOAP fingerprints for each atom in a given hdf5 trajectory
 
@@ -219,6 +234,7 @@ def saponify(
         SOAP_respectPBC (bool, optional): Determines whether the system is considered to be periodic (option passed to the desired SOAP engine). Defaults to True.
         SOAPkwargs (dict, optional): additional keyword arguments to be passed to the SOAP engine. Defaults to {}.
         useSoapFrom (KNOWNSOAPENGINES, optional): This string determines the selected SOAP engine for the calculations. Defaults to "dscribe".
+        doOverride (bool, optional): if False will raise and exception if the user ask to override an already existing DataSet. Defaults to False.
     """
     if isTrajectoryGroup(trajContainer):
         symbols = trajContainer["Types"].asstr()[:]
@@ -241,6 +257,7 @@ def saponify(
             soapEngine,
             SOAPOutputChunkDim,
             SOAPnJobs,
+            doOverride=doOverride,
         )
     else:
         raise Exception(f"saponify: The input object is not a trajectory group.")

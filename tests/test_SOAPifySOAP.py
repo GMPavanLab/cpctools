@@ -249,3 +249,66 @@ def test_MultiAtomicSoapkwargs(tmp_path):
         assert_array_equal(
             soapGroup["testH2O"].attrs["centersIndexes"], [i * 3 for i in range(nMol)]
         )
+
+
+def test_overrideOutput(tmp_path):
+    nMol = 27
+    u = getUniverseWithWaterMolecules(nMol)
+    fname = f"testH2O_override.hdf5"
+    fname = tmp_path / fname
+    HDF5er.MDA2HDF5(u, fname, "testH2O", override=True)
+    n_max = 4
+    l_max = 4
+    rcut = 10.0
+    with h5py.File(fname, "a") as f:
+        soapGroup = f.require_group("SOAP")
+        SOAPatomMask = [0, 1]
+        SOAPify.saponifyGroup(
+            f["Trajectories"],
+            soapGroup,
+            rcut,
+            n_max,
+            l_max,
+            useSoapFrom="dscribe",
+            centersMask=SOAPatomMask,
+        )
+        for SOAPoutDataset in soapGroup:
+            for i in SOAPatomMask:
+                assert i in soapGroup[SOAPoutDataset].attrs["centersIndexes"]
+        SOAPatomMask = ["O"]
+        with pytest.raises(ValueError):
+            # raise exception if the user does not ask explicitly to override
+            SOAPify.saponifyGroup(
+                f["Trajectories"],
+                soapGroup,
+                rcut,
+                n_max,
+                l_max,
+                useSoapFrom="dscribe",
+                SOAPatomMask=SOAPatomMask,
+            )
+        SOAPify.saponifyGroup(
+            f["Trajectories"],
+            soapGroup,
+            rcut,
+            n_max,
+            l_max,
+            useSoapFrom="dscribe",
+            SOAPatomMask=SOAPatomMask,
+            doOverride=True,
+        )
+        for SOAPoutDataset in soapGroup:
+            for i in [j for j in range(len(u.atoms)) if u.atoms.names[j] == "O"]:
+                assert i in soapGroup[SOAPoutDataset].attrs["centersIndexes"]
+        return
+        SOAPify.saponifyGroup(
+            f["Trajectories"],
+            soapGroup,
+            rcut,
+            n_max,
+            l_max,
+            useSoapFrom="dscribe",
+        )
+        for SOAPoutDataset in soapGroup:
+
+            assert "centersIndexes" not in soapGroup[SOAPoutDataset].attrs
