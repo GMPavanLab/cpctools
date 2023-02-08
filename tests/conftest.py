@@ -2,8 +2,9 @@ import pytest
 import SOAPify
 import HDF5er
 import numpy
+import h5py
 from numpy.random import randint
-from .testSupport import giveUniverse, giveUniverse_ChangingBox
+from .testSupport import giveUniverse, giveUniverse_ChangingBox, give_ico923
 
 
 def __alph(k):
@@ -198,3 +199,52 @@ def input_CreateParametersToExport(request):
             return f"ParameterCreator, doOneD:{self.doOneD}, doMultD:{self.doMultD}"
 
     return ParameterCreator(doOneD=oneD, doMultyD=MultD)
+
+
+@pytest.fixture(scope="session")
+def referencesIco923NP(tmp_path_factory):
+    ico923 = give_ico923()
+
+    referenceConfs = tmp_path_factory.mktemp("referencesNPs") / f"referencesConfs.hdf5"
+
+    HDF5er.MDA2HDF5(ico923, referenceConfs, "ico923_6", override=True)
+    with h5py.File(referenceConfs, "a") as workFile:
+        SOAPify.saponifyGroup(
+            trajContainers=workFile["Trajectories"],
+            SOAPoutContainers=workFile.require_group("SOAP"),
+            SOAPOutputChunkDim=1000,
+            SOAPnJobs=1,
+            SOAPrcut=4.48023312,
+            SOAPnmax=4,
+            SOAPlmax=4,
+        )
+    FramesRequest = dict(
+        ico923_6={
+            "v_5f_ih": (0, 566),
+            "e_(111)_ih": (0, 830),
+            "e_(111)_vih": (0, 828),
+            "s_(111)_ih": (0, 892),
+            "s_(111)_eih": (0, 893),
+            "ss_5f_ih": (0, 312),
+            "ss_FCC_ih": (0, 524),
+            "ss_HCP_ih": (0, 431),
+            "b_5f_ih": (0, 1),
+            "b_HCP_ih": (0, 45),
+            "b_FCC_ih": (0, 127),
+            "b_c_ih": (0, 0),
+        },
+    )
+    references = dict()
+    with h5py.File(referenceConfs, "r") as workFile:
+        for k in FramesRequest:
+            nmax = workFile[f"SOAP/{k}"].attrs["n_max"]
+            lmax = workFile[f"SOAP/{k}"].attrs["l_max"]
+            references[k] = SOAPify.createReferencesFromTrajectory(
+                workFile[f"SOAP/{k}"], FramesRequest[k], nmax=nmax, lmax=lmax
+            )
+    referenceDict = tmp_path_factory.mktemp("referencesNPs") / f"references.hdf5"
+    with h5py.File("References.hdf5", "w") as refFile:
+        g = refFile.require_group("NPReferences")
+        for k in references:
+            SOAPify.saveReferences(g, k, references[k])
+    return referenceConfs, referenceDict
