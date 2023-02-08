@@ -23,7 +23,7 @@ class SOAPReferences:
     """
 
     names: "list[str]"  #: stores the names of the references
-    spectra: "np.ndarray[float]"  #: stores the SOAP vector of the references
+    spectra: "np.ndarray[np.float64]"  #: stores the SOAP vector of the references
     lmax: int
     nmax: int
 
@@ -163,7 +163,7 @@ def classifyWithSOAP(
     spectra, legend = loadRefs(hdf5FileReference, referenceAddresses)
     nframes = SOAPTrajData.shape[0]
     nat = SOAPTrajData.shape[1]
-    distances = np.zeros((nframes, nat), np.dtype(float))
+    distances = np.zeros((nframes, nat), np.float64)
     references = np.zeros((nframes, nat), np.dtype(int))
     n = 0
     # nchunks=len(T1.iter_chunks())
@@ -201,7 +201,7 @@ def loadRefs(
     Returns:
         tuple[np.ndarray[float],list[str]]: returns a tuple with the fingerprint and the relative names of the references
     """
-    spectra = []  # np.zeros((0, 0), dtype=np.dtype(float))
+    spectra = []  # np.zeros((0, 0), dtype=dtype=np.float64)
     legend = []
     for address in referenceAddresses:
         data = hdf5FileReference[address]

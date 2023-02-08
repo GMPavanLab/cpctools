@@ -1,4 +1,5 @@
 import h5py
+import numpy
 from MDAnalysis import Universe as mdaUniverse, AtomGroup as mdaAtomGroup
 from ase.io import iread as aseIRead
 from ase.io import read as aseRead
@@ -33,11 +34,17 @@ def Universe2HDF5(
             compression="gzip",
             chunks=(trajChunkSize, nat, 3),
             maxshape=(None, nat, 3),
+            dtype=numpy.float64,
         )
 
     if "Box" not in list(trajFolder.keys()):
         trajFolder.create_dataset(
-            "Box", (0, 6), compression="gzip", chunks=True, maxshape=(None, 6)
+            "Box",
+            (0, 6),
+            compression="gzip",
+            chunks=True,
+            maxshape=(None, 6),
+            dtype=numpy.float64,
         )
 
     frameNum = 0
@@ -120,10 +127,16 @@ def xyz2hdf5Converter(xyzName: str, boxfilename: str, group: h5py.Group):
             compression="gzip",
             chunks=(10, nat, 3),
             maxshape=(None, nat, 3),
+            dtype=numpy.float64,
         )
     if "Box" not in list(group.keys()):
         group.create_dataset(
-            "Box", (0, 6), compression="gzip", chunks=True, maxshape=(None, 6)
+            "Box",
+            (0, 6),
+            compression="gzip",
+            chunks=True,
+            maxshape=(None, 6),
+            dtype=numpy.float64,
         )
     xyz = aseIRead(xyzName)
     with open(boxfilename, "r") as bf:

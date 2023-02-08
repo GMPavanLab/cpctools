@@ -1,7 +1,7 @@
 import h5py
 import time
 from typing import Iterable
-
+import numpy
 
 from HDF5er import (
     HDF52AseAtomsChunckedwithSymbols as HDF2ase,
@@ -125,6 +125,7 @@ def _applySOAP(
             compression_opts=9,
             chunks=(SOAPOutputChunkDim, nCenters, NofFeatures),
             maxshape=(None, nCenters, NofFeatures),
+            dtype=numpy.float64,
         )
     SOAPout = SOAPoutContainer[key]
     SOAPout.resize((len(trajContainer["Trajectory"]), nCenters, NofFeatures))

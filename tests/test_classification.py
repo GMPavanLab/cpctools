@@ -104,3 +104,50 @@ def test_distance(nMaxFixture, lMaxFixture):
 
 def test_distanceFromRefs(getReferencesConfs, referencesTest):
     referenceDict, FramesRequest = referencesTest
+    with h5py.File(getReferencesConfs, "r") as f:
+        ds = f["SOAP/ico923_6"]
+        nmax = ds.attrs["n_max"]
+        lmax = ds.attrs["l_max"]
+        ndists = len(referenceDict["ico923_6"])
+        nat = ds.shape[1]
+        data = SOAPify.normalizeArray(
+            SOAPify.fillSOAPVectorFromdscribe(ds[:], l_max=lmax, n_max=nmax)
+        )
+        distancesCalculated = SOAPify.getDistanceBetween(
+            data.reshape(-1, data.shape[-1]),
+            referenceDict["ico923_6"].spectra,
+            SOAPify.SOAPdistanceNormalized,
+        )
+        distances = SOAPify.getDistancesFromRef(
+            ds,
+            referenceDict["ico923_6"],
+            SOAPify.SOAPdistanceNormalized,
+            doNormalize=True,
+        )
+        numpy.testing.assert_array_almost_equal(
+            distances, distancesCalculated.reshape(1, nat, ndists)
+        )
+        centerID = FramesRequest["ico923_6"]["b_c_ih"][1]
+        centerIDRefs = referenceDict["ico923_6"].names.index("b_c_ih")
+        assert distances.shape == (
+            ds.shape[0],
+            ds.shape[1],
+            len(referenceDict["ico923_6"]),
+        )
+        # assert numpy.min(distances) == 0
+        print(referenceDict["ico923_6"].names)
+        print(centerID, centerIDRefs)
+        print(distances[0, 0, 11])
+        myid = numpy.argmin(distances[0, :, 11], axis=-1)
+        print(myid, numpy.min(distances))
+        print(
+            SOAPify.SOAPdistanceNormalized(
+                referenceDict["ico923_6"].spectra[11],
+                data[0, 0],
+            ),
+            numpy.dot(referenceDict["ico923_6"].spectra[11], data[0, 0]),
+            distances.dtype,
+            data.dtype,
+            ds.dtype,
+        )
+        assert distances[0, centerID, centerIDRefs] == 0
