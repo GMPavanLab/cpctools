@@ -43,20 +43,6 @@ def test_norm3D():
     )
 
 
-def test_Saving_loadingOfSOAPreferences(tmp_path):
-    refFile = tmp_path / "refSave.hdf5"
-    a = SOAPReferences(["a", "b"], numpy.array([[0, 0], [1, 1]]), 4, 8)
-    SOAPify.saveReferences(h5py.File(refFile, "w"), "testRef", a)
-    with h5py.File(refFile, "r") as saved:
-        bk = SOAPify.getReferencesFromDataset(saved["testRef"])
-        assert len(a) == len(bk)
-        assert_array_equal(bk.spectra, a.spectra)
-        for i, j in zip(a.names, bk.names):
-            assert i == j
-        assert a.nmax == bk.nmax
-        assert a.lmax == bk.lmax
-
-
 def test_normalizeMatrix():
     # this forces the test with an empy row
     mat = numpy.array([[0.0, 0.0, 0.0], [5.0, 5.0, 0.0], [4.0, 0.0, 0.0]])

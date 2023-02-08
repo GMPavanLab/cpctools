@@ -5,7 +5,6 @@ from numpy.testing import assert_array_equal
 import h5py
 import HDF5er
 from .testSupport import getUniverseWithWaterMolecules
-import pytest
 
 
 @pytest.fixture(

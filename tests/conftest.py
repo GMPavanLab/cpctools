@@ -202,7 +202,7 @@ def input_CreateParametersToExport(request):
 
 
 @pytest.fixture(scope="session")
-def referencesIco923NP(tmp_path_factory):
+def getReferencesConfs(tmp_path_factory):
     ico923 = give_ico923()
 
     referenceConfs = tmp_path_factory.mktemp("referencesNPs") / f"referencesConfs.hdf5"
@@ -218,6 +218,12 @@ def referencesIco923NP(tmp_path_factory):
             SOAPnmax=4,
             SOAPlmax=4,
         )
+    return referenceConfs
+
+
+@pytest.fixture(scope="session")
+def referencesIco923NP(tmp_path_factory, getReferencesConfs):
+
     FramesRequest = dict(
         ico923_6={
             "v_5f_ih": (0, 566),
@@ -235,15 +241,16 @@ def referencesIco923NP(tmp_path_factory):
         },
     )
     references = dict()
-    with h5py.File(referenceConfs, "r") as workFile:
+    with h5py.File(getReferencesConfs, "r") as workFile:
         for k in FramesRequest:
             nmax = workFile[f"SOAP/{k}"].attrs["n_max"]
             lmax = workFile[f"SOAP/{k}"].attrs["l_max"]
             references[k] = SOAPify.createReferencesFromTrajectory(
                 workFile[f"SOAP/{k}"], FramesRequest[k], nmax=nmax, lmax=lmax
             )
+
     referenceDict = tmp_path_factory.mktemp("referencesNPs") / f"references.hdf5"
-    with h5py.File("References.hdf5", "w") as refFile:
+    with h5py.File(referenceDict, "w") as refFile:
         g = refFile.require_group("NPReferences")
         for k in references:
             SOAPify.saveReferences(g, k, references[k])

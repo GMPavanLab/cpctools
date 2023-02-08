@@ -36,6 +36,117 @@ class SOAPReferences:
         return len(self.names)
 
 
+def createReferencesFromTrajectory(
+    h5SOAPDataSet: h5py.Dataset,
+    addresses: dict,
+    lmax: int,
+    nmax: int,
+    doNormalize=True,
+) -> SOAPReferences:
+    """Generate a SOAPReferences object by storing the data found from h5SOAPDataSet.
+    The atoms are selected trough the addresses dictionary.
+
+    Args:
+        h5SOAPDataSet (h5py.Dataset): the dataset with the SOAP fingerprints
+        addresses (dict): the dictionary with the names and the addresses of the fingerprints.
+                        The keys will be used as the names of the references and the values
+                        assigned to the keys must be tuples or similar with the number of
+                        the chosen frame and the atom number (for example ``dict(exaple=(framenum, atomID))``)
+        doNormalize (bool, optional): If True normalizes the SOAP vector before storing them. Defaults to True.
+        settingsUsedInDscribe (dscribeSettings|None, optional): If none the SOAP vector are
+                        not preprpcessed, if not none the SOAP vectors are decompressed,
+                        as dscribe omits the symmetric part of the spectra. Defaults to None.
+
+    Returns:
+        SOAPReferences: _description_
+    """
+    nofData = len(addresses)
+    names = list(addresses.keys())
+    SOAPDim = h5SOAPDataSet.shape[2]
+    SOAPexpectedDim = lmax * nmax * nmax
+    SOAPSpectra = np.empty((nofData, SOAPDim), dtype=h5SOAPDataSet.dtype)
+    for i, key in enumerate(addresses):
+        SOAPSpectra[i] = h5SOAPDataSet[addresses[key][0], addresses[key][1]]
+    if SOAPexpectedDim != SOAPDim:
+        SOAPSpectra = fillSOAPVectorFromdscribe(SOAPSpectra, lmax, nmax)
+    if doNormalize:
+        SOAPSpectra = normalizeArray(SOAPSpectra)
+    return SOAPReferences(names, SOAPSpectra, lmax, nmax)
+
+
+def getDistanceBetween(
+    data: np.ndarray, spectra: np.ndarray, distanceCalculator: Callable
+) -> np.ndarray:
+    """Generate an array with the distances between the the data and the given collection of `spectra`
+
+        TODO: enforce the np.ndarray
+
+    Args:
+        data (np.ndarray): the array of the data
+        spectra (np.ndarray): the references
+        distanceCalculator (Callable): the function to calculate the distances
+
+    Returns:
+        np.ndarray: the array of the distances (the shape is `(data.shape[0], spectra.shape[0])`)
+    """
+    toret = np.zeros((data.shape[0], spectra.shape[0]), dtype=data.dtype)
+    for j in range(spectra.shape[0]):
+        for i in range(data.shape[0]):
+            toret[i, j] = distanceCalculator(data[i], spectra[j])
+    return toret
+
+
+def getDistancesFromRef(
+    SOAPTrajData: h5py.Dataset,
+    references: SOAPReferences,
+    distanceCalculator: Callable,
+    doNormalize: bool = False,
+) -> np.ndarray:
+    """generates the distances between a SOAP-hdf5 trajectory and the given references
+
+    Args:
+        SOAPTrajData (h5py.Dataset): the dataset containing the SOAP trajectory
+        references (SOAPReferences): the contatiner of the references
+        distanceCalculator (Callable): the function to calculate the distances
+        doNormalize (bool, optional): informs the function if the given data needs to be normalized before caclulating the distanceis already normalized. Defaults to False.. Defaults to False.
+
+    Returns:
+        np.ndarray: the "trajectory" of distance from the given references
+    """
+    # TODO use the dataset chunking
+    CHUNK = 100
+    # =min(100,SOAPTrajData.chunks[0])
+    # assuming shape is (nframes, natoms, nsoap)
+    currentFrame = 0
+    doconversion = SOAPTrajData.shape[-1] != references.spectra.shape[-1]
+    distanceFromReference = np.zeros(
+        (SOAPTrajData.shape[0], SOAPTrajData.shape[1], len(references))
+    )
+    while SOAPTrajData.shape[0] > currentFrame:
+        upperFrame = min(SOAPTrajData.shape[0], currentFrame + CHUNK)
+        frames = SOAPTrajData[currentFrame:upperFrame]
+        if doconversion:
+            frames = fillSOAPVectorFromdscribe(frames, references.lmax, references.nmax)
+        if doNormalize:
+            frames = normalizeArray(frames)
+        for i, frame in enumerate(frames):
+            distanceFromReference[currentFrame + i] = getDistanceBetween(
+                frame, references.spectra, distanceCalculator
+            )
+        currentFrame += CHUNK
+
+    return distanceFromReference
+
+
+def getDistancesFromRefNormalized(
+    SOAPTrajData: h5py.Dataset, references: SOAPReferences
+):
+    """shortcut for `SOAPify.SOAPClassify.getDistancesFromRef(SOAPTrajData,references,True)`, see :func:`SOAPify.SOAPClassify.getDistancesFromRef`"""
+    return getDistancesFromRef(
+        SOAPTrajData, references, SOAPdistanceNormalized, doNormalize=True
+    )
+
+
 def classifyWithSOAP(
     SOAPTrajData: h5py.Dataset, hdf5FileReference: h5py.File, referenceAddresses: list
 ) -> SOAPclassification:
@@ -175,117 +286,6 @@ def getReferencesFromDataset(dataset: h5py.Dataset) -> SOAPReferences:
     return SOAPReferences(names=names, spectra=fingerprints, lmax=lmax, nmax=nmax)
 
 
-def createReferencesFromTrajectory(
-    h5SOAPDataSet: h5py.Dataset,
-    addresses: dict,
-    lmax: int,
-    nmax: int,
-    doNormalize=True,
-) -> SOAPReferences:
-    """Generate a SOAPReferences object by storing the data found from h5SOAPDataSet.
-    The atoms are selected trough the addresses dictionary.
-
-    Args:
-        h5SOAPDataSet (h5py.Dataset): the dataset with the SOAP fingerprints
-        addresses (dict): the dictionary with the names and the addresses of the fingerprints.
-                        The keys will be used as the names of the references and the values
-                        assigned to the keys must be tuples or similar with the number of
-                        the chosen frame and the atom number (for example ``dict(exaple=(framenum, atomID))``)
-        doNormalize (bool, optional): If True normalizes the SOAP vector before storing them. Defaults to True.
-        settingsUsedInDscribe (dscribeSettings|None, optional): If none the SOAP vector are
-                        not preprpcessed, if not none the SOAP vectors are decompressed,
-                        as dscribe omits the symmetric part of the spectra. Defaults to None.
-
-    Returns:
-        SOAPReferences: _description_
-    """
-    nofData = len(addresses)
-    names = list(addresses.keys())
-    SOAPDim = h5SOAPDataSet.shape[2]
-    SOAPexpectedDim = lmax * nmax * nmax
-    SOAPSpectra = np.empty((nofData, SOAPDim), dtype=h5SOAPDataSet.dtype)
-    for i, key in enumerate(addresses):
-        SOAPSpectra[i] = h5SOAPDataSet[addresses[key][0], addresses[key][1]]
-    if SOAPexpectedDim != SOAPDim:
-        SOAPSpectra = fillSOAPVectorFromdscribe(SOAPSpectra, lmax, nmax)
-    if doNormalize:
-        SOAPSpectra = normalizeArray(SOAPSpectra)
-    return SOAPReferences(names, SOAPSpectra, lmax, nmax)
-
-
-def getDistanceBetween(
-    data: np.ndarray, spectra: np.ndarray, distanceCalculator: Callable
-) -> np.ndarray:
-    """Generate an array with the distances between the the data and the given collection of `spectra`
-
-        TODO: enforce the np.ndarray
-
-    Args:
-        data (np.ndarray): the array of the data
-        spectra (np.ndarray): the references
-        distanceCalculator (Callable): the function to calculate the distances
-
-    Returns:
-        np.ndarray: the array of the distances (the shape is `(data.shape[0], spectra.shape[0])`)
-    """
-    toret = np.zeros((data.shape[0], spectra.shape[0]), dtype=data.dtype)
-    for j in range(spectra.shape[0]):
-        for i in range(data.shape[0]):
-            toret[i, j] = distanceCalculator(data[i], spectra[j])
-    return toret
-
-
-def getDistancesFromRef(
-    SOAPTrajData: h5py.Dataset,
-    references: SOAPReferences,
-    distanceCalculator: Callable,
-    doNormalize: bool = False,
-) -> np.ndarray:
-    """generates the distances between a SOAP-hdf5 trajectory and the given references
-
-    Args:
-        SOAPTrajData (h5py.Dataset): the dataset containing the SOAP trajectory
-        references (SOAPReferences): the contatiner of the references
-        distanceCalculator (Callable): the function to calculate the distances
-        doNormalize (bool, optional): informs the function if the given data needs to be normalized before caclulating the distanceis already normalized. Defaults to False.. Defaults to False.
-
-    Returns:
-        np.ndarray: the "trajectory" of distance from the given references
-    """
-    # TODO use the dataset chunking
-    CHUNK = 100
-    # =min(100,SOAPTrajData.chunks[0])
-    # assuming shape is (nframes, natoms, nsoap)
-    currentFrame = 0
-    doconversion = SOAPTrajData.shape[-1] != references.spectra.shape[-1]
-    distanceFromReference = np.zeros(
-        (SOAPTrajData.shape[0], SOAPTrajData.shape[1], len(references))
-    )
-    while SOAPTrajData.shape[0] > currentFrame:
-        upperFrame = min(SOAPTrajData.shape[0], currentFrame + CHUNK)
-        frames = SOAPTrajData[currentFrame:upperFrame]
-        if doconversion:
-            frames = fillSOAPVectorFromdscribe(frames, references.lmax, references.nmax)
-        if doNormalize:
-            frames = normalizeArray(frames)
-        for i, frame in enumerate(frames):
-            distanceFromReference[currentFrame + i] = getDistanceBetween(
-                frame, references.spectra, distanceCalculator
-            )
-        currentFrame += CHUNK
-
-    return distanceFromReference
-
-
-def getDistancesFromRefNormalized(
-    SOAPTrajData: h5py.Dataset, references: SOAPReferences
-):
-    """shortcut for `SOAPify.SOAPClassify.getDistancesFromRef(SOAPTrajData,references,True)`, see :func:`SOAPify.SOAPClassify.getDistancesFromRef`"""
-    return getDistancesFromRef(
-        SOAPTrajData, references, SOAPdistanceNormalized, doNormalize=True
-    )
-
-
 def classify(
     SOAPTrajData: h5py.Dataset,
     references: SOAPReferences,
@@ -308,14 +308,3 @@ def classify(
     minimumDistID = np.argmin(info, axis=-1)
     minimumDist = np.amin(info, axis=-1)
     return SOAPclassification(minimumDist, minimumDistID, references.names)
-
-
-if __name__ == "__main__":
-    import h5py
-    import numpy as np
-
-    trajLoader = h5py.File("WaterSOAP__.hdf5", "r")
-    SOAPtraj = trajLoader["SOAP/1ns"]
-    refFile = h5py.File("ReferenceWater.hdf5", "r")
-    data = classifyWithSOAP(SOAPtraj, refFile, ["Waters/R10/tip4p2005", "Ices/R10"])
-    print(data)
