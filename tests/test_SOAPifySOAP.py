@@ -332,3 +332,43 @@ def test_overrideOutput(tmp_path):
         for SOAPoutDataset in soapGroup:
 
             assert "centersIndexes" not in soapGroup[SOAPoutDataset].attrs
+
+
+def test_MathSOAP():
+    rng = numpy.random.default_rng(12345)
+
+    for i in range(5):
+        size = rng.integers(2, 150)
+        x = rng.random((size,))
+        y = rng.random((size,))
+        print(x, y)
+        sks = SOAPify.simpleKernelSoap(x, y)
+        numpy.testing.assert_almost_equal(
+            sks,
+            numpy.dot(x, y) / (numpy.linalg.norm(x) * numpy.linalg.norm(y)),
+            decimal=8,
+        )
+        numpy.testing.assert_almost_equal(
+            SOAPify.SOAPdistanceNormalized(
+                x / numpy.linalg.norm(x), y / numpy.linalg.norm(y)
+            ),
+            numpy.sqrt(2.0 - 2.0 * sks),
+            decimal=8,
+        )
+        numpy.testing.assert_almost_equal(
+            SOAPify.simpleSOAPdistance(x, y),
+            numpy.sqrt(2.0 - 2.0 * sks),
+            decimal=8,
+        )
+        for n in range(2, 10):
+            nks = SOAPify.KernelSoap(x, y, n)
+            numpy.testing.assert_almost_equal(
+                nks,
+                (numpy.dot(x, y) / (numpy.linalg.norm(x) * numpy.linalg.norm(y))) ** n,
+                decimal=8,
+            )
+            numpy.testing.assert_almost_equal(
+                SOAPify.SOAPdistance(x, y, n),
+                numpy.sqrt(2.0 - 2.0 * nks),
+                decimal=8,
+            )

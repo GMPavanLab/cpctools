@@ -124,6 +124,7 @@ class dscribeSOAPengineContainer(SOAPengineContainer):
 
     @property
     def nmax(self):
+        # this will automatically produce a miss in the coverage, becasue I cannot have two different versions of dscribe installed at the same time
         if hasattr(self.SOAPengine, "_nmax"):
             return self.SOAPengine._nmax
         if hasattr(self.SOAPengine, "_n_max"):
@@ -131,6 +132,7 @@ class dscribeSOAPengineContainer(SOAPengineContainer):
 
     @property
     def lmax(self):
+        # this will automatically produce a miss in the coverage, becasue I cannot have two different versions of dscribe installed at the same time
         if hasattr(self.SOAPengine, "_lmax"):
             return self.SOAPengine._lmax
         if hasattr(self.SOAPengine, "_l_max"):
@@ -138,6 +140,7 @@ class dscribeSOAPengineContainer(SOAPengineContainer):
 
     @property
     def rcut(self):
+        # this will automatically produce a miss in the coverage, becasue I cannot have two different versions of dscribe installed at the same time
         if hasattr(self.SOAPengine, "_rcut"):
             return self.SOAPengine._rcut
         if hasattr(self.SOAPengine, "_r_cut"):

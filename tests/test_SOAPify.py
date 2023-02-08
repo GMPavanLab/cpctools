@@ -57,6 +57,27 @@ def test_Saving_loadingOfSOAPreferences(tmp_path):
         assert a.lmax == bk.lmax
 
 
+def test_normalizeMatrix():
+    # this forces the test with an empy row
+    mat = numpy.array([[0.0, 0.0, 0.0], [5.0, 5.0, 0.0], [4.0, 0.0, 0.0]])
+    numpy.testing.assert_array_almost_equal(
+        SOAPify.normalizeMatrix(mat),
+        numpy.array([[0.0, 0.0, 0.0], [0.5, 0.5, 0.0], [1.0, 0.0, 0.0]]),
+    )
+    rng = numpy.random.default_rng(12345)
+    for i in range(5):
+        size = rng.integers(2, 152)
+        newMat = rng.random((size, size))
+        testMat = newMat.copy()
+        newMatNorm = SOAPify.normalizeMatrix(newMat)
+
+        numpy.testing.assert_array_almost_equal(testMat, newMat)
+        for row in range(newMatNorm.shape[0]):
+            sum = numpy.sum(newMatNorm[row, :])
+            if sum != 0.0:
+                numpy.testing.assert_approx_equal(sum, 1.0, 8)
+
+
 @pytest.fixture(
     scope="module",
     params=[-1, 0, 1],
@@ -248,8 +269,13 @@ def test_transitionMatrix(input_mockedTrajectoryClassification):
 
     tmat = SOAPify.transitionMatrixFromSOAPClassification(data, stride=stride)
     assert tmat.shape[0] == len(data.legend)
-
     assert_array_equal(tmat, expectedTmat)
+
+    tmatNorm = SOAPify.transitionMatrixFromSOAPClassificationNormalized(
+        data, stride=stride
+    )
+    assert tmatNorm.shape[0] == len(data.legend)
+    assert_array_equal(tmatNorm, SOAPify.normalizeMatrix(expectedTmat))
 
 
 def test_residenceTime(input_mockedTrajectoryClassification):
@@ -330,7 +356,9 @@ def test_transitionMatrixFromTracking(input_mockedTrajectoryClassification):
         data, stride=1, statesTracker=events
     )
     expectedTmat = SOAPify.transitionMatrixFromSOAPClassification(data, stride=1)
+    standardTmat = SOAPify.calculateTransitionMatrix(data, stride=1)
     assert_array_equal(transitionMatrixFromTracking, expectedTmat)
+    assert_array_equal(standardTmat, expectedTmat)
     assert isinstance(events[0], list)
 
 
@@ -358,5 +386,3 @@ def test_centerMaskCreator():
         mask = [i for i in range(len(symbols)) if symbols[i] in SOAPatomMask]
         getMask = SOAPify.centerMaskCreator(SOAPatomMask, symbols)
         assert_array_equal(mask, getMask)
-
-
