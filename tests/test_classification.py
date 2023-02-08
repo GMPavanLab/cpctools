@@ -11,7 +11,9 @@ from .testSupport import getUniverseWithWaterMolecules
 #    pass
 
 
-def test_createReferencesFromTrajectory(getReferencesConfs, tmp_path_factory):
+def test_creatingReferencesFromTrajectoryAndSavingThem(
+    getReferencesConfs, tmp_path_factory
+):
     FramesRequest = {
         "ss_5f_ih": (0, 312),
         "b_5f_ih": (0, 1),
@@ -77,3 +79,28 @@ def test_createReferencesFromTrajectory(getReferencesConfs, tmp_path_factory):
                 references.spectra[whereRef],
                 g[k][where],
             )
+
+
+def test_distance(nMaxFixture, lMaxFixture):
+
+    rng = numpy.random.default_rng(12345)
+    dataSize = rng.integers(10, 100)
+    spSize = max(dataSize // nMaxFixture, 1)
+    dim = nMaxFixture * (lMaxFixture + 1)
+
+    data = rng.random((dataSize, dim))
+    spectra = rng.random((spSize, dim))
+
+    def dCalc(x, y):
+        return numpy.linalg.norm(x - y)
+
+    distances = numpy.empty((dataSize, spSize))
+    for i in range(dataSize):
+        for j in range(spSize):
+            distances[i, j] = dCalc(data[i], spectra[j])
+    distancesCalculated = SOAPify.getDistanceBetween(data, spectra, dCalc)
+    numpy.testing.assert_array_almost_equal(distances, distancesCalculated)
+
+
+def test_distanceFromRefs(getReferencesConfs, referencesTest):
+    referenceDict, FramesRequest = referencesTest

@@ -222,7 +222,7 @@ def getReferencesConfs(tmp_path_factory):
 
 
 @pytest.fixture(scope="session")
-def referencesIco923NP(tmp_path_factory, getReferencesConfs):
+def referencesTest(tmp_path_factory, getReferencesConfs):
 
     FramesRequest = dict(
         ico923_6={
@@ -240,18 +240,12 @@ def referencesIco923NP(tmp_path_factory, getReferencesConfs):
             "b_c_ih": (0, 0),
         },
     )
-    references = dict()
+    referenceDict = dict()
     with h5py.File(getReferencesConfs, "r") as workFile:
         for k in FramesRequest:
             nmax = workFile[f"SOAP/{k}"].attrs["n_max"]
             lmax = workFile[f"SOAP/{k}"].attrs["l_max"]
-            references[k] = SOAPify.createReferencesFromTrajectory(
+            referenceDict[k] = SOAPify.createReferencesFromTrajectory(
                 workFile[f"SOAP/{k}"], FramesRequest[k], nmax=nmax, lmax=lmax
             )
-
-    referenceDict = tmp_path_factory.mktemp("referencesNPs") / f"references.hdf5"
-    with h5py.File(referenceDict, "w") as refFile:
-        g = refFile.require_group("NPReferences")
-        for k in references:
-            SOAPify.saveReferences(g, k, references[k])
-    return referenceConfs, referenceDict
+    return referenceDict, FramesRequest
