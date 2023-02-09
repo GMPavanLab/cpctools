@@ -52,7 +52,7 @@ def Universe2HDF5(
     boxes = []
     atomicframes = []
     for frame in universe.trajectory[trajslice]:
-        boxes.append(universe.dimensions)
+        boxes.append(universe.dimensions.copy())
         atomicframes.append(atoms.positions)
         frameNum += 1
         if frameNum % trajChunkSize == 0:
