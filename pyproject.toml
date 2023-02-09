@@ -16,7 +16,7 @@ classifiers = [
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
 ]
-dependencies = ["ase", "mdanalysis", "h5py", "seaborn"]
+dependencies = ["ase", "mdanalysis", "h5py", "seaborn", "Deprecated"]
 dynamic = ["version"]
 #[project.optional-dependencies]
 #dscribe = ["dscribe==1.2.1"]

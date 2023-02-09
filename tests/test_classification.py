@@ -1,7 +1,11 @@
 import pytest
 import SOAPify
 import numpy
-from numpy.testing import assert_array_equal
+from numpy.testing import (
+    assert_array_equal,
+    assert_array_almost_equal,
+    assert_almost_equal,
+)
 import h5py
 import HDF5er
 from .testSupport import getUniverseWithWaterMolecules
@@ -40,7 +44,7 @@ def test_creatingReferencesFromTrajectoryAndSavingThem(
             atomID = FramesRequest[key][1]
             where = references.names.index(key)
             whereNN = referencesNN.names.index(key)
-            numpy.testing.assert_array_almost_equal(
+            assert_array_almost_equal(
                 references.spectra[where],
                 SOAPify.normalizeArray(
                     SOAPify.fillSOAPVectorFromdscribe(
@@ -48,7 +52,7 @@ def test_creatingReferencesFromTrajectoryAndSavingThem(
                     )
                 ),
             )
-            numpy.testing.assert_array_almost_equal(
+            assert_array_almost_equal(
                 referencesNN.spectra[whereNN],
                 SOAPify.fillSOAPVectorFromdscribe(
                     workFile[f"SOAP/{k}"][frame, atomID], lmax, nmax
@@ -60,25 +64,41 @@ def test_creatingReferencesFromTrajectoryAndSavingThem(
         assert r.spectra.shape[0] == len(FramesRequest)
         assert r.lmax == lmax
         assert r.nmax == nmax
-    referenceDict = tmp_path_factory.mktemp("referencesNPs") / f"referencesTest.hdf5"
-    with h5py.File(referenceDict, "w") as refFile:
+
+
+def test_savingAndLoadingReferences(tmp_path_factory, referencesTest):
+    references, FramesRequest = referencesTest
+    referenceSave = tmp_path_factory.mktemp("referencesNPs") / f"referencesTest.hdf5"
+
+    with h5py.File(referenceSave, "w") as refFile:
         g = refFile.require_group("NPReferences")
-        SOAPify.saveReferences(g, k, references)
-        assert len(g[k]) == len(references)
-        assert g[k].attrs["lmax"] == lmax
-        assert g[k].attrs["nmax"] == nmax
-        names = list(g[k].attrs["names"])
-        for n, n1 in zip(g[k].attrs["names"], references.names):
-            assert n == n1
-        for key in references.names:
-            assert key in g[k].attrs["names"]
-            whereRef = references.names.index(key)
-            where = names.index(key)
-            assert whereRef == where
-            numpy.testing.assert_array_almost_equal(
-                references.spectra[whereRef],
-                g[k][where],
-            )
+        for k in references:
+            nmax = references[k].nmax
+            lmax = references[k].lmax
+            SOAPify.saveReferences(g, k, references[k])
+            assert len(g[k]) == len(references[k])
+            assert g[k].attrs["lmax"] == lmax
+            assert g[k].attrs["nmax"] == nmax
+            names = list(g[k].attrs["names"])
+            for n, n1 in zip(g[k].attrs["names"], references[k].names):
+                assert n == n1
+            for key in references[k].names:
+                assert key in g[k].attrs["names"]
+                whereRef = references[k].names.index(key)
+                where = names.index(key)
+                assert whereRef == where
+                assert_array_almost_equal(
+                    references[k].spectra[whereRef],
+                    g[k][where],
+                )
+    with h5py.File(referenceSave, "r") as refFile:
+        for k in references:
+            print(k, f"NPReferences/{k}")
+            refTest = SOAPify.getReferencesFromDataset(refFile[f"NPReferences/{k}"])
+            assert_array_almost_equal(refTest.spectra, references[k].spectra)
+            assert refTest.names == references[k].names
+            assert refTest.nmax == references[k].nmax
+            assert refTest.lmax == references[k].lmax
 
 
 def test_distance(nMaxFixture, lMaxFixture):
@@ -99,7 +119,7 @@ def test_distance(nMaxFixture, lMaxFixture):
         for j in range(spSize):
             distances[i, j] = dCalc(data[i], spectra[j])
     distancesCalculated = SOAPify.getDistanceBetween(data, spectra, dCalc)
-    numpy.testing.assert_array_almost_equal(distances, distancesCalculated)
+    assert_array_almost_equal(distances, distancesCalculated)
 
 
 def test_distanceFromRefs(getReferencesConfs, referencesTest):
@@ -124,30 +144,50 @@ def test_distanceFromRefs(getReferencesConfs, referencesTest):
             SOAPify.SOAPdistanceNormalized,
             doNormalize=True,
         )
-        numpy.testing.assert_array_almost_equal(
+        distancesNormalized = SOAPify.getDistancesFromRefNormalized(
+            ds,
+            referenceDict["ico923_6"],
+        )
+        assert_array_almost_equal(distances, distancesNormalized)
+        assert_array_almost_equal(
             distances, distancesCalculated.reshape(1, nat, ndists)
         )
-        centerID = FramesRequest["ico923_6"]["b_c_ih"][1]
-        centerIDRefs = referenceDict["ico923_6"].names.index("b_c_ih")
+
         assert distances.shape == (
             ds.shape[0],
             ds.shape[1],
             len(referenceDict["ico923_6"]),
         )
-        # assert numpy.min(distances) == 0
-        print(referenceDict["ico923_6"].names)
-        print(centerID, centerIDRefs)
-        print(distances[0, 0, 11])
-        myid = numpy.argmin(distances[0, :, 11], axis=-1)
-        print(myid, numpy.min(distances))
-        print(
-            SOAPify.SOAPdistanceNormalized(
-                referenceDict["ico923_6"].spectra[11],
-                data[0, 0],
-            ),
-            numpy.dot(referenceDict["ico923_6"].spectra[11], data[0, 0]),
-            distances.dtype,
-            data.dtype,
-            ds.dtype,
+
+        for name in FramesRequest["ico923_6"].keys():
+            centerID = FramesRequest["ico923_6"][name][1]
+            frameID = FramesRequest["ico923_6"][name][0]
+            centerIDRefs = referenceDict["ico923_6"].names.index(name)
+            assert_almost_equal(distances[frameID, centerID, centerIDRefs], 0.0)
+
+
+def test_classifyShortcut(getReferencesConfs, referencesTest):
+
+    referenceDict, _ = referencesTest
+    k = "ico923_6"
+    with h5py.File(getReferencesConfs, "r") as f:
+        ds = f["SOAP/ico923_6"]
+        nat = ds.shape[1]
+        nmax = ds.attrs["n_max"]
+        lmax = ds.attrs["l_max"]
+        data = SOAPify.normalizeArray(
+            SOAPify.fillSOAPVectorFromdscribe(ds[:], l_max=lmax, n_max=nmax)
         )
-        assert distances[0, centerID, centerIDRefs] == 0
+        distancesCalculated = SOAPify.getDistanceBetween(
+            data.reshape(-1, data.shape[-1]),
+            referenceDict[k].spectra,
+            SOAPify.SOAPdistanceNormalized,
+        )
+        minimumDistID = numpy.argmin(distancesCalculated, axis=-1).reshape(-1, nat)
+        minimumDist = numpy.amin(distancesCalculated, axis=-1).reshape(-1, nat)
+
+        classification = SOAPify.classify(
+            ds, referenceDict[k], SOAPify.SOAPdistanceNormalized, doNormalize=True
+        )
+        assert_array_almost_equal(minimumDist, classification.distances)
+        assert_array_equal(minimumDistID, classification.references)
