@@ -26,14 +26,18 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../index.html" class="icon icon-home"> SOAPify
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            SOAPify
           </a>
               <div class="version">
                 v0.0.4
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -66,7 +70,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home"></a></li>
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
       <li class="breadcrumb-item active">HDF5er.ToHDF5</li>
       <li class="wy-breadcrumbs-aside">
@@ -91,7 +95,7 @@
     <span class="n">trajChunkSize</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
     <span class="n">trajslice</span><span class="p">:</span> <span class="nb">slice</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span>
 <span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Uploads an mda.Universe or an mda.AtomGroup to a h5py.Group in an hdf5 file</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Uploads an mda.Universe or an mda.AtomGroup to a h5py.Group in an hdf5 file</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        MDAUniverseOrSelection (MDAnalysis.Universe or MDAnalysis.AtomGroup): the container with the trajectory data</span>
@@ -125,7 +129,7 @@
     <span class="n">boxes</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">atomicframes</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">frame</span> <span class="ow">in</span> <span class="n">universe</span><span class="o">.</span><span class="n">trajectory</span><span class="p">[</span><span class="n">trajslice</span><span class="p">]:</span>
-        <span class="n">boxes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">universe</span><span class="o">.</span><span class="n">dimensions</span><span class="p">)</span>
+        <span class="n">boxes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">universe</span><span class="o">.</span><span class="n">dimensions</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
         <span class="n">atomicframes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">atoms</span><span class="o">.</span><span class="n">positions</span><span class="p">)</span>
         <span class="n">frameNum</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="k">if</span> <span class="n">frameNum</span> <span class="o">%</span> <span class="n">trajChunkSize</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -149,7 +153,7 @@
     <span class="n">attrs</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">trajslice</span><span class="p">:</span> <span class="nb">slice</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span>
 <span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Opens or creates the given HDF5 file, request the user&#39;s chosen group, then uploads an mda.Universe or an mda.AtomGroup to a h5py.Group in an hdf5 file</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Opens or creates the given HDF5 file, request the user&#39;s chosen group, then uploads an mda.Universe or an mda.AtomGroup to a h5py.Group in an hdf5 file</span>
 
 <span class="sd">        **WARNING**: in the HDF5 file if the chosen group is already present it will be overwritten by the new data</span>
 
@@ -175,7 +179,7 @@
 
 <span class="c1"># TODO: convert use exportChunk2HDF5</span>
 <div class="viewcode-block" id="xyz2hdf5Converter"><a class="viewcode-back" href="../../generated/HDF5er.ToHDF5.html#HDF5er.ToHDF5.xyz2hdf5Converter">[docs]</a><span class="k">def</span> <span class="nf">xyz2hdf5Converter</span><span class="p">(</span><span class="n">xyzName</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">boxfilename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">group</span><span class="p">:</span> <span class="n">h5py</span><span class="o">.</span><span class="n">Group</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Generate an HDF5 trajectory from an xyz file and a box file</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate an HDF5 trajectory from an xyz file and a box file</span>
 
 <span class="sd">        This function reads an xyz file with ase and then export it to an trajectory in and hdf5 file,</span>
 <span class="sd">        the user should pass the group within the hdf5file to this function</span>

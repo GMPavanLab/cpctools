@@ -26,14 +26,18 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../index.html" class="icon icon-home"> SOAPify
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            SOAPify
           </a>
               <div class="version">
                 v0.0.4
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -66,7 +70,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home"></a></li>
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
       <li class="breadcrumb-item active">SOAPify.SOAPClassify</li>
       <li class="wy-breadcrumbs-aside">
@@ -88,7 +92,7 @@
 
 <div class="viewcode-block" id="SOAPclassification"><a class="viewcode-back" href="../../generated/SOAPify.SOAPClassify.html#SOAPify.SOAPClassify.SOAPclassification">[docs]</a><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">SOAPclassification</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Utility class to store the information about the SOAP classification of a system.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Utility class to store the information about the SOAP classification of a system.&quot;&quot;&quot;</span>
 
     <span class="n">distances</span><span class="p">:</span> <span class="s2">&quot;np.ndarray[float]&quot;</span>  <span class="c1">#: stores the (per frame) per atom information about the distance from the closes reference fingerprint</span>
     <span class="n">references</span><span class="p">:</span> <span class="s2">&quot;np.ndarray[int]&quot;</span>  <span class="c1">#: stores the (per frame) per atom index of the closest reference</span>
@@ -97,7 +101,7 @@
 
 <div class="viewcode-block" id="SOAPReferences"><a class="viewcode-back" href="../../generated/SOAPify.SOAPClassify.html#SOAPify.SOAPClassify.SOAPReferences">[docs]</a><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">SOAPReferences</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Utility class to store the spectra selected for a environments dictionary.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -108,7 +112,7 @@
     <span class="n">nmax</span><span class="p">:</span> <span class="nb">int</span>
 
     <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;returns the lenght of the dictionary, aka the number of stored spectra</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;returns the lenght of the dictionary, aka the number of stored spectra</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            int: the number of stored spectra</span>
@@ -119,7 +123,7 @@
 <div class="viewcode-block" id="classifyWithSOAP"><a class="viewcode-back" href="../../generated/SOAPify.SOAPClassify.html#SOAPify.SOAPClassify.classifyWithSOAP">[docs]</a><span class="k">def</span> <span class="nf">classifyWithSOAP</span><span class="p">(</span>
     <span class="n">SOAPTrajData</span><span class="p">:</span> <span class="n">h5py</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">hdf5FileReference</span><span class="p">:</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">,</span> <span class="n">referenceAddresses</span><span class="p">:</span> <span class="nb">list</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SOAPclassification</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;classifies all atoms in a system, given the precalculated set of SOAP fingerprints, and the references.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;classifies all atoms in a system, given the precalculated set of SOAP fingerprints, and the references.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        SOAPTrajData (h5py.Dataset): The hdf5 dataset that contaisn the SOAP fingerprints</span>
@@ -161,7 +165,7 @@
 <div class="viewcode-block" id="loadRefs"><a class="viewcode-back" href="../../generated/SOAPify.SOAPClassify.html#SOAPify.SOAPClassify.loadRefs">[docs]</a><span class="k">def</span> <span class="nf">loadRefs</span><span class="p">(</span>
     <span class="n">hdf5FileReference</span><span class="p">:</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">,</span> <span class="n">referenceAddresses</span><span class="p">:</span> <span class="nb">list</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;tuple[np.ndarray[float],list[str]]&quot;</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;loads the references given in referenceAddresses from an hdf5 file</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;loads the references given in referenceAddresses from an hdf5 file</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        hdf5FileReference (h5py.File): the hdf5 file that contains the references</span>
@@ -193,7 +197,7 @@
 
 
 <div class="viewcode-block" id="mergeReferences"><a class="viewcode-back" href="../../generated/SOAPify.SOAPClassify.html#SOAPify.SOAPClassify.mergeReferences">[docs]</a><span class="k">def</span> <span class="nf">mergeReferences</span><span class="p">(</span><span class="o">*</span><span class="n">x</span><span class="p">:</span> <span class="n">SOAPReferences</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SOAPReferences</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Merges a list of `SOAPReferences` into a single object</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Merges a list of `SOAPReferences` into a single object</span>
 
 <span class="sd">    Raises:</span>
 <span class="sd">        ValueError: if the lmax and the nmax of the references are not the same</span>
@@ -217,7 +221,7 @@
 <div class="viewcode-block" id="saveReferences"><a class="viewcode-back" href="../../generated/SOAPify.SOAPClassify.html#SOAPify.SOAPClassify.saveReferences">[docs]</a><span class="k">def</span> <span class="nf">saveReferences</span><span class="p">(</span>
     <span class="n">h5position</span><span class="p">:</span> <span class="s2">&quot;h5py.Group|h5py.File&quot;</span><span class="p">,</span> <span class="n">targetDatasetName</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">refs</span><span class="p">:</span> <span class="n">SOAPReferences</span>
 <span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Export the given references in the indicated group/hdf5 file</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Export the given references in the indicated group/hdf5 file</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        h5position (h5py.Group|h5py.File): The file object of the group where to save the references</span>
@@ -238,7 +242,7 @@
 
 
 <div class="viewcode-block" id="getReferencesFromDataset"><a class="viewcode-back" href="../../generated/SOAPify.SOAPClassify.html#SOAPify.SOAPClassify.getReferencesFromDataset">[docs]</a><span class="k">def</span> <span class="nf">getReferencesFromDataset</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="n">h5py</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SOAPReferences</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Given a `h5py.Dataset` returns a `SOAPReferences` with the initializated data</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Given a `h5py.Dataset` returns a `SOAPReferences` with the initializated data</span>
 
 <span class="sd">        TODO: check if the dataset contains the needed references</span>
 
@@ -262,7 +266,7 @@
     <span class="n">nmax</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">doNormalize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SOAPReferences</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Generate a SOAPReferences object by storing the data found from h5SOAPDataSet.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate a SOAPReferences object by storing the data found from h5SOAPDataSet.</span>
 <span class="sd">    The atoms are selected trough the addresses dictionary.</span>
 
 <span class="sd">    Args:</span>
@@ -296,7 +300,7 @@
 <div class="viewcode-block" id="getDistanceBetween"><a class="viewcode-back" href="../../generated/SOAPify.SOAPClassify.html#SOAPify.SOAPClassify.getDistanceBetween">[docs]</a><span class="k">def</span> <span class="nf">getDistanceBetween</span><span class="p">(</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">spectra</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">distanceCalculator</span><span class="p">:</span> <span class="n">Callable</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Generate an array with the distances between the the data and the given collection of `spectra`</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate an array with the distances between the the data and the given collection of `spectra`</span>
 
 <span class="sd">        TODO: enforce the np.ndarray</span>
 
@@ -321,7 +325,7 @@
     <span class="n">distanceCalculator</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span>
     <span class="n">doNormalize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;generates the distances between a SOAP-hdf5 trajectory and the given references</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;generates the distances between a SOAP-hdf5 trajectory and the given references</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        SOAPTrajData (h5py.Dataset): the dataset containing the SOAP trajectory</span>
@@ -360,7 +364,7 @@
 <div class="viewcode-block" id="getDistancesFromRefNormalized"><a class="viewcode-back" href="../../generated/SOAPify.SOAPClassify.html#SOAPify.SOAPClassify.getDistancesFromRefNormalized">[docs]</a><span class="k">def</span> <span class="nf">getDistancesFromRefNormalized</span><span class="p">(</span>
     <span class="n">SOAPTrajData</span><span class="p">:</span> <span class="n">h5py</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">references</span><span class="p">:</span> <span class="n">SOAPReferences</span>
 <span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;shortcut for `SOAPify.SOAPClassify.getDistancesFromRef(SOAPTrajData,references,True)`, see :func:`SOAPify.SOAPClassify.getDistancesFromRef`&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;shortcut for `SOAPify.SOAPClassify.getDistancesFromRef(SOAPTrajData,references,True)`, see :func:`SOAPify.SOAPClassify.getDistancesFromRef`&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">getDistancesFromRef</span><span class="p">(</span>
         <span class="n">SOAPTrajData</span><span class="p">,</span> <span class="n">references</span><span class="p">,</span> <span class="n">SOAPdistanceNormalized</span><span class="p">,</span> <span class="n">doNormalize</span><span class="o">=</span><span class="kc">True</span>
     <span class="p">)</span></div>
@@ -372,7 +376,7 @@
     <span class="n">distanceCalculator</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span>
     <span class="n">doNormalize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SOAPclassification</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;generates the distances from the given references and then classyfy all of the atoms by the colosest element in the dictionary</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;generates the distances from the given references and then classyfy all of the atoms by the colosest element in the dictionary</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        SOAPTrajData (h5py.Dataset): the dataset containing the SOAP trajectory</span>

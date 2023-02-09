@@ -26,14 +26,18 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../index.html" class="icon icon-home"> SOAPify
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            SOAPify
           </a>
               <div class="version">
                 v0.0.4
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -66,7 +70,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home"></a></li>
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
       <li class="breadcrumb-item active">SOAPify.SOAPbase</li>
       <li class="wy-breadcrumbs-aside">
@@ -84,7 +88,7 @@
 
 
 <div class="viewcode-block" id="simpleKernelSoap"><a class="viewcode-back" href="../../generated/SOAPify.SOAPbase.html#SOAPify.SOAPbase.simpleKernelSoap">[docs]</a><span class="k">def</span> <span class="nf">simpleKernelSoap</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;a simpler SOAP Kernel than :func:`KernelSoap`, power is always 1</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;a simpler SOAP Kernel than :func:`KernelSoap`, power is always 1</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        x (np.ndarray): a SOAP fingerprint</span>
@@ -99,7 +103,7 @@
 
 
 <div class="viewcode-block" id="simpleSOAPdistance"><a class="viewcode-back" href="../../generated/SOAPify.SOAPbase.html#SOAPify.SOAPbase.simpleSOAPdistance">[docs]</a><span class="k">def</span> <span class="nf">simpleSOAPdistance</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;a simpler SOAP distance than :func:`SOAPdistance`, power is always 1</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;a simpler SOAP distance than :func:`SOAPdistance`, power is always 1</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        x (np.ndarray): a SOAP fingerprint</span>
@@ -115,7 +119,7 @@
 
 
 <div class="viewcode-block" id="KernelSoap"><a class="viewcode-back" href="../../generated/SOAPify.SOAPbase.html#SOAPify.SOAPbase.KernelSoap">[docs]</a><span class="k">def</span> <span class="nf">KernelSoap</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;The SOAP Kernel with a variable power</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The SOAP Kernel with a variable power</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        x (np.ndarray): a SOAP fingerprint</span>
@@ -131,7 +135,7 @@
 
 
 <div class="viewcode-block" id="SOAPdistance"><a class="viewcode-back" href="../../generated/SOAPify.SOAPbase.html#SOAPify.SOAPbase.SOAPdistance">[docs]</a><span class="k">def</span> <span class="nf">SOAPdistance</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;the SOAP distance between two SOAP fingerprints</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;the SOAP distance between two SOAP fingerprints</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        x (np.ndarray): a SOAP fingerprint</span>
@@ -148,7 +152,7 @@
 
 
 <div class="viewcode-block" id="SOAPdistanceNormalized"><a class="viewcode-back" href="../../generated/SOAPify.SOAPbase.html#SOAPify.SOAPbase.SOAPdistanceNormalized">[docs]</a><span class="k">def</span> <span class="nf">SOAPdistanceNormalized</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;the SOAP distance between two normalized SOAP fingerprints</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;the SOAP distance between two normalized SOAP fingerprints</span>
 <span class="sd">    The pre-normalized vectors should net some performace over the classic kernel</span>
 
 <span class="sd">    Args:</span>

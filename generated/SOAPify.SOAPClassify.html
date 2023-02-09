@@ -29,14 +29,18 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> SOAPify
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            SOAPify
           </a>
               <div class="version">
                 v0.0.4
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -93,7 +97,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a></li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../modules.html">SOAPify</a></li>
           <li class="breadcrumb-item"><a href="../SOAPify.html">SOAPify</a></li>
       <li class="breadcrumb-item active">SOAPify.SOAPClassify</li>
@@ -174,13 +178,13 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="SOAPify.SOAPClassify.SOAPReferences.names">
-<span class="sig-name descname"><span class="pre">names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#SOAPify.SOAPClassify.SOAPReferences.names" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list[str]</span></em><a class="headerlink" href="#SOAPify.SOAPClassify.SOAPReferences.names" title="Permalink to this definition"></a></dt>
 <dd><p>stores the names of the references</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="SOAPify.SOAPClassify.SOAPReferences.spectra">
-<span class="sig-name descname"><span class="pre">spectra</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">np.ndarray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#SOAPify.SOAPClassify.SOAPReferences.spectra" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">spectra</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">np.ndarray[float]</span></em><a class="headerlink" href="#SOAPify.SOAPClassify.SOAPReferences.spectra" title="Permalink to this definition"></a></dt>
 <dd><p>stores the SOAP vector of the references</p>
 </dd></dl>
 
@@ -198,19 +202,19 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="SOAPify.SOAPClassify.SOAPclassification.distances">
-<span class="sig-name descname"><span class="pre">distances</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">np.ndarray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#SOAPify.SOAPClassify.SOAPclassification.distances" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">distances</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">np.ndarray[float]</span></em><a class="headerlink" href="#SOAPify.SOAPClassify.SOAPclassification.distances" title="Permalink to this definition"></a></dt>
 <dd><p>stores the (per frame) per atom information about the distance from the closes reference fingerprint</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="SOAPify.SOAPClassify.SOAPclassification.legend">
-<span class="sig-name descname"><span class="pre">legend</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#SOAPify.SOAPClassify.SOAPclassification.legend" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">legend</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list[str]</span></em><a class="headerlink" href="#SOAPify.SOAPClassify.SOAPclassification.legend" title="Permalink to this definition"></a></dt>
 <dd><p>stores the references legend</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="SOAPify.SOAPClassify.SOAPclassification.references">
-<span class="sig-name descname"><span class="pre">references</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">np.ndarray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#SOAPify.SOAPClassify.SOAPclassification.references" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">references</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">np.ndarray[int]</span></em><a class="headerlink" href="#SOAPify.SOAPClassify.SOAPclassification.references" title="Permalink to this definition"></a></dt>
 <dd><p>stores the (per frame) per atom index of the closest reference</p>
 </dd></dl>
 
