@@ -4,6 +4,8 @@ Until we get to a release version you may encounter different broken interface p
 
 ## Changes since v0.0.4
 
+- Now if the box changes in a mda.Universe the ToHDF5 method saves it correctly
+
 ## Changes since v0.0.3
 
 - `getXYZfromTrajGroup` now accept IO objects as inputs
