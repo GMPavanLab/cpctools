@@ -5,6 +5,7 @@ Until we get to a release version you may encounter different broken interface p
 ## Changes since v0.0.4
 
 - Now if the box changes in a mda.Universe the ToHDF5 method saves it correctly
+- set quippy-ase compatibility to 0.9.10
 
 ## Changes since v0.0.3
 
