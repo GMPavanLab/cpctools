@@ -5,6 +5,7 @@ Until we get to a release version you may encounter different broken interface p
 ## Changes since v0.0.4
 
 - Increased test coverage
+- Forced float64 precision in most of the calculations
 
 ## Changes since v0.0.3
 
