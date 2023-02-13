@@ -1179,7 +1179,46 @@ def giveUniverse_ChangingBox(angles: set = (90.0, 90.0, 90.0)) -> MDAnalysis.Uni
     dimensions = numpy.array(
         [[6.0, 6.0, 6.0, angles[0], angles[1], angles[2]]] * traj.shape[0]
     )
-    multiplier = numpy.array([[1.5 - 0.5 * numpy.cos(k)] for k in range(traj.shape[0])])
+    multiplier = numpy.array(
+        [
+            [1.5 - 0.5 * numpy.cos(k / traj.shape[0] * 2 * numpy.pi)]
+            for k in range(traj.shape[0])
+        ]
+    )
+    dimensions[:, :3] *= multiplier
+
+    u.add_TopologyAttr("type", ["H"] * 4)
+    u.atoms.positions = traj[0]
+    u.trajectory = MDAnalysis.coordinates.memory.MemoryReader(
+        traj,
+        order="fac",
+        # this tests the non orthogonality of the box
+        dimensions=dimensions,
+    )
+    # adding this for recognisign this univers during tests:
+    u.myUsefulName = "ChangingBox"
+    return u
+
+
+def giveUniverse_LongChangingBox(
+    angles: set = (90.0, 90.0, 90.0)
+) -> MDAnalysis.Universe:
+    trajLen = 300
+    traj = numpy.array(
+        [[[0.0, 0.0, 0.0], [1.0, 1.0, 1.0], [2.0, 2.0, 2.0], [3.0, 3.0, 3.0]]] * trajLen
+    )
+    print(traj.shape)
+    rng = numpy.random.default_rng(12345)
+    traj[1:] += rng.random(size=traj[1:].shape) * 0.2
+    u = MDAnalysis.Universe.empty(
+        4, trajectory=True, atom_resindex=[0, 0, 0, 0], residue_segindex=[0]
+    )
+    dimensions = numpy.array(
+        [[6.0, 6.0, 6.0, angles[0], angles[1], angles[2]]] * traj.shape[0]
+    )
+    multiplier = numpy.array(
+        [[1.5 - 0.5 * numpy.cos(k / 20 * 2 * numpy.pi)] for k in range(traj.shape[0])]
+    )
     dimensions[:, :3] *= multiplier
 
     u.add_TopologyAttr("type", ["H"] * 4)

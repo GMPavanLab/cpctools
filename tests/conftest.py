@@ -4,7 +4,12 @@ import HDF5er
 import numpy
 import h5py
 from numpy.random import randint
-from .testSupport import giveUniverse, giveUniverse_ChangingBox, give_ico923
+from .testSupport import (
+    giveUniverse,
+    giveUniverse_ChangingBox,
+    giveUniverse_LongChangingBox,
+    give_ico923,
+)
 
 
 def __alph(k):
@@ -44,6 +49,7 @@ def randomSOAPReferences(request):
     params=[
         giveUniverse,
         giveUniverse_ChangingBox,
+        giveUniverse_LongChangingBox,
     ],
 )
 def input_universe(request):
