@@ -2,7 +2,7 @@ import MDAnalysis
 import numpy
 import h5py
 import re
-from io import StringIO
+from io import StringIO, FileIO
 from MDAnalysis.lib.mdamath import triclinic_vectors, triclinic_box
 
 __PropertiesFinder = re.compile('Properties="{0,1}(.*?)"{0,1}(?: |$)', flags=0)
@@ -94,7 +94,7 @@ def checkStringDataFromUniverse(
 
 
 def checkStringDataFromHDF5(
-    stringData: StringIO,
+    stringData: "StringIO or FileIO",
     myUniverse: "h5py.Group",
     frameSlice: slice,
     allFramesProperty: str = None,
@@ -103,7 +103,7 @@ def checkStringDataFromHDF5(
 ):
     trajectory = myUniverse["Trajectory"]
     boxes = myUniverse["Box"]
-    lines = stringData.getvalue().splitlines()
+    lines = (stringData.getvalue() if type(stringData)is StringIO else stringData.read()).splitlines()
     types = myUniverse["Types"].asstr()
     nat = len(types)
 

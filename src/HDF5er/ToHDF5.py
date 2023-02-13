@@ -99,21 +99,24 @@ def MDA2HDF5(
             for key in attrs.keys():
                 trajGroup.attrs.create(key, attrs[key])
 
+import warnings
 
-# TODO: convert use exportChunk2HDF5
+
 def xyz2hdf5Converter(xyzName: str, boxfilename: str, group: h5py.Group):
     """Generate an HDF5 trajectory from an xyz file and a box file
 
         This function reads an xyz file with ase and then export it to an trajectory in and hdf5 file,
         the user should pass the group within the hdf5file to this function
 
-        **NB**: this is "legacy code", use with caution
+        **NB**: this is untested "legacy code", use with caution
 
     Args:
         xyzName (str): the filename of the xyz trajaectory
         boxfilename (str): the filename of the  per frame box dimensions
         group (h5py.Group): the group within the hdf5 file where the trajectroy will be saved
     """
+    # TODO: convert use exportChunk2HDF5
+    warnings.warn('this is untested "legacy code", use with caution',PendingDeprecationWarning)
     frame = aseRead(xyzName)
     nat = len(frame.get_positions())
     if "Types" not in list(group.keys()):

@@ -100,6 +100,29 @@ def test_copyMDA2HDF52xyz(input_framesSlice, input_CreateParametersToExport, hdf
             stringData, group, input_framesSlice, **additionalParameters
         )
 
+def test_writeMDA2HDF52xyz(tmp_path_factory,input_framesSlice, input_CreateParametersToExport, hdf5_file):
+    
+    testFname = hdf5_file[0]
+    fourAtomsFiveFrames = hdf5_file[1]
+    additionalParameters = input_CreateParametersToExport(
+        frames=len(fourAtomsFiveFrames.trajectory),
+        nat=len(fourAtomsFiveFrames.atoms),
+        frameSlice=input_framesSlice,
+    )
+    print(str(testFname), type(testFname))
+    outFname=tmp_path_factory.mktemp( "tempXYZ" )/ testFname.name.replace(".hdf5",".xyz")
+    with h5py.File(testFname, "r") as hdf5test:
+        group = hdf5test["Trajectories/4Atoms5Frames"]
+        print("Box", group["Box"][:])
+        
+        HDF5er.saveXYZfromTrajGroup(
+            outFname, group, framesToExport=input_framesSlice, **additionalParameters
+        )
+        with open(outFname, "r") as file:
+            checkStringDataFromHDF5(
+            file, group, input_framesSlice, **additionalParameters
+        )  
+
 
 def test_copyMDA2HDF52xyzAllFrameProperty(input_framesSlice, tmp_path):
     angles = (75.0, 60.0, 90.0)
