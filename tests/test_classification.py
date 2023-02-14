@@ -102,7 +102,6 @@ def test_savingAndLoadingReferences(tmp_path_factory, referencesTest):
 
 
 def test_distance(nMaxFixture, lMaxFixture):
-
     rng = numpy.random.default_rng(12345)
     dataSize = rng.integers(10, 100)
     spSize = max(dataSize // nMaxFixture, 1)
@@ -167,7 +166,6 @@ def test_distanceFromRefs(getReferencesConfs, referencesTest):
 
 
 def test_classifyShortcut(getReferencesConfs, referencesTest):
-
     referenceDict, _ = referencesTest
     k = "ico923_6"
     with h5py.File(getReferencesConfs, "r") as f:

@@ -329,7 +329,6 @@ def test_overrideOutput(tmp_path):
             useSoapFrom="dscribe",
         )
         for SOAPoutDataset in soapGroup:
-
             assert "centersIndexes" not in soapGroup[SOAPoutDataset].attrs
 
 

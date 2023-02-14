@@ -68,7 +68,6 @@ def checkStringDataFromUniverse(
     perFrameProperties: list = None,
     **passedValues,
 ):
-
     universe = myUniverse.universe
     atoms = myUniverse.atoms
     types = myUniverse.atoms.types
@@ -103,7 +102,9 @@ def checkStringDataFromHDF5(
 ):
     trajectory = myUniverse["Trajectory"]
     boxes = myUniverse["Box"]
-    lines = (stringData.getvalue() if type(stringData)is StringIO else stringData.read()).splitlines()
+    lines = (
+        stringData.getvalue() if type(stringData) is StringIO else stringData.read()
+    ).splitlines()
     types = myUniverse["Types"].asstr()
     nat = len(types)
 

@@ -229,7 +229,6 @@ def getReferencesConfs(tmp_path_factory):
 
 @pytest.fixture(scope="session")
 def referencesTest(tmp_path_factory, getReferencesConfs):
-
     FramesRequest = dict(
         ico923_6={
             "v_5f_ih": (0, 566),
