@@ -5,7 +5,6 @@ from numpy.testing import assert_array_equal
 import h5py
 import HDF5er
 from .testSupport import getUniverseWithWaterMolecules
-import pytest
 
 
 @pytest.fixture(
@@ -17,6 +16,26 @@ import pytest
 )
 def fixture_AtomMask(request):
     return request.param
+
+
+def test_FeedingSaponifyANonTrajGroups(tmp_path):
+    fname = tmp_path / "wrongFIle.hdf5"
+    with h5py.File(fname, "w") as f:
+        f.create_group("Trajectories/notTraj")
+    with pytest.raises(ValueError):
+        n_max = 4
+        l_max = 4
+        rcut = 10.0
+        with h5py.File(fname, "a") as f:
+            soapGroup = f.require_group("SOAP")
+            trajGroup = f["Trajectories/notTraj"]
+            SOAPify.saponify(
+                trajGroup,
+                soapGroup,
+                rcut,
+                n_max,
+                l_max,
+            )
 
 
 def test_MultiAtomicSoapify(fixture_AtomMask, engineKind_fixture, tmp_path):
@@ -249,3 +268,105 @@ def test_MultiAtomicSoapkwargs(tmp_path):
         assert_array_equal(
             soapGroup["testH2O"].attrs["centersIndexes"], [i * 3 for i in range(nMol)]
         )
+
+
+def test_overrideOutput(tmp_path):
+    nMol = 27
+    u = getUniverseWithWaterMolecules(nMol)
+    fname = f"testH2O_override.hdf5"
+    fname = tmp_path / fname
+    HDF5er.MDA2HDF5(u, fname, "testH2O", override=True)
+    n_max = 4
+    l_max = 4
+    rcut = 10.0
+    with h5py.File(fname, "a") as f:
+        soapGroup = f.require_group("SOAP")
+        SOAPatomMask = [0, 1]
+        SOAPify.saponifyGroup(
+            f["Trajectories"],
+            soapGroup,
+            rcut,
+            n_max,
+            l_max,
+            useSoapFrom="dscribe",
+            centersMask=SOAPatomMask,
+        )
+        for SOAPoutDataset in soapGroup:
+            for i in SOAPatomMask:
+                assert i in soapGroup[SOAPoutDataset].attrs["centersIndexes"]
+        SOAPatomMask = ["O"]
+        with pytest.raises(ValueError):
+            # raise exception if the user does not ask explicitly to override
+            SOAPify.saponifyGroup(
+                f["Trajectories"],
+                soapGroup,
+                rcut,
+                n_max,
+                l_max,
+                useSoapFrom="dscribe",
+                SOAPatomMask=SOAPatomMask,
+            )
+        SOAPify.saponifyGroup(
+            f["Trajectories"],
+            soapGroup,
+            rcut,
+            n_max,
+            l_max,
+            useSoapFrom="dscribe",
+            SOAPatomMask=SOAPatomMask,
+            doOverride=True,
+        )
+        for SOAPoutDataset in soapGroup:
+            for i in [j for j in range(len(u.atoms)) if u.atoms.names[j] == "O"]:
+                assert i in soapGroup[SOAPoutDataset].attrs["centersIndexes"]
+        return
+        SOAPify.saponifyGroup(
+            f["Trajectories"],
+            soapGroup,
+            rcut,
+            n_max,
+            l_max,
+            useSoapFrom="dscribe",
+        )
+        for SOAPoutDataset in soapGroup:
+            assert "centersIndexes" not in soapGroup[SOAPoutDataset].attrs
+
+
+def test_MathSOAP():
+    rng = numpy.random.default_rng(12345)
+
+    for i in range(5):
+        size = rng.integers(2, 150)
+        x = rng.random((size,))
+        y = rng.random((size,))
+        print(x, y)
+        sks = SOAPify.simpleKernelSoap(x, y)
+        numpy.testing.assert_almost_equal(
+            sks,
+            numpy.dot(x, y) / (numpy.linalg.norm(x) * numpy.linalg.norm(y)),
+            decimal=8,
+        )
+        numpy.testing.assert_almost_equal(
+            SOAPify.SOAPdistanceNormalized(
+                x / numpy.linalg.norm(x), y / numpy.linalg.norm(y)
+            ),
+            numpy.sqrt(2.0 - 2.0 * sks),
+            decimal=8,
+        )
+        numpy.testing.assert_almost_equal(
+            SOAPify.simpleSOAPdistance(x, y),
+            numpy.sqrt(2.0 - 2.0 * sks),
+            decimal=8,
+        )
+        for n in range(2, 10):
+            nks = SOAPify.KernelSoap(x, y, n)
+            numpy.testing.assert_almost_equal(
+                nks,
+                (numpy.dot(x, y) / (numpy.linalg.norm(x) * numpy.linalg.norm(y))) ** n,
+                decimal=8,
+            )
+            numpy.testing.assert_almost_equal(
+                SOAPify.SOAPdistance(x, y, n),
+                numpy.sqrt(2.0 - 2.0 * nks),
+                decimal=8,
+            )

@@ -3,7 +3,9 @@ from SOAPify import getSoapEngine
 import numpy
 from numpy.testing import assert_array_equal
 from ase.data import atomic_numbers
+import ase.build as aseBuild
 import pytest
+from .testSupport import getUniverseWithWaterMolecules
 
 
 def getNMax(SOAPengine):
@@ -67,6 +69,42 @@ def test_askEngine(engineKind_fixture, species_fixture, nMaxFixture, lMaxFixture
             prev = next
 
 
+@pytest.fixture(scope="module", params=[1, 4])
+def timestepsFix(request):
+    return request.param
+
+
+def test_workEngine(engineKind_fixture, nMaxFixture, lMaxFixture, timestepsFix):
+    # No centermask
+    import ase
+
+    fcc: ase.Atoms = aseBuild.bulk("Au", "fcc", a=4.07, cubic=True) * (2, 2, 2)
+
+    SOAPrcut = 5.0
+    n_max = nMaxFixture
+    l_max = lMaxFixture
+
+    engine = getSoapEngine(
+        atomNames=fcc.symbols,
+        SOAPrcut=SOAPrcut,
+        SOAPnmax=n_max,
+        SOAPlmax=l_max,
+        SOAPatomMask=None,
+        centersMask=None,
+        SOAP_respectPBC=True,
+        SOAPkwargs={},
+        useSoapFrom=engineKind_fixture,
+    )
+
+    fccT = [fcc] * timestepsFix if timestepsFix != 1 else fcc
+    soap = engine(fccT)
+    assert isinstance(soap, numpy.ndarray)
+    print(soap.shape)
+    assert soap.shape[0] == timestepsFix
+    assert soap.shape[1] == len(fcc.symbols)
+    assert soap.shape[2] == engine.features
+
+
 def test_askEngine_notImplemented():
     species = ["O"]
     nMol = 27
@@ -92,6 +130,7 @@ def test_askEngine_notImplemented():
 
 def test_askEngine_fails(engineKind_fixture, species_fixture, nMaxFixture, lMaxFixture):
     nMol = 27
+
     SOAPrcut = 10.0
     n_max = nMaxFixture
     l_max = lMaxFixture

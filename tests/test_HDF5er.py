@@ -1,6 +1,7 @@
 import HDF5er
 import h5py
 import numpy
+from numpy.testing import assert_array_almost_equal
 
 
 def test_istTrajectoryGroupCheck(tmp_path):
@@ -70,11 +71,11 @@ def test_MDA2HDF5(input_framesSlice, input_universe, tmp_path):
                         - fourAtomsFiveFrames.atoms.positions[atomID, coord]
                         < 1e-8
                     )
-            for original, control in zip(
-                fourAtomsFiveFrames.dimensions, group["Box"][i]
-            ):
-                print(i, original, control)
-                assert (original - float(control)) < 1e-7
+            assert_array_almost_equal(
+                group["Box"][i][:], fourAtomsFiveFrames.dimensions
+            )
+            print(i, group["Box"][i][:], fourAtomsFiveFrames.dimensions)
+        print(group["Box"].shape, group["Trajectory"].chunks)
 
 
 def test_MDA2HDF5Box(input_universe, tmp_path):

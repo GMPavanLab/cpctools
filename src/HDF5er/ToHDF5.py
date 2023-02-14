@@ -1,4 +1,5 @@
 import h5py
+import numpy
 from MDAnalysis import Universe as mdaUniverse, AtomGroup as mdaAtomGroup
 from ase.io import iread as aseIRead
 from ase.io import read as aseRead
@@ -33,11 +34,17 @@ def Universe2HDF5(
             compression="gzip",
             chunks=(trajChunkSize, nat, 3),
             maxshape=(None, nat, 3),
+            # dtype=numpy.float64,
         )
 
     if "Box" not in list(trajFolder.keys()):
         trajFolder.create_dataset(
-            "Box", (0, 6), compression="gzip", chunks=True, maxshape=(None, 6)
+            "Box",
+            (0, 6),
+            compression="gzip",
+            chunks=True,
+            maxshape=(None, 6),
+            # dtype=numpy.float64,
         )
 
     frameNum = 0
@@ -93,20 +100,28 @@ def MDA2HDF5(
                 trajGroup.attrs.create(key, attrs[key])
 
 
-# TODO: convert use exportChunk2HDF5
-def xyz2hdf5Converter(xyzName: str, boxfilename: str, group: h5py.Group):
+import warnings
+
+
+def xyz2hdf5Converter(
+    xyzName: str, boxfilename: str, group: h5py.Group
+):  # pragma: no cover
     """Generate an HDF5 trajectory from an xyz file and a box file
 
         This function reads an xyz file with ase and then export it to an trajectory in and hdf5 file,
         the user should pass the group within the hdf5file to this function
 
-        **NB**: this is "legacy code", use with caution
+        **NB**: this is "legacy code" **not covered by unit tests**, use with caution
 
     Args:
         xyzName (str): the filename of the xyz trajaectory
         boxfilename (str): the filename of the  per frame box dimensions
         group (h5py.Group): the group within the hdf5 file where the trajectroy will be saved
     """
+    # TODO: convert use exportChunk2HDF5
+    warnings.warn(
+        'this is untested "legacy code", use with caution', PendingDeprecationWarning
+    )
     frame = aseRead(xyzName)
     nat = len(frame.get_positions())
     if "Types" not in list(group.keys()):
@@ -120,10 +135,16 @@ def xyz2hdf5Converter(xyzName: str, boxfilename: str, group: h5py.Group):
             compression="gzip",
             chunks=(10, nat, 3),
             maxshape=(None, nat, 3),
+            # dtype=numpy.float64,
         )
     if "Box" not in list(group.keys()):
         group.create_dataset(
-            "Box", (0, 6), compression="gzip", chunks=True, maxshape=(None, 6)
+            "Box",
+            (0, 6),
+            compression="gzip",
+            chunks=True,
+            maxshape=(None, 6),
+            # dtype=numpy.float64,
         )
     xyz = aseIRead(xyzName)
     with open(boxfilename, "r") as bf:
@@ -133,7 +154,7 @@ def xyz2hdf5Converter(xyzName: str, boxfilename: str, group: h5py.Group):
         atomicframes = []
         for box, frame in zip(bf, xyz):
             t = box.split()
-            boxInfo = np.array(
+            boxInfo = numpy.array(
                 [float(t[0]), float(t[1]), float(t[2]), 90.0, 90.0, 90.0]
             )
             boxes.append(boxInfo)
