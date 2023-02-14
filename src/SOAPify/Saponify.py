@@ -125,7 +125,7 @@ def _applySOAP(
             compression_opts=9,
             chunks=(SOAPOutputChunkDim, nCenters, NofFeatures),
             maxshape=(None, nCenters, NofFeatures),
-            # dtype=numpy.float64,
+            dtype=numpy.float64,
         )
     SOAPout = SOAPoutContainer[key]
     SOAPout.resize((len(trajContainer["Trajectory"]), nCenters, NofFeatures))
