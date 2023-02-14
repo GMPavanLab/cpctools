@@ -43,18 +43,57 @@ def test_norm3D():
     )
 
 
-def test_Saving_loadingOfSOAPreferences(tmp_path):
-    refFile = tmp_path / "refSave.hdf5"
-    a = SOAPReferences(["a", "b"], numpy.array([[0, 0], [1, 1]]), 4, 8)
-    SOAPify.saveReferences(h5py.File(refFile, "w"), "testRef", a)
-    with h5py.File(refFile, "r") as saved:
-        bk = SOAPify.getReferencesFromDataset(saved["testRef"])
-        assert len(a) == len(bk)
-        assert_array_equal(bk.spectra, a.spectra)
-        for i, j in zip(a.names, bk.names):
-            assert i == j
-        assert a.nmax == bk.nmax
-        assert a.lmax == bk.lmax
+def test_normalizeMatrix():
+    # this forces the test with an empy row
+    mat = numpy.array([[0.0, 0.0, 0.0], [5.0, 5.0, 0.0], [4.0, 0.0, 0.0]])
+    numpy.testing.assert_array_almost_equal(
+        SOAPify.normalizeMatrix(mat),
+        numpy.array([[0.0, 0.0, 0.0], [0.5, 0.5, 0.0], [1.0, 0.0, 0.0]]),
+    )
+    rng = numpy.random.default_rng(12345)
+    for i in range(5):
+        size = rng.integers(2, 152)
+        newMat = rng.random((size, size))
+        testMat = newMat.copy()
+        newMatNorm = SOAPify.normalizeMatrix(newMat)
+
+        numpy.testing.assert_array_almost_equal(testMat, newMat)
+        for row in range(newMatNorm.shape[0]):
+            sum = numpy.sum(newMatNorm[row, :])
+            if sum != 0.0:
+                numpy.testing.assert_approx_equal(sum, 1.0, 8)
+
+
+@pytest.fixture(
+    scope="module",
+    params=[-1, 0, 1],
+)
+def shiftFixture(request):
+    return request.param
+
+
+nshift = shiftFixture
+lshift = shiftFixture
+
+
+def test_concatenationSOAPreferencesCompatibility(
+    nshift, lshift, lMaxFixture, nMaxFixture
+):
+    # lmax fixture can be 0, whit lshift -1 goes under 0, that is not  "matematically sensed",
+    # but this only tests if nmax and lmax are equal in the merge references, and not if the vectors are senses
+    a = SOAPReferences(["a", "b"], [[0, 0], [1, 1]], nMaxFixture, lMaxFixture)
+    b = SOAPReferences(
+        ["c", "d"], [[2, 2], [3, 3]], nMaxFixture + nshift, lMaxFixture + lshift
+    )
+    if lshift == 0 and nshift == 0:
+        # this must not throw!
+        try:
+            SOAPify.mergeReferences(a, b)
+        except ValueError:
+            pytest.fail("nmax and lmax are not changed: should not throw")
+        return
+    with pytest.raises(ValueError):
+        SOAPify.mergeReferences(a, b)
 
 
 @pytest.fixture(
@@ -161,6 +200,20 @@ def test_fillSOAPVectorFromdscribeArrayOfVector(nMaxFixture, lMaxFixture):
                     limited += 1
 
 
+def test_fillSOAPVectorFromdscribeArrayOfVector_wrongerrors(nMaxFixture, lMaxFixture):
+    nmax = nMaxFixture
+    lmax = lMaxFixture
+    expectedSize = (lmax + 1) * (nmax + 1) * nmax // 2
+    # wrong lmax/nmax
+    a = randint(0, 10, size=(5, 1 + expectedSize))
+    with pytest.raises(Exception):
+        SOAPify.fillSOAPVectorFromdscribe(a, lmax, nmax)
+    # too much dimensions
+    a = randint(0, 10, size=(3, 4, 5, expectedSize))
+    with pytest.raises(Exception):
+        SOAPify.fillSOAPVectorFromdscribe(a, lmax, nmax)
+
+
 def test_fillSOAPVectorFromdscribeArrayOfVectorMultiSpecies(nMaxFixture, lMaxFixture):
     species = ["H", "O"]
 
@@ -234,8 +287,13 @@ def test_transitionMatrix(input_mockedTrajectoryClassification):
 
     tmat = SOAPify.transitionMatrixFromSOAPClassification(data, stride=stride)
     assert tmat.shape[0] == len(data.legend)
-
     assert_array_equal(tmat, expectedTmat)
+
+    tmatNorm = SOAPify.transitionMatrixFromSOAPClassificationNormalized(
+        data, stride=stride
+    )
+    assert tmatNorm.shape[0] == len(data.legend)
+    assert_array_equal(tmatNorm, SOAPify.normalizeMatrix(expectedTmat))
 
 
 def test_residenceTime(input_mockedTrajectoryClassification):
@@ -316,7 +374,9 @@ def test_transitionMatrixFromTracking(input_mockedTrajectoryClassification):
         data, stride=1, statesTracker=events
     )
     expectedTmat = SOAPify.transitionMatrixFromSOAPClassification(data, stride=1)
+    standardTmat = SOAPify.calculateTransitionMatrix(data, stride=1)
     assert_array_equal(transitionMatrixFromTracking, expectedTmat)
+    assert_array_equal(standardTmat, expectedTmat)
     assert isinstance(events[0], list)
 
 

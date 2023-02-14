@@ -272,7 +272,6 @@ def fillSOAPVectorFromdscribe(
         l_max, n_max, atomTypes, atomicSlices
     )
     if len(soapFromdscribe.shape) == 1:
-
         return soapFromdscribe[indexes]
     elif len(soapFromdscribe.shape) == 2:
         return soapFromdscribe[:, indexes]

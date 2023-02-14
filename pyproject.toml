@@ -16,11 +16,11 @@ classifiers = [
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
 ]
-dependencies = ["ase", "mdanalysis", "h5py", "seaborn"]
+dependencies = ["ase", "mdanalysis", "h5py", "seaborn", "Deprecated"]
 dynamic = ["version"]
 #[project.optional-dependencies]
 #dscribe = ["dscribe==1.2.1"]
-#quippy = ["quippy-ase"]
+#quippy = ["quippy-ase==0.9.10"]
 
 [project.urls]
 Homepage = "https://github.com/GMPavanLab/SOAPify"
@@ -51,7 +51,7 @@ extra-dependencies = [
     "pytest",
     "pytest-cov",
     "dscribe >1.2.0, <=1.2.2",
-    "quippy-ase",
+    "quippy-ase==0.9.10",
 ]
 
 [tool.hatch.envs.test.scripts]
@@ -75,7 +75,7 @@ extra-dependencies = [
     "sphinx-autodoc-typehints",
 
     "dscribe >1.2.0, <=1.2.2",
-    "quippy-ase",
+    "quippy-ase==0.9.10",
 ]
 
 [tool.hatch.envs.docs.scripts]

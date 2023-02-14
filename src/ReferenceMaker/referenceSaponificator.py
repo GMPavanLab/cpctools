@@ -207,7 +207,6 @@ def referenceSaponificator(
         kind (str): the prefix of the data files that will be used as base for calculating the SOAP fingerprints
     """
     with h5py.File(referencesFileName, "a") as referenceFile:
-
         for rcut in rcuts:
             outgroup = referenceFile.require_group(f"Bulk/{rcut.name}")
             outgroup.attrs["rcutName"] = rcut.name

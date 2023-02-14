@@ -2,6 +2,7 @@ from .SOAPClassify import SOAPclassification
 import numpy as np
 
 
+# TODO add stride/window selection
 def transitionMatrixFromSOAPClassification(
     data: SOAPclassification, stride: int = 1
 ) -> "np.ndarray[float]":
@@ -23,7 +24,10 @@ def transitionMatrixFromSOAPClassification(
     nat = len(data.references[0])
 
     nclasses = len(data.legend)
-    transMat = np.zeros((nclasses, nclasses), np.dtype(float))
+    transMat = np.zeros(
+        (nclasses, nclasses),
+        # dtype=np.float64,
+    )
 
     for frameID in range(stride, nframes, 1):
         for atomID in range(0, nat):
@@ -44,13 +48,15 @@ def normalizeMatrix(transMat: "np.ndarray[float]") -> "np.ndarray[float]":
     Returns:
         np.ndarray[float]: the normalized matrix of the transitions
     """
+    toRet = transMat.copy()
     for row in range(transMat.shape[0]):
-        sum = np.sum(transMat[row, :])
+        sum = np.sum(toRet[row, :])
         if sum != 0:
-            transMat[row, :] /= sum
-    return transMat
+            toRet[row, :] /= sum
+    return toRet
 
 
+# TODO add stride/window selection
 def transitionMatrixFromSOAPClassificationNormalized(
     data: SOAPclassification, stride: int = 1
 ) -> "np.ndarray[float]":
@@ -85,7 +91,7 @@ def _createStateTracker(
     return np.array([prevState, curState, endState, eventTime], dtype=int)
 
 
-# TODO add stride here
+# TODO add stride/window here
 def trackStates(classification: SOAPclassification) -> list:
     nofFrames = classification.references.shape[0]
     nofAtoms = classification.references.shape[1]
@@ -185,10 +191,12 @@ def transitionMatrixFromStateTracker(statesTracker: list, legend: list) -> np.nd
     states = RemoveAtomIdentityFromEventTracker(statesTracker)
 
     nclasses = len(legend)
-    transMat = np.zeros((nclasses, nclasses), np.dtype(float))
+    transMat = np.zeros(
+        (nclasses, nclasses),
+        # dtype=np.float64,
+    )
     # print(len(states), states[0], file=sys.stderr)
     for event in states:
-
         transMat[event[TRACK_CURSTATE], event[TRACK_CURSTATE]] += (
             event[TRACK_EVENTTIME] - 1
         )
@@ -200,6 +208,7 @@ def transitionMatrixFromStateTracker(statesTracker: list, legend: list) -> np.nd
     return transMat
 
 
+# TODO add stride/window selection
 def calculateTransitionMatrix(
     data: SOAPclassification, stride: int = 1, statesTracker: list = None
 ) -> np.ndarray:

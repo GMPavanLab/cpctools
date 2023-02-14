@@ -4,6 +4,7 @@ import numpy as np
 from .SOAPbase import SOAPdistance, SOAPdistanceNormalized
 from .utils import fillSOAPVectorFromdscribe, normalizeArray
 from dataclasses import dataclass
+from deprecated.sphinx import deprecated
 
 
 @dataclass
@@ -23,7 +24,7 @@ class SOAPReferences:
     """
 
     names: "list[str]"  #: stores the names of the references
-    spectra: "np.ndarray[float]"  #: stores the SOAP vector of the references
+    spectra: "np.ndarray[np.float64]"  #: stores the SOAP vector of the references
     lmax: int
     nmax: int
 
@@ -34,145 +35,6 @@ class SOAPReferences:
             int: the number of stored spectra
         """
         return len(self.names)
-
-
-def classifyWithSOAP(
-    SOAPTrajData: h5py.Dataset, hdf5FileReference: h5py.File, referenceAddresses: list
-) -> SOAPclassification:
-    """classifies all atoms in a system, given the precalculated set of SOAP fingerprints, and the references.
-
-    Args:
-        SOAPTrajData (h5py.Dataset): The hdf5 dataset that contaisn the SOAP fingerprints
-        hdf5FileReference (h5py.File): the hdf5 file that contains the references
-        referenceAddresses (list): a list of the addresses of the references and\/or of the groups that contain the references in hdf5FileReference
-
-    Returns:
-        SOAPclassification: the information of the whole trajectory divided frame by frame and atom by atom, along with the legend
-    """
-    spectra, legend = loadRefs(hdf5FileReference, referenceAddresses)
-    nframes = SOAPTrajData.shape[0]
-    nat = SOAPTrajData.shape[1]
-    distances = np.zeros((nframes, nat), np.dtype(float))
-    references = np.zeros((nframes, nat), np.dtype(int))
-    n = 0
-    # nchunks=len(T1.iter_chunks())
-    # TODO verify if this loop can be parallelized
-    for chunk in SOAPTrajData.iter_chunks():
-        print(f"working on chunk {n}, {chunk}")
-        n += 1
-        for chunkID, frame in enumerate(SOAPTrajData[chunk]):
-            frameID = chunk[0].start + chunkID
-            for atomID, atom in enumerate(frame):
-                distances[frameID, atomID] = 1000.0
-                references[frameID, atomID] = -1
-                for j in range(len(spectra)):
-                    try:
-                        tdist = SOAPdistance(atom, spectra[j])
-                        if tdist < distances[frameID, atomID]:
-                            distances[frameID, atomID] = tdist
-                            references[frameID, atomID] = j
-                    except:
-                        print(f"at {j}:")
-                        print(f"spectra: {spectra[j]}")
-                        print(f"atom: {atomID}")
-    return SOAPclassification(distances, references, legend)
-
-
-def loadRefs(
-    hdf5FileReference: h5py.File, referenceAddresses: list
-) -> "tuple[np.ndarray[float],list[str]]":
-    """loads the references given in referenceAddresses from an hdf5 file
-
-    Args:
-        hdf5FileReference (h5py.File): the hdf5 file that contains the references
-        referenceAddresses (list): a list of the addresses of the references and/or
-        of the groups that contain the references in hdf5FileReference
-    Returns:
-        tuple[np.ndarray[float],list[str]]: returns a tuple with the fingerprint and the relative names of the references
-    """
-    spectra = []  # np.zeros((0, 0), dtype=np.dtype(float))
-    legend = []
-    for address in referenceAddresses:
-        data = hdf5FileReference[address]
-        if isinstance(data, h5py.Group):
-            for refName in data.keys():
-                dataset = hdf5FileReference[f"{address}/{refName}"]
-                legend.append(refName)
-                spectra.append(np.mean(dataset[:], axis=0))
-
-        elif isinstance(data, h5py.Dataset):
-            legend.append(data.name.rsplit("/")[-1])
-            spectra.append(np.mean(data[:], axis=0))
-        else:
-            print(
-                f"loadRefs cannot create a reference from given input: repr={repr(data)}"
-            )
-            exit(255)
-    spectra = np.array(spectra)
-    return spectra, legend
-
-
-def mergeReferences(*x: SOAPReferences) -> SOAPReferences:
-    """Merges a list of `SOAPReferences` into a single object
-
-    Raises:
-        ValueError: if the lmax and the nmax of the references are not the same
-
-    Returns:
-        SOAPReferences: a new `SOAPReferences` that contains the concatenated list of references
-    """
-    names = []
-    for i in x:
-        names += i.names
-        if x[0].nmax != i.nmax or x[0].lmax != i.lmax:
-            raise ValueError("nmax or lmax are not the same in the two references")
-    return SOAPReferences(
-        names,
-        np.concatenate([i.spectra for i in x]),
-        nmax=x[0].nmax,
-        lmax=x[0].lmax,
-    )
-
-
-def saveReferences(
-    h5position: "h5py.Group|h5py.File", targetDatasetName: str, refs: SOAPReferences
-):
-    """Export the given references in the indicated group/hdf5 file
-
-    Args:
-        h5position (h5py.Group|h5py.File): The file object of the group where to save the references
-        targetDatasetName (str): the name to give to the list of references
-        refs (SOAPReferences): the `SOAPReferences` object to be exported
-    """
-    whereToSave = h5position.require_dataset(
-        targetDatasetName,
-        shape=refs.spectra.shape,
-        dtype=refs.spectra.dtype,
-        compression="gzip",
-        compression_opts=9,
-    )
-    whereToSave[:] = refs.spectra
-    whereToSave.attrs.create("nmax", refs.nmax)
-    whereToSave.attrs.create("lmax", refs.lmax)
-    whereToSave.attrs.create("names", refs.names)
-
-
-def getReferencesFromDataset(dataset: h5py.Dataset) -> SOAPReferences:
-    """Given a `h5py.Dataset` returns a `SOAPReferences` with the initializated data
-
-        TODO: check if the dataset contains the needed references
-
-    Args:
-        dataset (h5py.Dataset): the dataset with the references
-
-    Returns:
-        SOAPReferences: the prepared references container
-    """
-    fingerprints = dataset[:]
-    names = dataset.attrs["names"].tolist()
-    lmax = dataset.attrs["lmax"]
-    nmax = dataset.attrs["nmax"]
-    return SOAPReferences(names=names, spectra=fingerprints, lmax=lmax, nmax=nmax)
 
 
 def createReferencesFromTrajectory(
@@ -286,6 +148,69 @@ def getDistancesFromRefNormalized(
     )
 
 
+def mergeReferences(*x: SOAPReferences) -> SOAPReferences:
+    """Merges a list of `SOAPReferences` into a single object
+
+    Raises:
+        ValueError: if the lmax and the nmax of the references are not the same
+
+    Returns:
+        SOAPReferences: a new `SOAPReferences` that contains the concatenated list of references
+    """
+    names = []
+    for i in x:
+        names += i.names
+        if x[0].nmax != i.nmax or x[0].lmax != i.lmax:
+            raise ValueError("nmax or lmax are not the same in the two references")
+    return SOAPReferences(
+        names,
+        np.concatenate([i.spectra for i in x]),
+        nmax=x[0].nmax,
+        lmax=x[0].lmax,
+    )
+
+
+def saveReferences(
+    h5position: "h5py.Group|h5py.File", targetDatasetName: str, refs: SOAPReferences
+):
+    """Export the given references in the indicated group/hdf5 file
+
+    Args:
+        h5position (h5py.Group|h5py.File): The file object of the group where to save the references
+        targetDatasetName (str): the name to give to the list of references
+        refs (SOAPReferences): the `SOAPReferences` object to be exported
+    """
+    whereToSave = h5position.require_dataset(
+        targetDatasetName,
+        shape=refs.spectra.shape,
+        dtype=refs.spectra.dtype,
+        compression="gzip",
+        compression_opts=9,
+    )
+    whereToSave[:] = refs.spectra
+    whereToSave.attrs.create("nmax", refs.nmax)
+    whereToSave.attrs.create("lmax", refs.lmax)
+    whereToSave.attrs.create("names", refs.names)
+
+
+def getReferencesFromDataset(dataset: h5py.Dataset) -> SOAPReferences:
+    """Given a `h5py.Dataset` returns a `SOAPReferences` with the initializated data
+
+        TODO: check if the dataset contains the needed references
+
+    Args:
+        dataset (h5py.Dataset): the dataset with the references
+
+    Returns:
+        SOAPReferences: the prepared references container
+    """
+    fingerprints = dataset[:]
+    names = dataset.attrs["names"].tolist()
+    lmax = dataset.attrs["lmax"]
+    nmax = dataset.attrs["nmax"]
+    return SOAPReferences(names=names, spectra=fingerprints, lmax=lmax, nmax=nmax)
+
+
 def classify(
     SOAPTrajData: h5py.Dataset,
     references: SOAPReferences,
@@ -310,12 +235,87 @@ def classify(
     return SOAPclassification(minimumDist, minimumDistID, references.names)
 
 
-if __name__ == "__main__":
-    import h5py
-    import numpy as np
+@deprecated(
+    version="0.0.3",
+    reason="now we have a easier and better way of classifying, use the SOAPReferences pipeline",
+)
+def loadRefs(
+    hdf5FileReference: h5py.File, referenceAddresses: list
+) -> "tuple[np.ndarray[float],list[str]]":  # pragma: no cover
+    """loads the references given in referenceAddresses from an hdf5 file
 
-    trajLoader = h5py.File("WaterSOAP__.hdf5", "r")
-    SOAPtraj = trajLoader["SOAP/1ns"]
-    refFile = h5py.File("ReferenceWater.hdf5", "r")
-    data = classifyWithSOAP(SOAPtraj, refFile, ["Waters/R10/tip4p2005", "Ices/R10"])
-    print(data)
+    Args:
+        hdf5FileReference (h5py.File): the hdf5 file that contains the references
+        referenceAddresses (list): a list of the addresses of the references and/or
+        of the groups that contain the references in hdf5FileReference
+    Returns:
+        tuple[np.ndarray[float],list[str]]: returns a tuple with the fingerprint and the relative names of the references
+    """
+    spectra = []  # np.zeros((0, 0), dtype=dtype=np.float64)
+    legend = []
+    for address in referenceAddresses:
+        data = hdf5FileReference[address]
+        if isinstance(data, h5py.Group):
+            for refName in data.keys():
+                dataset = hdf5FileReference[f"{address}/{refName}"]
+                legend.append(refName)
+                spectra.append(np.mean(dataset[:], axis=0))
+
+        elif isinstance(data, h5py.Dataset):
+            legend.append(data.name.rsplit("/")[-1])
+            spectra.append(np.mean(data[:], axis=0))
+        else:
+            print(
+                f"loadRefs cannot create a reference from given input: repr={repr(data)}"
+            )
+            exit(255)
+    spectra = np.array(spectra)
+    return spectra, legend
+
+
+@deprecated(
+    version="0.0.3",
+    reason="now we have a easier and better way of classifying, use the SOAPReferences pipeline",
+)
+def classifyWithSOAP(
+    SOAPTrajData: h5py.Dataset, hdf5FileReference: h5py.File, referenceAddresses: list
+) -> SOAPclassification:  # pragma: no cover
+    """classifies all atoms in a system, given the precalculated set of SOAP fingerprints, and the references.
+
+    Args:
+        SOAPTrajData (h5py.Dataset): The hdf5 dataset that contaisn the SOAP fingerprints
+        hdf5FileReference (h5py.File): the hdf5 file that contains the references
+        referenceAddresses (list): a list of the addresses of the references and\/or of the groups that contain the references in hdf5FileReference
+
+    Returns:
+        SOAPclassification: the information of the whole trajectory divided frame by frame and atom by atom, along with the legend
+    """
+    spectra, legend = loadRefs(hdf5FileReference, referenceAddresses)
+    nframes = SOAPTrajData.shape[0]
+    nat = SOAPTrajData.shape[1]
+    distances = np.zeros(
+        (nframes, nat),  # np.float64
+    )
+    references = np.zeros((nframes, nat), np.dtype(int))
+    n = 0
+    # nchunks=len(T1.iter_chunks())
+    # TODO verify if this loop can be parallelized
+    for chunk in SOAPTrajData.iter_chunks():
+        print(f"working on chunk {n}, {chunk}")
+        n += 1
+        for chunkID, frame in enumerate(SOAPTrajData[chunk]):
+            frameID = chunk[0].start + chunkID
+            for atomID, atom in enumerate(frame):
+                distances[frameID, atomID] = 1000.0
+                references[frameID, atomID] = -1
+                for j in range(len(spectra)):
+                    try:
+                        tdist = SOAPdistance(atom, spectra[j])
+                        if tdist < distances[frameID, atomID]:
+                            distances[frameID, atomID] = tdist
+                            references[frameID, atomID] = j
+                    except:
+                        print(f"at {j}:")
+                        print(f"spectra: {spectra[j]}")
+                        print(f"atom: {atomID}")
+    return SOAPclassification(distances, references, legend)

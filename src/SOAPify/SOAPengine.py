@@ -10,13 +10,13 @@ try:
     from dscribe.descriptors import SOAP as dscribeSOAP
 
     HAVE_DSCRIBE = True
-except ImportError:
+except ImportError:  # pragma: no cover
     HAVE_DSCRIBE = False
 try:
     from quippy.descriptors import Descriptor
 
     HAVE_QUIPPY = True
-except ImportError:
+except ImportError:  # pragma: no cover
     HAVE_QUIPPY = False
 
 KNOWNSOAPENGINES = Literal[
@@ -69,22 +69,22 @@ class SOAPengineContainer(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def features(self):  # pragma: no cover
+    def features(self) -> int:  # pragma: no cover
         pass
 
     @property
     @abc.abstractmethod
-    def nmax(self):  # pragma: no cover
+    def nmax(self) -> int:  # pragma: no cover
         pass
 
     @property
     @abc.abstractmethod
-    def lmax(self):  # pragma: no cover
+    def lmax(self) -> int:  # pragma: no cover
         pass
 
     @property
     @abc.abstractmethod
-    def rcut(self):  # pragma: no cover
+    def rcut(self) -> int:  # pragma: no cover
         pass
 
     @property
@@ -124,6 +124,7 @@ class dscribeSOAPengineContainer(SOAPengineContainer):
 
     @property
     def nmax(self):
+        # this will automatically produce a miss in the coverage, becasue I cannot have two different versions of dscribe installed at the same time
         if hasattr(self.SOAPengine, "_nmax"):
             return self.SOAPengine._nmax
         if hasattr(self.SOAPengine, "_n_max"):
@@ -131,6 +132,7 @@ class dscribeSOAPengineContainer(SOAPengineContainer):
 
     @property
     def lmax(self):
+        # this will automatically produce a miss in the coverage, becasue I cannot have two different versions of dscribe installed at the same time
         if hasattr(self.SOAPengine, "_lmax"):
             return self.SOAPengine._lmax
         if hasattr(self.SOAPengine, "_l_max"):
@@ -138,6 +140,7 @@ class dscribeSOAPengineContainer(SOAPengineContainer):
 
     @property
     def rcut(self):
+        # this will automatically produce a miss in the coverage, becasue I cannot have two different versions of dscribe installed at the same time
         if hasattr(self.SOAPengine, "_rcut"):
             return self.SOAPengine._rcut
         if hasattr(self.SOAPengine, "_r_cut"):
@@ -156,7 +159,10 @@ class dscribeSOAPengineContainer(SOAPengineContainer):
         return self.SOAPengine.get_location((specie1, specie2))
 
     def __call__(self, atoms, **kwargs):
-        return self.SOAPengine.create(atoms, **kwargs)
+        toret = self.SOAPengine.create(atoms, **kwargs)
+        if toret.ndim == 2:
+            return numpy.expand_dims(toret, axis=0)
+        return toret
 
 
 class quippySOAPengineContainer(SOAPengineContainer):
@@ -231,7 +237,7 @@ class quippySOAPengineContainer(SOAPengineContainer):
         toret = numpy.empty((len(atoms), nat, self.features))
         for i, frame in enumerate(atoms):
             toret[i] = self.SOAPengine.calc(frame)["data"][:, self._addresses]
-        return numpy.array(toret)
+        return toret
 
 
 def getSoapEngine(
@@ -287,7 +293,7 @@ def getSoapEngine(
 
     species = orderByZ(species)
     if useSoapFrom == "dscribe":
-        if not HAVE_DSCRIBE:
+        if not HAVE_DSCRIBE:  # pragma: no cover
             raise ImportError("dscribe is not installed in your current environment")
         mySOAPkwargs.update(
             dict(
@@ -306,7 +312,7 @@ def getSoapEngine(
             dscribeSOAP(**mySOAPkwargs), centersMask_, "dscribe"
         )
     elif useSoapFrom == "quippy":
-        if not HAVE_QUIPPY:
+        if not HAVE_QUIPPY:  # pragma: no cover
             raise ImportError("quippy-ase is not installed in your current environment")
         """//from quippy.module_descriptors <-
         ============================= ===== =============== ===================================================
