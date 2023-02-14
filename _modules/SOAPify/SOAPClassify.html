@@ -377,9 +377,7 @@
     <span class="n">spectra</span><span class="p">,</span> <span class="n">legend</span> <span class="o">=</span> <span class="n">loadRefs</span><span class="p">(</span><span class="n">hdf5FileReference</span><span class="p">,</span> <span class="n">referenceAddresses</span><span class="p">)</span>
     <span class="n">nframes</span> <span class="o">=</span> <span class="n">SOAPTrajData</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">nat</span> <span class="o">=</span> <span class="n">SOAPTrajData</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-    <span class="n">distances</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
-        <span class="p">(</span><span class="n">nframes</span><span class="p">,</span> <span class="n">nat</span><span class="p">),</span>  <span class="c1"># np.float64</span>
-    <span class="p">)</span>
+    <span class="n">distances</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nframes</span><span class="p">,</span> <span class="n">nat</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
     <span class="n">references</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nframes</span><span class="p">,</span> <span class="n">nat</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="nb">int</span><span class="p">))</span>
     <span class="n">n</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="c1"># nchunks=len(T1.iter_chunks())</span>

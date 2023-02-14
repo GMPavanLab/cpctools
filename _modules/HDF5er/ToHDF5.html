@@ -118,7 +118,7 @@
             <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">,</span>
             <span class="n">chunks</span><span class="o">=</span><span class="p">(</span><span class="n">trajChunkSize</span><span class="p">,</span> <span class="n">nat</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
             <span class="n">maxshape</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">nat</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
-            <span class="c1"># dtype=numpy.float64,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="k">if</span> <span class="s2">&quot;Box&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">trajFolder</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
@@ -128,7 +128,7 @@
             <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">,</span>
             <span class="n">chunks</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="n">maxshape</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span>
-            <span class="c1"># dtype=numpy.float64,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="n">frameNum</span> <span class="o">=</span> <span class="mi">0</span>
@@ -219,7 +219,7 @@
             <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">,</span>
             <span class="n">chunks</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">nat</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
             <span class="n">maxshape</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">nat</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
-            <span class="c1"># dtype=numpy.float64,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="k">if</span> <span class="s2">&quot;Box&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">group</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
         <span class="n">group</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span>
@@ -228,7 +228,7 @@
             <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">,</span>
             <span class="n">chunks</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="n">maxshape</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span>
-            <span class="c1"># dtype=numpy.float64,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="n">xyz</span> <span class="o">=</span> <span class="n">aseIRead</span><span class="p">(</span><span class="n">xyzName</span><span class="p">)</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">boxfilename</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">bf</span><span class="p">:</span>
