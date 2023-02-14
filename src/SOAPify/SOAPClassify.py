@@ -293,9 +293,7 @@ def classifyWithSOAP(
     spectra, legend = loadRefs(hdf5FileReference, referenceAddresses)
     nframes = SOAPTrajData.shape[0]
     nat = SOAPTrajData.shape[1]
-    distances = np.zeros(
-        (nframes, nat),  # np.float64
-    )
+    distances = np.zeros((nframes, nat), np.float64)
     references = np.zeros((nframes, nat), np.dtype(int))
     n = 0
     # nchunks=len(T1.iter_chunks())

@@ -34,7 +34,7 @@ def Universe2HDF5(
             compression="gzip",
             chunks=(trajChunkSize, nat, 3),
             maxshape=(None, nat, 3),
-            # dtype=numpy.float64,
+            dtype=numpy.float64,
         )
 
     if "Box" not in list(trajFolder.keys()):
@@ -44,7 +44,7 @@ def Universe2HDF5(
             compression="gzip",
             chunks=True,
             maxshape=(None, 6),
-            # dtype=numpy.float64,
+            dtype=numpy.float64,
         )
 
     frameNum = 0
@@ -135,7 +135,7 @@ def xyz2hdf5Converter(
             compression="gzip",
             chunks=(10, nat, 3),
             maxshape=(None, nat, 3),
-            # dtype=numpy.float64,
+            dtype=numpy.float64,
         )
     if "Box" not in list(group.keys()):
         group.create_dataset(
@@ -144,7 +144,7 @@ def xyz2hdf5Converter(
             compression="gzip",
             chunks=True,
             maxshape=(None, 6),
-            # dtype=numpy.float64,
+            dtype=numpy.float64,
         )
     xyz = aseIRead(xyzName)
     with open(boxfilename, "r") as bf:
