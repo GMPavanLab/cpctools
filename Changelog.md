@@ -7,6 +7,7 @@ Until we get to a release version you may encounter different broken interface p
 - Increased test coverage
 - Now if the box changes in a mda.Universe the ToHDF5 method saves it correctly
 - set quippy-ase compatibility to 0.9.10
+- Now tests prevents error in merging references
 
 [comment]: # (- Forced float64 precision in most of the calculations)
 
