@@ -24,7 +24,10 @@ def transitionMatrixFromSOAPClassification(
     nat = len(data.references[0])
 
     nclasses = len(data.legend)
-    transMat = np.zeros((nclasses, nclasses), dtype=np.float64)
+    transMat = np.zeros(
+        (nclasses, nclasses),
+        # dtype=np.float64,
+    )
 
     for frameID in range(stride, nframes, 1):
         for atomID in range(0, nat):
@@ -188,7 +191,10 @@ def transitionMatrixFromStateTracker(statesTracker: list, legend: list) -> np.nd
     states = RemoveAtomIdentityFromEventTracker(statesTracker)
 
     nclasses = len(legend)
-    transMat = np.zeros((nclasses, nclasses), dtype=np.float64)
+    transMat = np.zeros(
+        (nclasses, nclasses),
+        # dtype=np.float64,
+    )
     # print(len(states), states[0], file=sys.stderr)
     for event in states:
         transMat[event[TRACK_CURSTATE], event[TRACK_CURSTATE]] += (

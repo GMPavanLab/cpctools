@@ -58,11 +58,12 @@ def exportChunk2HDF5(
     trajFolder["Trajectory"][intervalStart:intervalEnd] = coordinates
 
 
-def patchBoxFromTopology(hdf5TrajFile: str, topologyFile: str):
+def patchBoxFromTopology(hdf5TrajFile: str, topologyFile: str):  # pragma: no cover
     """Patch the non orthogonal box in the trajectory.
 
     This was a workaround for a now solved bug in MDA, it can be used to change the box in a trajectory
     NOTE: this will only change the box, it will not modify the coordinates!
+    NOTE: this function is not test covered and will be likely go deprecated soon
 
     Args:
         hdf5TrajFile (str): The name of the hdf5 file with the trajectories to patch

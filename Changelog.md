@@ -5,9 +5,10 @@ Until we get to a release version you may encounter different broken interface p
 ## Changes since v0.0.4
 
 - Increased test coverage
-- Forced float64 precision in most of the calculations
 - Now if the box changes in a mda.Universe the ToHDF5 method saves it correctly
 - set quippy-ase compatibility to 0.9.10
+
+[comment]: # (- Forced float64 precision in most of the calculations)
 
 ## Changes since v0.0.3
 

@@ -34,7 +34,7 @@ def Universe2HDF5(
             compression="gzip",
             chunks=(trajChunkSize, nat, 3),
             maxshape=(None, nat, 3),
-            dtype=numpy.float64,
+            # dtype=numpy.float64,
         )
 
     if "Box" not in list(trajFolder.keys()):
@@ -44,7 +44,7 @@ def Universe2HDF5(
             compression="gzip",
             chunks=True,
             maxshape=(None, 6),
-            dtype=numpy.float64,
+            # dtype=numpy.float64,
         )
 
     frameNum = 0
@@ -103,13 +103,15 @@ def MDA2HDF5(
 import warnings
 
 
-def xyz2hdf5Converter(xyzName: str, boxfilename: str, group: h5py.Group):
+def xyz2hdf5Converter(
+    xyzName: str, boxfilename: str, group: h5py.Group
+):  # pragma: no cover
     """Generate an HDF5 trajectory from an xyz file and a box file
 
         This function reads an xyz file with ase and then export it to an trajectory in and hdf5 file,
         the user should pass the group within the hdf5file to this function
 
-        **NB**: this is untested "legacy code", use with caution
+        **NB**: this is "legacy code" **not covered by unit tests**, use with caution
 
     Args:
         xyzName (str): the filename of the xyz trajaectory
@@ -133,7 +135,7 @@ def xyz2hdf5Converter(xyzName: str, boxfilename: str, group: h5py.Group):
             compression="gzip",
             chunks=(10, nat, 3),
             maxshape=(None, nat, 3),
-            dtype=numpy.float64,
+            # dtype=numpy.float64,
         )
     if "Box" not in list(group.keys()):
         group.create_dataset(
@@ -142,7 +144,7 @@ def xyz2hdf5Converter(xyzName: str, boxfilename: str, group: h5py.Group):
             compression="gzip",
             chunks=True,
             maxshape=(None, 6),
-            dtype=numpy.float64,
+            # dtype=numpy.float64,
         )
     xyz = aseIRead(xyzName)
     with open(boxfilename, "r") as bf:

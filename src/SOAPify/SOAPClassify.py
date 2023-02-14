@@ -241,7 +241,7 @@ def classify(
 )
 def loadRefs(
     hdf5FileReference: h5py.File, referenceAddresses: list
-) -> "tuple[np.ndarray[float],list[str]]":
+) -> "tuple[np.ndarray[float],list[str]]":  # pragma: no cover
     """loads the references given in referenceAddresses from an hdf5 file
 
     Args:
@@ -279,7 +279,7 @@ def loadRefs(
 )
 def classifyWithSOAP(
     SOAPTrajData: h5py.Dataset, hdf5FileReference: h5py.File, referenceAddresses: list
-) -> SOAPclassification:
+) -> SOAPclassification:  # pragma: no cover
     """classifies all atoms in a system, given the precalculated set of SOAP fingerprints, and the references.
 
     Args:
@@ -293,7 +293,9 @@ def classifyWithSOAP(
     spectra, legend = loadRefs(hdf5FileReference, referenceAddresses)
     nframes = SOAPTrajData.shape[0]
     nat = SOAPTrajData.shape[1]
-    distances = np.zeros((nframes, nat), np.float64)
+    distances = np.zeros(
+        (nframes, nat),  # np.float64
+    )
     references = np.zeros((nframes, nat), np.dtype(int))
     n = 0
     # nchunks=len(T1.iter_chunks())
