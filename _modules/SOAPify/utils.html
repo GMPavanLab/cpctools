@@ -356,7 +356,6 @@
         <span class="n">l_max</span><span class="p">,</span> <span class="n">n_max</span><span class="p">,</span> <span class="n">atomTypes</span><span class="p">,</span> <span class="n">atomicSlices</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">soapFromdscribe</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-
         <span class="k">return</span> <span class="n">soapFromdscribe</span><span class="p">[</span><span class="n">indexes</span><span class="p">]</span>
     <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">soapFromdscribe</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">soapFromdscribe</span><span class="p">[:,</span> <span class="n">indexes</span><span class="p">]</span>

@@ -85,7 +85,7 @@
 <span></span><span class="kn">import</span> <span class="nn">h5py</span>
 <span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Iterable</span>
-
+<span class="kn">import</span> <span class="nn">numpy</span>
 
 <span class="kn">from</span> <span class="nn">HDF5er</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">HDF52AseAtomsChunckedwithSymbols</span> <span class="k">as</span> <span class="n">HDF2ase</span><span class="p">,</span>
@@ -116,10 +116,12 @@
     <span class="n">SOAPoutDataset</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;n_max&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">soapEngine</span><span class="o">.</span><span class="n">nmax</span>
     <span class="n">SOAPoutDataset</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;r_cut&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">soapEngine</span><span class="o">.</span><span class="n">rcut</span>
     <span class="n">SOAPoutDataset</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;species&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">soapEngine</span><span class="o">.</span><span class="n">species</span>
-    <span class="k">if</span> <span class="n">soapEngine</span><span class="o">.</span><span class="n">centersMask</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="s2">&quot;centersIndexes&quot;</span> <span class="ow">in</span> <span class="n">SOAPoutDataset</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
-            <span class="k">del</span> <span class="n">SOAPoutDataset</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;centersIndexes&quot;</span><span class="p">]</span>
-    <span class="k">else</span><span class="p">:</span>
+    <span class="c1"># this should not be needed, given how the preparation of the dataset works</span>
+    <span class="c1"># if soapEngine.centersMask is None:</span>
+    <span class="c1">#     if &quot;centersIndexes&quot; in SOAPoutDataset.attrs:</span>
+    <span class="c1">#         del SOAPoutDataset.attrs[&quot;centersIndexes&quot;]</span>
+    <span class="c1"># else:</span>
+    <span class="k">if</span> <span class="n">soapEngine</span><span class="o">.</span><span class="n">centersMask</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">SOAPoutDataset</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s2">&quot;centersIndexes&quot;</span><span class="p">,</span> <span class="n">soapEngine</span><span class="o">.</span><span class="n">centersMask</span><span class="p">)</span>
         <span class="c1"># print(centersMask)</span>
         <span class="c1"># print(SOAPoutDataset.attrs[&quot;centersIndexes&quot;])</span>
@@ -170,6 +172,7 @@
     <span class="n">soapEngine</span><span class="p">:</span> <span class="n">SOAPengineContainer</span><span class="p">,</span>
     <span class="n">SOAPOutputChunkDim</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
     <span class="n">SOAPnJobs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">doOverride</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;helper function: applies the soap engine to the given trajectory within the trajContainer</span>
 
@@ -180,6 +183,7 @@
 <span class="sd">        soapEngine (SOAPengineContainer): the contained of the soap engine</span>
 <span class="sd">        SOAPOutputChunkDim (int, optional): The chunk of trajectory that will be loaded in memory to be calculated, if key is a new dataset will also be the size of the main chunck of data of the SOAP dataset . Defaults to 100.</span>
 <span class="sd">        SOAPnJobs (int, optional): Number of concurrent SOAP calculations. Defaults to 1.</span>
+<span class="sd">        doOverride (bool, optional): if False will raise and exception if the user ask to override an already existing DataSet. Defaults to False.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">NofFeatures</span> <span class="o">=</span> <span class="n">soapEngine</span><span class="o">.</span><span class="n">features</span>
     <span class="n">symbols</span> <span class="o">=</span> <span class="n">trajContainer</span><span class="p">[</span><span class="s2">&quot;Types&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">asstr</span><span class="p">()[:]</span>
@@ -187,6 +191,16 @@
         <span class="nb">len</span><span class="p">(</span><span class="n">symbols</span><span class="p">)</span> <span class="k">if</span> <span class="n">soapEngine</span><span class="o">.</span><span class="n">centersMask</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="n">soapEngine</span><span class="o">.</span><span class="n">centersMask</span><span class="p">)</span>
     <span class="p">)</span>
 
+    <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">SOAPoutContainer</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">doOverride</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Are you sure that you want to override </span><span class="si">{</span><span class="n">SOAPoutContainer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">?&quot;</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># doOverride is True and key in SOAPoutContainer.keys():</span>
+            <span class="c1"># check if deleting the dataset is necessary:</span>
+            <span class="n">oldshape</span> <span class="o">=</span> <span class="n">SOAPoutContainer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span>
+            <span class="k">if</span> <span class="n">oldshape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">nCenters</span> <span class="ow">or</span> <span class="n">oldshape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">!=</span> <span class="n">NofFeatures</span><span class="p">:</span>
+                <span class="k">del</span> <span class="n">SOAPoutContainer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">SOAPoutContainer</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
         <span class="n">SOAPoutContainer</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span>
             <span class="n">key</span><span class="p">,</span>
@@ -195,6 +209,7 @@
             <span class="n">compression_opts</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span>
             <span class="n">chunks</span><span class="o">=</span><span class="p">(</span><span class="n">SOAPOutputChunkDim</span><span class="p">,</span> <span class="n">nCenters</span><span class="p">,</span> <span class="n">NofFeatures</span><span class="p">),</span>
             <span class="n">maxshape</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">nCenters</span><span class="p">,</span> <span class="n">NofFeatures</span><span class="p">),</span>
+            <span class="c1"># dtype=numpy.float64,</span>
         <span class="p">)</span>
     <span class="n">SOAPout</span> <span class="o">=</span> <span class="n">SOAPoutContainer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
     <span class="n">SOAPout</span><span class="o">.</span><span class="n">resize</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">trajContainer</span><span class="p">[</span><span class="s2">&quot;Trajectory&quot;</span><span class="p">]),</span> <span class="n">nCenters</span><span class="p">,</span> <span class="n">NofFeatures</span><span class="p">))</span>
@@ -220,6 +235,7 @@
     <span class="n">SOAP_respectPBC</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">SOAPkwargs</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(),</span>
     <span class="n">useSoapFrom</span><span class="p">:</span> <span class="n">KNOWNSOAPENGINES</span> <span class="o">=</span> <span class="s2">&quot;dscribe&quot;</span><span class="p">,</span>
+    <span class="n">doOverride</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;From a trajectory stored in a group calculates and stores the SOAP</span>
 <span class="sd">    descriptor in the given group/file</span>
@@ -239,7 +255,7 @@
 <span class="sd">        SOAP_respectPBC (bool, optional): Determines whether the system is considered to be periodic (option passed to the desired SOAP engine). Defaults to True.</span>
 <span class="sd">        SOAPkwargs (dict, optional): additional keyword arguments to be passed to the selected SOAP engine. Defaults to {}.</span>
 <span class="sd">        useSoapFrom (KNOWNSOAPENGINES, optional): This string determines the selected SOAP engine for the calculations. Defaults to &quot;dscribe&quot;.</span>
-
+<span class="sd">        doOverride (bool, optional): if False will raise and exception if the user ask to override an already existing DataSet. Defaults to False.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">soapEngine</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;using </span><span class="si">{</span><span class="n">useSoapFrom</span><span class="si">}</span><span class="s2"> to calculate SOAP&quot;</span><span class="p">)</span>
@@ -267,6 +283,7 @@
                 <span class="n">soapEngine</span><span class="p">,</span>
                 <span class="n">SOAPOutputChunkDim</span><span class="p">,</span>
                 <span class="n">SOAPnJobs</span><span class="p">,</span>
+                <span class="n">doOverride</span><span class="o">=</span><span class="n">doOverride</span><span class="p">,</span>
             <span class="p">)</span></div>
 
 
@@ -283,6 +300,7 @@
     <span class="n">SOAP_respectPBC</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">SOAPkwargs</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{},</span>
     <span class="n">useSoapFrom</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;dscribe&quot;</span><span class="p">,</span>
+    <span class="n">doOverride</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculates the SOAP fingerprints for each atom in a given hdf5 trajectory</span>
 
@@ -303,6 +321,7 @@
 <span class="sd">        SOAP_respectPBC (bool, optional): Determines whether the system is considered to be periodic (option passed to the desired SOAP engine). Defaults to True.</span>
 <span class="sd">        SOAPkwargs (dict, optional): additional keyword arguments to be passed to the SOAP engine. Defaults to {}.</span>
 <span class="sd">        useSoapFrom (KNOWNSOAPENGINES, optional): This string determines the selected SOAP engine for the calculations. Defaults to &quot;dscribe&quot;.</span>
+<span class="sd">        doOverride (bool, optional): if False will raise and exception if the user ask to override an already existing DataSet. Defaults to False.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">isTrajectoryGroup</span><span class="p">(</span><span class="n">trajContainer</span><span class="p">):</span>
         <span class="n">symbols</span> <span class="o">=</span> <span class="n">trajContainer</span><span class="p">[</span><span class="s2">&quot;Types&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">asstr</span><span class="p">()[:]</span>
@@ -325,24 +344,10 @@
             <span class="n">soapEngine</span><span class="p">,</span>
             <span class="n">SOAPOutputChunkDim</span><span class="p">,</span>
             <span class="n">SOAPnJobs</span><span class="p">,</span>
+            <span class="n">doOverride</span><span class="o">=</span><span class="n">doOverride</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;saponify: The input object is not a trajectory group.&quot;</span><span class="p">)</span></div>
-
-
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="c1"># this is an example script for Applying the SOAP analysis on a trajectory saved on an</span>
-    <span class="c1"># HDF5 file formatted with our HDF5er and save the result in another HDF5 file</span>
-    <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="s2">&quot;Water.hdf5&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">trajLoader</span><span class="p">,</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span>
-        <span class="s2">&quot;WaterSOAP.hdf5&quot;</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span>
-    <span class="p">)</span> <span class="k">as</span> <span class="n">soapOffloader</span><span class="p">:</span>
-        <span class="n">saponify</span><span class="p">(</span>
-            <span class="n">trajLoader</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;Trajectories/1ns&quot;</span><span class="p">],</span>
-            <span class="n">soapOffloader</span><span class="o">.</span><span class="n">require_group</span><span class="p">(</span><span class="s2">&quot;SOAP&quot;</span><span class="p">),</span>
-            <span class="n">SOAPatomMask</span><span class="o">=</span><span class="s2">&quot;O&quot;</span><span class="p">,</span>
-            <span class="n">SOAPOutputChunkDim</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
-            <span class="n">SOAPnJobs</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;saponify: The input object is not a trajectory group.&quot;</span><span class="p">)</span></div>
 </pre></div>
 
            </div>

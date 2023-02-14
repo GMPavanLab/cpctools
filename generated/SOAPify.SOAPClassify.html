@@ -184,7 +184,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="SOAPify.SOAPClassify.SOAPReferences.spectra">
-<span class="sig-name descname"><span class="pre">spectra</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">np.ndarray[float]</span></em><a class="headerlink" href="#SOAPify.SOAPClassify.SOAPReferences.spectra" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">spectra</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">np.ndarray[np.float64]</span></em><a class="headerlink" href="#SOAPify.SOAPClassify.SOAPReferences.spectra" title="Permalink to this definition"></a></dt>
 <dd><p>stores the SOAP vector of the references</p>
 </dd></dl>
 
@@ -247,20 +247,23 @@
 <span class="sig-prename descclassname"><span class="pre">SOAPify.SOAPClassify.</span></span><span class="sig-name descname"><span class="pre">classifyWithSOAP</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">SOAPTrajData</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hdf5FileReference</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">referenceAddresses</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/SOAPify/SOAPClassify.html#classifyWithSOAP"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#SOAPify.SOAPClassify.classifyWithSOAP" title="Permalink to this definition"></a></dt>
 <dd><p>classifies all atoms in a system, given the precalculated set of SOAP fingerprints, and the references.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>SOAPTrajData</strong> (<em>h5py.Dataset</em>) – The hdf5 dataset that contaisn the SOAP fingerprints</p></li>
-<li><p><strong>hdf5FileReference</strong> (<em>h5py.File</em>) – the hdf5 file that contains the references</p></li>
-<li><p><strong>referenceAddresses</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a>) – a list of the addresses of the references and/or of the groups that contain the references in hdf5FileReference</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>the information of the whole trajectory divided frame by frame and atom by atom, along with the legend</p>
-</dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="#SOAPify.SOAPClassify.SOAPclassification" title="SOAPify.SOAPClassify.SOAPclassification">SOAPclassification</a></p>
+<dd class="field-odd"><p><p><a class="reference internal" href="#SOAPify.SOAPClassify.SOAPclassification" title="SOAPify.SOAPClassify.SOAPclassification"><code class="xref py py-class docutils literal notranslate"><span class="pre">SOAPclassification</span></code></a></p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>SOAPTrajData (h5py.Dataset): The hdf5 dataset that contaisn the SOAP fingerprints
+hdf5FileReference (h5py.File): the hdf5 file that contains the references
+referenceAddresses (list): a list of the addresses of the references and/or of the groups that contain the references in hdf5FileReference</p>
+</dd>
+<dt>Returns:</dt><dd><p>SOAPclassification: the information of the whole trajectory divided frame by frame and atom by atom, along with the legend</p>
 </dd>
 </dl>
+</p>
+</dd>
+</dl>
+<div class="deprecated">
+<p><span class="versionmodified deprecated">Deprecated since version 0.0.3: </span>now we have a easier and better way of classifying, use the
+SOAPReferences pipeline</p>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -367,21 +370,20 @@ as dscribe omits the symmetric part of the spectra. Defaults to None.</p></li>
 <dt class="sig sig-object py" id="SOAPify.SOAPClassify.loadRefs">
 <span class="sig-prename descclassname"><span class="pre">SOAPify.SOAPClassify.</span></span><span class="sig-name descname"><span class="pre">loadRefs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hdf5FileReference</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">referenceAddresses</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/SOAPify/SOAPClassify.html#loadRefs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#SOAPify.SOAPClassify.loadRefs" title="Permalink to this definition"></a></dt>
 <dd><p>loads the references given in referenceAddresses from an hdf5 file</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>hdf5FileReference</strong> (<em>of the groups that contain the references in</em>) – the hdf5 file that contains the references</p></li>
-<li><p><strong>referenceAddresses</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a>) – a list of the addresses of the references and/or</p></li>
-<li><p><strong>hdf5FileReference</strong> – </p></li>
-</ul>
+<blockquote>
+<div><dl class="simple">
+<dt>Args:</dt><dd><p>hdf5FileReference (h5py.File): the hdf5 file that contains the references
+referenceAddresses (list): a list of the addresses of the references and/or
+of the groups that contain the references in hdf5FileReference</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>returns a tuple with the fingerprint and the relative names of the references</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.11)">tuple</a>[np.ndarray[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)">float</a>],<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)">str</a>]]</p>
+<dt>Returns:</dt><dd><p>tuple[np.ndarray[float],list[str]]: returns a tuple with the fingerprint and the relative names of the references</p>
 </dd>
 </dl>
+</div></blockquote>
+<div class="deprecated">
+<p><span class="versionmodified deprecated">Deprecated since version 0.0.3: </span>now we have a easier and better way of classifying, use the
+SOAPReferences pipeline</p>
+</div>
 </dd></dl>
 
 <dl class="py function">

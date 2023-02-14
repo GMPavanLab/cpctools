@@ -96,6 +96,7 @@
     <span class="s2">&quot;getXYZfromMDA&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 
+
 <span class="c1"># TODO: using slices is not the best compromise here</span>
 <span class="c1"># TODO: maybe it is better to make this and iterator/generator</span>
 <div class="viewcode-block" id="HDF52AseAtomsChunckedwithSymbols"><a class="viewcode-back" href="../../generated/HDF5er.HDF5To.html#HDF5er.HDF5To.HDF52AseAtomsChunckedwithSymbols">[docs]</a><span class="k">def</span> <span class="nf">HDF52AseAtomsChunckedwithSymbols</span><span class="p">(</span>
@@ -185,7 +186,7 @@
 <div class="viewcode-block" id="getXYZfromTrajGroup"><a class="viewcode-back" href="../../generated/HDF5er.HDF5To.html#HDF5er.HDF5To.getXYZfromTrajGroup">[docs]</a><span class="k">def</span> <span class="nf">getXYZfromTrajGroup</span><span class="p">(</span>
     <span class="n">filelike</span><span class="p">:</span> <span class="n">IO</span><span class="p">,</span>
     <span class="n">group</span><span class="p">:</span> <span class="n">h5py</span><span class="o">.</span><span class="n">Group</span><span class="p">,</span>
-    <span class="n">framesToExport</span><span class="p">:</span> <span class="s2">&quot;List or slice&quot;</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span>
+    <span class="n">framesToExport</span><span class="p">:</span> <span class="s2">&quot;List | slice&quot;</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span>
     <span class="n">allFramesProperty</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
     <span class="n">perFrameProperties</span><span class="p">:</span> <span class="s2">&quot;list[str]&quot;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">**</span><span class="n">additionalColumns</span><span class="p">,</span>
@@ -207,11 +208,8 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">atomtypes</span> <span class="o">=</span> <span class="n">group</span><span class="p">[</span><span class="s2">&quot;Types&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">asstr</span><span class="p">()</span>
-    <span class="n">frameSlice</span> <span class="o">=</span> <span class="n">framesToExport</span>
-    <span class="k">if</span> <span class="n">framesToExport</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">frameSlice</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
-    <span class="n">boxes</span><span class="p">:</span> <span class="n">h5py</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">=</span> <span class="n">group</span><span class="p">[</span><span class="s2">&quot;Box&quot;</span><span class="p">][</span><span class="n">frameSlice</span><span class="p">]</span>
-    <span class="n">coordData</span><span class="p">:</span> <span class="n">h5py</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">=</span> <span class="n">group</span><span class="p">[</span><span class="s2">&quot;Trajectory&quot;</span><span class="p">][</span><span class="n">frameSlice</span><span class="p">]</span>
+    <span class="n">boxes</span><span class="p">:</span> <span class="n">h5py</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">=</span> <span class="n">group</span><span class="p">[</span><span class="s2">&quot;Box&quot;</span><span class="p">][</span><span class="n">framesToExport</span><span class="p">]</span>
+    <span class="n">coordData</span><span class="p">:</span> <span class="n">h5py</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">=</span> <span class="n">group</span><span class="p">[</span><span class="s2">&quot;Trajectory&quot;</span><span class="p">][</span><span class="n">framesToExport</span><span class="p">]</span>
 
     <span class="n">trajlen</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">coordData</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">nat</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">coordData</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
@@ -255,14 +253,11 @@
 <span class="sd">        allFramesProperty (str, optional): A comment string that will be present in all of the frames. Defaults to &quot;&quot;.</span>
 <span class="sd">        perFrameProperties (list[str], optional): A list of comment. Defaults to None.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">frameSlice</span> <span class="o">=</span> <span class="n">framesToExport</span>
-    <span class="k">if</span> <span class="n">framesToExport</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">frameSlice</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
         <span class="n">getXYZfromTrajGroup</span><span class="p">(</span>
             <span class="n">file</span><span class="p">,</span>
             <span class="n">group</span><span class="p">,</span>
-            <span class="n">frameSlice</span><span class="p">,</span>
+            <span class="n">framesToExport</span><span class="p">,</span>
             <span class="n">allFramesProperty</span><span class="p">,</span>
             <span class="n">perFrameProperties</span><span class="p">,</span>
             <span class="o">**</span><span class="n">additionalColumns</span><span class="p">,</span>
@@ -299,11 +294,8 @@
     <span class="n">atoms</span> <span class="o">=</span> <span class="n">trajToExport</span><span class="o">.</span><span class="n">atoms</span>
     <span class="n">universe</span> <span class="o">=</span> <span class="n">trajToExport</span><span class="o">.</span><span class="n">universe</span>
     <span class="n">atomtypes</span> <span class="o">=</span> <span class="n">atoms</span><span class="o">.</span><span class="n">types</span>
-    <span class="n">frameSlice</span> <span class="o">=</span> <span class="n">framesToExport</span>
-    <span class="k">if</span> <span class="n">framesToExport</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">frameSlice</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
     <span class="n">coordData</span><span class="p">:</span> <span class="s2">&quot;MDAnalysis.Universe | MDAnalysis.AtomGroup&quot;</span> <span class="o">=</span> <span class="n">universe</span><span class="o">.</span><span class="n">trajectory</span><span class="p">[</span>
-        <span class="n">frameSlice</span>
+        <span class="n">framesToExport</span>
     <span class="p">]</span>
 
     <span class="n">trajlen</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">coordData</span><span class="p">)</span>
@@ -312,7 +304,7 @@
     <span class="n">header</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">__prepareHeaders</span><span class="p">(</span>
         <span class="n">additionalColumns</span><span class="p">,</span> <span class="n">nframes</span><span class="o">=</span><span class="n">trajlen</span><span class="p">,</span> <span class="n">nat</span><span class="o">=</span><span class="n">nat</span><span class="p">,</span> <span class="n">allFramesProperty</span><span class="o">=</span><span class="n">allFramesProperty</span>
     <span class="p">)</span>
-    <span class="k">for</span> <span class="n">frameIndex</span><span class="p">,</span> <span class="n">frame</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">universe</span><span class="o">.</span><span class="n">trajectory</span><span class="p">[</span><span class="n">frameSlice</span><span class="p">]):</span>
+    <span class="k">for</span> <span class="n">frameIndex</span><span class="p">,</span> <span class="n">frame</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">universe</span><span class="o">.</span><span class="n">trajectory</span><span class="p">[</span><span class="n">framesToExport</span><span class="p">]):</span>
         <span class="n">coord</span> <span class="o">=</span> <span class="n">atoms</span><span class="o">.</span><span class="n">positions</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">__writeAframe</span><span class="p">(</span>
             <span class="n">header</span><span class="p">,</span>
@@ -336,7 +328,6 @@
     <span class="n">perFramePorperty</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">**</span><span class="n">additionalColumns</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-
     <span class="n">data</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">header</span><span class="si">}</span><span class="s2">&quot;</span>
     <span class="n">data</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">perFramePorperty</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">perFramePorperty</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
     <span class="n">theBox</span> <span class="o">=</span> <span class="n">triclinic_vectors</span><span class="p">(</span><span class="n">boxDimensions</span><span class="p">)</span>

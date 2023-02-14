@@ -88,6 +88,7 @@
 <span class="kn">from</span> <span class="nn">.SOAPbase</span> <span class="kn">import</span> <span class="n">SOAPdistance</span><span class="p">,</span> <span class="n">SOAPdistanceNormalized</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">fillSOAPVectorFromdscribe</span><span class="p">,</span> <span class="n">normalizeArray</span>
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span> <span class="nn">deprecated.sphinx</span> <span class="kn">import</span> <span class="n">deprecated</span>
 
 
 <div class="viewcode-block" id="SOAPclassification"><a class="viewcode-back" href="../../generated/SOAPify.SOAPClassify.html#SOAPify.SOAPClassify.SOAPclassification">[docs]</a><span class="nd">@dataclass</span>
@@ -107,7 +108,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">names</span><span class="p">:</span> <span class="s2">&quot;list[str]&quot;</span>  <span class="c1">#: stores the names of the references</span>
-    <span class="n">spectra</span><span class="p">:</span> <span class="s2">&quot;np.ndarray[float]&quot;</span>  <span class="c1">#: stores the SOAP vector of the references</span>
+    <span class="n">spectra</span><span class="p">:</span> <span class="s2">&quot;np.ndarray[np.float64]&quot;</span>  <span class="c1">#: stores the SOAP vector of the references</span>
     <span class="n">lmax</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">nmax</span><span class="p">:</span> <span class="nb">int</span>
 
@@ -118,145 +119,6 @@
 <span class="sd">            int: the number of stored spectra</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="classifyWithSOAP"><a class="viewcode-back" href="../../generated/SOAPify.SOAPClassify.html#SOAPify.SOAPClassify.classifyWithSOAP">[docs]</a><span class="k">def</span> <span class="nf">classifyWithSOAP</span><span class="p">(</span>
-    <span class="n">SOAPTrajData</span><span class="p">:</span> <span class="n">h5py</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">hdf5FileReference</span><span class="p">:</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">,</span> <span class="n">referenceAddresses</span><span class="p">:</span> <span class="nb">list</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SOAPclassification</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;classifies all atoms in a system, given the precalculated set of SOAP fingerprints, and the references.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        SOAPTrajData (h5py.Dataset): The hdf5 dataset that contaisn the SOAP fingerprints</span>
-<span class="sd">        hdf5FileReference (h5py.File): the hdf5 file that contains the references</span>
-<span class="sd">        referenceAddresses (list): a list of the addresses of the references and\/or of the groups that contain the references in hdf5FileReference</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        SOAPclassification: the information of the whole trajectory divided frame by frame and atom by atom, along with the legend</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">spectra</span><span class="p">,</span> <span class="n">legend</span> <span class="o">=</span> <span class="n">loadRefs</span><span class="p">(</span><span class="n">hdf5FileReference</span><span class="p">,</span> <span class="n">referenceAddresses</span><span class="p">)</span>
-    <span class="n">nframes</span> <span class="o">=</span> <span class="n">SOAPTrajData</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">nat</span> <span class="o">=</span> <span class="n">SOAPTrajData</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-    <span class="n">distances</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nframes</span><span class="p">,</span> <span class="n">nat</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="nb">float</span><span class="p">))</span>
-    <span class="n">references</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nframes</span><span class="p">,</span> <span class="n">nat</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="nb">int</span><span class="p">))</span>
-    <span class="n">n</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="c1"># nchunks=len(T1.iter_chunks())</span>
-    <span class="c1"># TODO verify if this loop can be parallelized</span>
-    <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">SOAPTrajData</span><span class="o">.</span><span class="n">iter_chunks</span><span class="p">():</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;working on chunk </span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">chunk</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">n</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="k">for</span> <span class="n">chunkID</span><span class="p">,</span> <span class="n">frame</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">SOAPTrajData</span><span class="p">[</span><span class="n">chunk</span><span class="p">]):</span>
-            <span class="n">frameID</span> <span class="o">=</span> <span class="n">chunk</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">start</span> <span class="o">+</span> <span class="n">chunkID</span>
-            <span class="k">for</span> <span class="n">atomID</span><span class="p">,</span> <span class="n">atom</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">frame</span><span class="p">):</span>
-                <span class="n">distances</span><span class="p">[</span><span class="n">frameID</span><span class="p">,</span> <span class="n">atomID</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1000.0</span>
-                <span class="n">references</span><span class="p">[</span><span class="n">frameID</span><span class="p">,</span> <span class="n">atomID</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
-                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">spectra</span><span class="p">)):</span>
-                    <span class="k">try</span><span class="p">:</span>
-                        <span class="n">tdist</span> <span class="o">=</span> <span class="n">SOAPdistance</span><span class="p">(</span><span class="n">atom</span><span class="p">,</span> <span class="n">spectra</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
-                        <span class="k">if</span> <span class="n">tdist</span> <span class="o">&lt;</span> <span class="n">distances</span><span class="p">[</span><span class="n">frameID</span><span class="p">,</span> <span class="n">atomID</span><span class="p">]:</span>
-                            <span class="n">distances</span><span class="p">[</span><span class="n">frameID</span><span class="p">,</span> <span class="n">atomID</span><span class="p">]</span> <span class="o">=</span> <span class="n">tdist</span>
-                            <span class="n">references</span><span class="p">[</span><span class="n">frameID</span><span class="p">,</span> <span class="n">atomID</span><span class="p">]</span> <span class="o">=</span> <span class="n">j</span>
-                    <span class="k">except</span><span class="p">:</span>
-                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;at </span><span class="si">{</span><span class="n">j</span><span class="si">}</span><span class="s2">:&quot;</span><span class="p">)</span>
-                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;spectra: </span><span class="si">{</span><span class="n">spectra</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;atom: </span><span class="si">{</span><span class="n">atomID</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">SOAPclassification</span><span class="p">(</span><span class="n">distances</span><span class="p">,</span> <span class="n">references</span><span class="p">,</span> <span class="n">legend</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="loadRefs"><a class="viewcode-back" href="../../generated/SOAPify.SOAPClassify.html#SOAPify.SOAPClassify.loadRefs">[docs]</a><span class="k">def</span> <span class="nf">loadRefs</span><span class="p">(</span>
-    <span class="n">hdf5FileReference</span><span class="p">:</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">,</span> <span class="n">referenceAddresses</span><span class="p">:</span> <span class="nb">list</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;tuple[np.ndarray[float],list[str]]&quot;</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;loads the references given in referenceAddresses from an hdf5 file</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        hdf5FileReference (h5py.File): the hdf5 file that contains the references</span>
-<span class="sd">        referenceAddresses (list): a list of the addresses of the references and/or</span>
-<span class="sd">        of the groups that contain the references in hdf5FileReference</span>
-<span class="sd">    Returns:</span>
-<span class="sd">        tuple[np.ndarray[float],list[str]]: returns a tuple with the fingerprint and the relative names of the references</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">spectra</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># np.zeros((0, 0), dtype=np.dtype(float))</span>
-    <span class="n">legend</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">address</span> <span class="ow">in</span> <span class="n">referenceAddresses</span><span class="p">:</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">hdf5FileReference</span><span class="p">[</span><span class="n">address</span><span class="p">]</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">h5py</span><span class="o">.</span><span class="n">Group</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">refName</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                <span class="n">dataset</span> <span class="o">=</span> <span class="n">hdf5FileReference</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">address</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">refName</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
-                <span class="n">legend</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">refName</span><span class="p">)</span>
-                <span class="n">spectra</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dataset</span><span class="p">[:],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
-
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">h5py</span><span class="o">.</span><span class="n">Dataset</span><span class="p">):</span>
-            <span class="n">legend</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-            <span class="n">spectra</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">data</span><span class="p">[:],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;loadRefs cannot create a reference from given input: repr=</span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="p">)</span>
-            <span class="n">exit</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span>
-    <span class="n">spectra</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">spectra</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">spectra</span><span class="p">,</span> <span class="n">legend</span></div>
-
-
-<div class="viewcode-block" id="mergeReferences"><a class="viewcode-back" href="../../generated/SOAPify.SOAPClassify.html#SOAPify.SOAPClassify.mergeReferences">[docs]</a><span class="k">def</span> <span class="nf">mergeReferences</span><span class="p">(</span><span class="o">*</span><span class="n">x</span><span class="p">:</span> <span class="n">SOAPReferences</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SOAPReferences</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Merges a list of `SOAPReferences` into a single object</span>
-
-<span class="sd">    Raises:</span>
-<span class="sd">        ValueError: if the lmax and the nmax of the references are not the same</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        SOAPReferences: a new `SOAPReferences` that contains the concatenated list of references</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">names</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">x</span><span class="p">:</span>
-        <span class="n">names</span> <span class="o">+=</span> <span class="n">i</span><span class="o">.</span><span class="n">names</span>
-        <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">nmax</span> <span class="o">!=</span> <span class="n">i</span><span class="o">.</span><span class="n">nmax</span> <span class="ow">or</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lmax</span> <span class="o">!=</span> <span class="n">i</span><span class="o">.</span><span class="n">lmax</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;nmax or lmax are not the same in the two references&quot;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">SOAPReferences</span><span class="p">(</span>
-        <span class="n">names</span><span class="p">,</span>
-        <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">i</span><span class="o">.</span><span class="n">spectra</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">x</span><span class="p">]),</span>
-        <span class="n">nmax</span><span class="o">=</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">nmax</span><span class="p">,</span>
-        <span class="n">lmax</span><span class="o">=</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lmax</span><span class="p">,</span>
-    <span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="saveReferences"><a class="viewcode-back" href="../../generated/SOAPify.SOAPClassify.html#SOAPify.SOAPClassify.saveReferences">[docs]</a><span class="k">def</span> <span class="nf">saveReferences</span><span class="p">(</span>
-    <span class="n">h5position</span><span class="p">:</span> <span class="s2">&quot;h5py.Group|h5py.File&quot;</span><span class="p">,</span> <span class="n">targetDatasetName</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">refs</span><span class="p">:</span> <span class="n">SOAPReferences</span>
-<span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Export the given references in the indicated group/hdf5 file</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        h5position (h5py.Group|h5py.File): The file object of the group where to save the references</span>
-<span class="sd">        targetDatasetName (str): the name to give to the list of references</span>
-<span class="sd">        refs (SOAPReferences): the `SOAPReferences` object to be exported</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">whereToSave</span> <span class="o">=</span> <span class="n">h5position</span><span class="o">.</span><span class="n">require_dataset</span><span class="p">(</span>
-        <span class="n">targetDatasetName</span><span class="p">,</span>
-        <span class="n">shape</span><span class="o">=</span><span class="n">refs</span><span class="o">.</span><span class="n">spectra</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
-        <span class="n">dtype</span><span class="o">=</span><span class="n">refs</span><span class="o">.</span><span class="n">spectra</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span>
-        <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">,</span>
-        <span class="n">compression_opts</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">whereToSave</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">refs</span><span class="o">.</span><span class="n">spectra</span>
-    <span class="n">whereToSave</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s2">&quot;nmax&quot;</span><span class="p">,</span> <span class="n">refs</span><span class="o">.</span><span class="n">nmax</span><span class="p">)</span>
-    <span class="n">whereToSave</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s2">&quot;lmax&quot;</span><span class="p">,</span> <span class="n">refs</span><span class="o">.</span><span class="n">lmax</span><span class="p">)</span>
-    <span class="n">whereToSave</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s2">&quot;names&quot;</span><span class="p">,</span> <span class="n">refs</span><span class="o">.</span><span class="n">names</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="getReferencesFromDataset"><a class="viewcode-back" href="../../generated/SOAPify.SOAPClassify.html#SOAPify.SOAPClassify.getReferencesFromDataset">[docs]</a><span class="k">def</span> <span class="nf">getReferencesFromDataset</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="n">h5py</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SOAPReferences</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Given a `h5py.Dataset` returns a `SOAPReferences` with the initializated data</span>
-
-<span class="sd">        TODO: check if the dataset contains the needed references</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        dataset (h5py.Dataset): the dataset with the references</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        SOAPReferences: the prepared references container</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">fingerprints</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[:]</span>
-    <span class="n">names</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;names&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
-    <span class="n">lmax</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;lmax&quot;</span><span class="p">]</span>
-    <span class="n">nmax</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;nmax&quot;</span><span class="p">]</span>
-    <span class="k">return</span> <span class="n">SOAPReferences</span><span class="p">(</span><span class="n">names</span><span class="o">=</span><span class="n">names</span><span class="p">,</span> <span class="n">spectra</span><span class="o">=</span><span class="n">fingerprints</span><span class="p">,</span> <span class="n">lmax</span><span class="o">=</span><span class="n">lmax</span><span class="p">,</span> <span class="n">nmax</span><span class="o">=</span><span class="n">nmax</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="createReferencesFromTrajectory"><a class="viewcode-back" href="../../generated/SOAPify.SOAPClassify.html#SOAPify.SOAPClassify.createReferencesFromTrajectory">[docs]</a><span class="k">def</span> <span class="nf">createReferencesFromTrajectory</span><span class="p">(</span>
@@ -370,6 +232,69 @@
     <span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="mergeReferences"><a class="viewcode-back" href="../../generated/SOAPify.SOAPClassify.html#SOAPify.SOAPClassify.mergeReferences">[docs]</a><span class="k">def</span> <span class="nf">mergeReferences</span><span class="p">(</span><span class="o">*</span><span class="n">x</span><span class="p">:</span> <span class="n">SOAPReferences</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SOAPReferences</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Merges a list of `SOAPReferences` into a single object</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: if the lmax and the nmax of the references are not the same</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        SOAPReferences: a new `SOAPReferences` that contains the concatenated list of references</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">names</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">x</span><span class="p">:</span>
+        <span class="n">names</span> <span class="o">+=</span> <span class="n">i</span><span class="o">.</span><span class="n">names</span>
+        <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">nmax</span> <span class="o">!=</span> <span class="n">i</span><span class="o">.</span><span class="n">nmax</span> <span class="ow">or</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lmax</span> <span class="o">!=</span> <span class="n">i</span><span class="o">.</span><span class="n">lmax</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;nmax or lmax are not the same in the two references&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">SOAPReferences</span><span class="p">(</span>
+        <span class="n">names</span><span class="p">,</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">i</span><span class="o">.</span><span class="n">spectra</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">x</span><span class="p">]),</span>
+        <span class="n">nmax</span><span class="o">=</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">nmax</span><span class="p">,</span>
+        <span class="n">lmax</span><span class="o">=</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lmax</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="saveReferences"><a class="viewcode-back" href="../../generated/SOAPify.SOAPClassify.html#SOAPify.SOAPClassify.saveReferences">[docs]</a><span class="k">def</span> <span class="nf">saveReferences</span><span class="p">(</span>
+    <span class="n">h5position</span><span class="p">:</span> <span class="s2">&quot;h5py.Group|h5py.File&quot;</span><span class="p">,</span> <span class="n">targetDatasetName</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">refs</span><span class="p">:</span> <span class="n">SOAPReferences</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Export the given references in the indicated group/hdf5 file</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        h5position (h5py.Group|h5py.File): The file object of the group where to save the references</span>
+<span class="sd">        targetDatasetName (str): the name to give to the list of references</span>
+<span class="sd">        refs (SOAPReferences): the `SOAPReferences` object to be exported</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">whereToSave</span> <span class="o">=</span> <span class="n">h5position</span><span class="o">.</span><span class="n">require_dataset</span><span class="p">(</span>
+        <span class="n">targetDatasetName</span><span class="p">,</span>
+        <span class="n">shape</span><span class="o">=</span><span class="n">refs</span><span class="o">.</span><span class="n">spectra</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="n">refs</span><span class="o">.</span><span class="n">spectra</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span>
+        <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">,</span>
+        <span class="n">compression_opts</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">whereToSave</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">refs</span><span class="o">.</span><span class="n">spectra</span>
+    <span class="n">whereToSave</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s2">&quot;nmax&quot;</span><span class="p">,</span> <span class="n">refs</span><span class="o">.</span><span class="n">nmax</span><span class="p">)</span>
+    <span class="n">whereToSave</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s2">&quot;lmax&quot;</span><span class="p">,</span> <span class="n">refs</span><span class="o">.</span><span class="n">lmax</span><span class="p">)</span>
+    <span class="n">whereToSave</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s2">&quot;names&quot;</span><span class="p">,</span> <span class="n">refs</span><span class="o">.</span><span class="n">names</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="getReferencesFromDataset"><a class="viewcode-back" href="../../generated/SOAPify.SOAPClassify.html#SOAPify.SOAPClassify.getReferencesFromDataset">[docs]</a><span class="k">def</span> <span class="nf">getReferencesFromDataset</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="n">h5py</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SOAPReferences</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Given a `h5py.Dataset` returns a `SOAPReferences` with the initializated data</span>
+
+<span class="sd">        TODO: check if the dataset contains the needed references</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dataset (h5py.Dataset): the dataset with the references</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        SOAPReferences: the prepared references container</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fingerprints</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[:]</span>
+    <span class="n">names</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;names&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="n">lmax</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;lmax&quot;</span><span class="p">]</span>
+    <span class="n">nmax</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;nmax&quot;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">SOAPReferences</span><span class="p">(</span><span class="n">names</span><span class="o">=</span><span class="n">names</span><span class="p">,</span> <span class="n">spectra</span><span class="o">=</span><span class="n">fingerprints</span><span class="p">,</span> <span class="n">lmax</span><span class="o">=</span><span class="n">lmax</span><span class="p">,</span> <span class="n">nmax</span><span class="o">=</span><span class="n">nmax</span><span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="classify"><a class="viewcode-back" href="../../generated/SOAPify.SOAPClassify.html#SOAPify.SOAPClassify.classify">[docs]</a><span class="k">def</span> <span class="nf">classify</span><span class="p">(</span>
     <span class="n">SOAPTrajData</span><span class="p">:</span> <span class="n">h5py</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
     <span class="n">references</span><span class="p">:</span> <span class="n">SOAPReferences</span><span class="p">,</span>
@@ -394,15 +319,90 @@
     <span class="k">return</span> <span class="n">SOAPclassification</span><span class="p">(</span><span class="n">minimumDist</span><span class="p">,</span> <span class="n">minimumDistID</span><span class="p">,</span> <span class="n">references</span><span class="o">.</span><span class="n">names</span><span class="p">)</span></div>
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">h5py</span>
-    <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<div class="viewcode-block" id="loadRefs"><a class="viewcode-back" href="../../generated/SOAPify.SOAPClassify.html#SOAPify.SOAPClassify.loadRefs">[docs]</a><span class="nd">@deprecated</span><span class="p">(</span>
+    <span class="n">version</span><span class="o">=</span><span class="s2">&quot;0.0.3&quot;</span><span class="p">,</span>
+    <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;now we have a easier and better way of classifying, use the SOAPReferences pipeline&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="k">def</span> <span class="nf">loadRefs</span><span class="p">(</span>
+    <span class="n">hdf5FileReference</span><span class="p">:</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">,</span> <span class="n">referenceAddresses</span><span class="p">:</span> <span class="nb">list</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;tuple[np.ndarray[float],list[str]]&quot;</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;loads the references given in referenceAddresses from an hdf5 file</span>
 
-    <span class="n">trajLoader</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="s2">&quot;WaterSOAP__.hdf5&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span>
-    <span class="n">SOAPtraj</span> <span class="o">=</span> <span class="n">trajLoader</span><span class="p">[</span><span class="s2">&quot;SOAP/1ns&quot;</span><span class="p">]</span>
-    <span class="n">refFile</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="s2">&quot;ReferenceWater.hdf5&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">classifyWithSOAP</span><span class="p">(</span><span class="n">SOAPtraj</span><span class="p">,</span> <span class="n">refFile</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;Waters/R10/tip4p2005&quot;</span><span class="p">,</span> <span class="s2">&quot;Ices/R10&quot;</span><span class="p">])</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="sd">    Args:</span>
+<span class="sd">        hdf5FileReference (h5py.File): the hdf5 file that contains the references</span>
+<span class="sd">        referenceAddresses (list): a list of the addresses of the references and/or</span>
+<span class="sd">        of the groups that contain the references in hdf5FileReference</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple[np.ndarray[float],list[str]]: returns a tuple with the fingerprint and the relative names of the references</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">spectra</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># np.zeros((0, 0), dtype=dtype=np.float64)</span>
+    <span class="n">legend</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">address</span> <span class="ow">in</span> <span class="n">referenceAddresses</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">hdf5FileReference</span><span class="p">[</span><span class="n">address</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">h5py</span><span class="o">.</span><span class="n">Group</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">refName</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">dataset</span> <span class="o">=</span> <span class="n">hdf5FileReference</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">address</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">refName</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+                <span class="n">legend</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">refName</span><span class="p">)</span>
+                <span class="n">spectra</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dataset</span><span class="p">[:],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">h5py</span><span class="o">.</span><span class="n">Dataset</span><span class="p">):</span>
+            <span class="n">legend</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">spectra</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">data</span><span class="p">[:],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;loadRefs cannot create a reference from given input: repr=</span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="n">exit</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span>
+    <span class="n">spectra</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">spectra</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">spectra</span><span class="p">,</span> <span class="n">legend</span></div>
+
+
+<div class="viewcode-block" id="classifyWithSOAP"><a class="viewcode-back" href="../../generated/SOAPify.SOAPClassify.html#SOAPify.SOAPClassify.classifyWithSOAP">[docs]</a><span class="nd">@deprecated</span><span class="p">(</span>
+    <span class="n">version</span><span class="o">=</span><span class="s2">&quot;0.0.3&quot;</span><span class="p">,</span>
+    <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;now we have a easier and better way of classifying, use the SOAPReferences pipeline&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="k">def</span> <span class="nf">classifyWithSOAP</span><span class="p">(</span>
+    <span class="n">SOAPTrajData</span><span class="p">:</span> <span class="n">h5py</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">hdf5FileReference</span><span class="p">:</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">,</span> <span class="n">referenceAddresses</span><span class="p">:</span> <span class="nb">list</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SOAPclassification</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;classifies all atoms in a system, given the precalculated set of SOAP fingerprints, and the references.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        SOAPTrajData (h5py.Dataset): The hdf5 dataset that contaisn the SOAP fingerprints</span>
+<span class="sd">        hdf5FileReference (h5py.File): the hdf5 file that contains the references</span>
+<span class="sd">        referenceAddresses (list): a list of the addresses of the references and\/or of the groups that contain the references in hdf5FileReference</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        SOAPclassification: the information of the whole trajectory divided frame by frame and atom by atom, along with the legend</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">spectra</span><span class="p">,</span> <span class="n">legend</span> <span class="o">=</span> <span class="n">loadRefs</span><span class="p">(</span><span class="n">hdf5FileReference</span><span class="p">,</span> <span class="n">referenceAddresses</span><span class="p">)</span>
+    <span class="n">nframes</span> <span class="o">=</span> <span class="n">SOAPTrajData</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">nat</span> <span class="o">=</span> <span class="n">SOAPTrajData</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">distances</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">nframes</span><span class="p">,</span> <span class="n">nat</span><span class="p">),</span>  <span class="c1"># np.float64</span>
+    <span class="p">)</span>
+    <span class="n">references</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nframes</span><span class="p">,</span> <span class="n">nat</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="nb">int</span><span class="p">))</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="c1"># nchunks=len(T1.iter_chunks())</span>
+    <span class="c1"># TODO verify if this loop can be parallelized</span>
+    <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">SOAPTrajData</span><span class="o">.</span><span class="n">iter_chunks</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;working on chunk </span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">chunk</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">n</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">for</span> <span class="n">chunkID</span><span class="p">,</span> <span class="n">frame</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">SOAPTrajData</span><span class="p">[</span><span class="n">chunk</span><span class="p">]):</span>
+            <span class="n">frameID</span> <span class="o">=</span> <span class="n">chunk</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">start</span> <span class="o">+</span> <span class="n">chunkID</span>
+            <span class="k">for</span> <span class="n">atomID</span><span class="p">,</span> <span class="n">atom</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">frame</span><span class="p">):</span>
+                <span class="n">distances</span><span class="p">[</span><span class="n">frameID</span><span class="p">,</span> <span class="n">atomID</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1000.0</span>
+                <span class="n">references</span><span class="p">[</span><span class="n">frameID</span><span class="p">,</span> <span class="n">atomID</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">spectra</span><span class="p">)):</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">tdist</span> <span class="o">=</span> <span class="n">SOAPdistance</span><span class="p">(</span><span class="n">atom</span><span class="p">,</span> <span class="n">spectra</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+                        <span class="k">if</span> <span class="n">tdist</span> <span class="o">&lt;</span> <span class="n">distances</span><span class="p">[</span><span class="n">frameID</span><span class="p">,</span> <span class="n">atomID</span><span class="p">]:</span>
+                            <span class="n">distances</span><span class="p">[</span><span class="n">frameID</span><span class="p">,</span> <span class="n">atomID</span><span class="p">]</span> <span class="o">=</span> <span class="n">tdist</span>
+                            <span class="n">references</span><span class="p">[</span><span class="n">frameID</span><span class="p">,</span> <span class="n">atomID</span><span class="p">]</span> <span class="o">=</span> <span class="n">j</span>
+                    <span class="k">except</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;at </span><span class="si">{</span><span class="n">j</span><span class="si">}</span><span class="s2">:&quot;</span><span class="p">)</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;spectra: </span><span class="si">{</span><span class="n">spectra</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;atom: </span><span class="si">{</span><span class="n">atomID</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">SOAPclassification</span><span class="p">(</span><span class="n">distances</span><span class="p">,</span> <span class="n">references</span><span class="p">,</span> <span class="n">legend</span><span class="p">)</span></div>
 </pre></div>
 
            </div>

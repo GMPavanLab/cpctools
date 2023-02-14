@@ -142,11 +142,12 @@
     <span class="n">trajFolder</span><span class="p">[</span><span class="s2">&quot;Trajectory&quot;</span><span class="p">][</span><span class="n">intervalStart</span><span class="p">:</span><span class="n">intervalEnd</span><span class="p">]</span> <span class="o">=</span> <span class="n">coordinates</span></div>
 
 
-<div class="viewcode-block" id="patchBoxFromTopology"><a class="viewcode-back" href="../../generated/HDF5er.HDF5erUtils.html#HDF5er.HDF5erUtils.patchBoxFromTopology">[docs]</a><span class="k">def</span> <span class="nf">patchBoxFromTopology</span><span class="p">(</span><span class="n">hdf5TrajFile</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">topologyFile</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<div class="viewcode-block" id="patchBoxFromTopology"><a class="viewcode-back" href="../../generated/HDF5er.HDF5erUtils.html#HDF5er.HDF5erUtils.patchBoxFromTopology">[docs]</a><span class="k">def</span> <span class="nf">patchBoxFromTopology</span><span class="p">(</span><span class="n">hdf5TrajFile</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">topologyFile</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Patch the non orthogonal box in the trajectory.</span>
 
 <span class="sd">    This was a workaround for a now solved bug in MDA, it can be used to change the box in a trajectory</span>
 <span class="sd">    NOTE: this will only change the box, it will not modify the coordinates!</span>
+<span class="sd">    NOTE: this function is not test covered and will be likely go deprecated soon</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        hdf5TrajFile (str): The name of the hdf5 file with the trajectories to patch</span>

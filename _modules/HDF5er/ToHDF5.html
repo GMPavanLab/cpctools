@@ -83,6 +83,7 @@
              
   <h1>Source code for HDF5er.ToHDF5</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">h5py</span>
+<span class="kn">import</span> <span class="nn">numpy</span>
 <span class="kn">from</span> <span class="nn">MDAnalysis</span> <span class="kn">import</span> <span class="n">Universe</span> <span class="k">as</span> <span class="n">mdaUniverse</span><span class="p">,</span> <span class="n">AtomGroup</span> <span class="k">as</span> <span class="n">mdaAtomGroup</span>
 <span class="kn">from</span> <span class="nn">ase.io</span> <span class="kn">import</span> <span class="n">iread</span> <span class="k">as</span> <span class="n">aseIRead</span>
 <span class="kn">from</span> <span class="nn">ase.io</span> <span class="kn">import</span> <span class="n">read</span> <span class="k">as</span> <span class="n">aseRead</span>
@@ -117,11 +118,17 @@
             <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">,</span>
             <span class="n">chunks</span><span class="o">=</span><span class="p">(</span><span class="n">trajChunkSize</span><span class="p">,</span> <span class="n">nat</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
             <span class="n">maxshape</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">nat</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+            <span class="c1"># dtype=numpy.float64,</span>
         <span class="p">)</span>
 
     <span class="k">if</span> <span class="s2">&quot;Box&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">trajFolder</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
         <span class="n">trajFolder</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span>
-            <span class="s2">&quot;Box&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">,</span> <span class="n">chunks</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">maxshape</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+            <span class="s2">&quot;Box&quot;</span><span class="p">,</span>
+            <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span>
+            <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">,</span>
+            <span class="n">chunks</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">maxshape</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span>
+            <span class="c1"># dtype=numpy.float64,</span>
         <span class="p">)</span>
 
     <span class="n">frameNum</span> <span class="o">=</span> <span class="mi">0</span>
@@ -177,20 +184,28 @@
                 <span class="n">trajGroup</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">attrs</span><span class="p">[</span><span class="n">key</span><span class="p">])</span></div>
 
 
-<span class="c1"># TODO: convert use exportChunk2HDF5</span>
-<div class="viewcode-block" id="xyz2hdf5Converter"><a class="viewcode-back" href="../../generated/HDF5er.ToHDF5.html#HDF5er.ToHDF5.xyz2hdf5Converter">[docs]</a><span class="k">def</span> <span class="nf">xyz2hdf5Converter</span><span class="p">(</span><span class="n">xyzName</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">boxfilename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">group</span><span class="p">:</span> <span class="n">h5py</span><span class="o">.</span><span class="n">Group</span><span class="p">):</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+
+<div class="viewcode-block" id="xyz2hdf5Converter"><a class="viewcode-back" href="../../generated/HDF5er.ToHDF5.html#HDF5er.ToHDF5.xyz2hdf5Converter">[docs]</a><span class="k">def</span> <span class="nf">xyz2hdf5Converter</span><span class="p">(</span>
+    <span class="n">xyzName</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">boxfilename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">group</span><span class="p">:</span> <span class="n">h5py</span><span class="o">.</span><span class="n">Group</span>
+<span class="p">):</span>  <span class="c1"># pragma: no cover</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate an HDF5 trajectory from an xyz file and a box file</span>
 
 <span class="sd">        This function reads an xyz file with ase and then export it to an trajectory in and hdf5 file,</span>
 <span class="sd">        the user should pass the group within the hdf5file to this function</span>
 
-<span class="sd">        **NB**: this is &quot;legacy code&quot;, use with caution</span>
+<span class="sd">        **NB**: this is &quot;legacy code&quot; **not covered by unit tests**, use with caution</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        xyzName (str): the filename of the xyz trajaectory</span>
 <span class="sd">        boxfilename (str): the filename of the  per frame box dimensions</span>
 <span class="sd">        group (h5py.Group): the group within the hdf5 file where the trajectroy will be saved</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># TODO: convert use exportChunk2HDF5</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+        <span class="s1">&#39;this is untested &quot;legacy code&quot;, use with caution&#39;</span><span class="p">,</span> <span class="ne">PendingDeprecationWarning</span>
+    <span class="p">)</span>
     <span class="n">frame</span> <span class="o">=</span> <span class="n">aseRead</span><span class="p">(</span><span class="n">xyzName</span><span class="p">)</span>
     <span class="n">nat</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">frame</span><span class="o">.</span><span class="n">get_positions</span><span class="p">())</span>
     <span class="k">if</span> <span class="s2">&quot;Types&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">group</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
@@ -204,10 +219,16 @@
             <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">,</span>
             <span class="n">chunks</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">nat</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
             <span class="n">maxshape</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">nat</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+            <span class="c1"># dtype=numpy.float64,</span>
         <span class="p">)</span>
     <span class="k">if</span> <span class="s2">&quot;Box&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">group</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
         <span class="n">group</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span>
-            <span class="s2">&quot;Box&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">,</span> <span class="n">chunks</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">maxshape</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+            <span class="s2">&quot;Box&quot;</span><span class="p">,</span>
+            <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span>
+            <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">,</span>
+            <span class="n">chunks</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">maxshape</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span>
+            <span class="c1"># dtype=numpy.float64,</span>
         <span class="p">)</span>
     <span class="n">xyz</span> <span class="o">=</span> <span class="n">aseIRead</span><span class="p">(</span><span class="n">xyzName</span><span class="p">)</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">boxfilename</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">bf</span><span class="p">:</span>
@@ -217,7 +238,7 @@
         <span class="n">atomicframes</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">box</span><span class="p">,</span> <span class="n">frame</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">bf</span><span class="p">,</span> <span class="n">xyz</span><span class="p">):</span>
             <span class="n">t</span> <span class="o">=</span> <span class="n">box</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
-            <span class="n">boxInfo</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="n">boxInfo</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
                 <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span> <span class="mf">90.0</span><span class="p">,</span> <span class="mf">90.0</span><span class="p">,</span> <span class="mf">90.0</span><span class="p">]</span>
             <span class="p">)</span>
             <span class="n">boxes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">boxInfo</span><span class="p">)</span>
