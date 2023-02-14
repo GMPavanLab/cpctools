@@ -12,6 +12,7 @@ __all__ = [
     "getXYZfromMDA",
 ]
 
+
 # TODO: using slices is not the best compromise here
 # TODO: maybe it is better to make this and iterator/generator
 def HDF52AseAtomsChunckedwithSymbols(
@@ -243,7 +244,6 @@ def __writeAframe(
     perFramePorperty: str = None,
     **additionalColumns,
 ) -> str:
-
     data = f"{header}"
     data += f" {perFramePorperty}" if perFramePorperty is not None else ""
     theBox = triclinic_vectors(boxDimensions)

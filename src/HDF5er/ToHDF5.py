@@ -99,6 +99,7 @@ def MDA2HDF5(
             for key in attrs.keys():
                 trajGroup.attrs.create(key, attrs[key])
 
+
 import warnings
 
 
@@ -116,7 +117,9 @@ def xyz2hdf5Converter(xyzName: str, boxfilename: str, group: h5py.Group):
         group (h5py.Group): the group within the hdf5 file where the trajectroy will be saved
     """
     # TODO: convert use exportChunk2HDF5
-    warnings.warn('this is untested "legacy code", use with caution',PendingDeprecationWarning)
+    warnings.warn(
+        'this is untested "legacy code", use with caution', PendingDeprecationWarning
+    )
     frame = aseRead(xyzName)
     nat = len(frame.get_positions())
     if "Types" not in list(group.keys()):
@@ -149,7 +152,7 @@ def xyz2hdf5Converter(xyzName: str, boxfilename: str, group: h5py.Group):
         atomicframes = []
         for box, frame in zip(bf, xyz):
             t = box.split()
-            boxInfo = np.array(
+            boxInfo = numpy.array(
                 [float(t[0]), float(t[1]), float(t[2]), 90.0, 90.0, 90.0]
             )
             boxes.append(boxInfo)

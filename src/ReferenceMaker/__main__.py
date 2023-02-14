@@ -97,7 +97,6 @@ for d in [
 ]:
     input = d["name"]
     with lammps() as lmp:
-
         lmp.commands_list(
             [
                 "units           metal",

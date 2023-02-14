@@ -1,6 +1,7 @@
 from .SOAPClassify import SOAPclassification
 import numpy as np
 
+
 # TODO add stride/window selection
 def transitionMatrixFromSOAPClassification(
     data: SOAPclassification, stride: int = 1
@@ -190,7 +191,6 @@ def transitionMatrixFromStateTracker(statesTracker: list, legend: list) -> np.nd
     transMat = np.zeros((nclasses, nclasses), dtype=np.float64)
     # print(len(states), states[0], file=sys.stderr)
     for event in states:
-
         transMat[event[TRACK_CURSTATE], event[TRACK_CURSTATE]] += (
             event[TRACK_EVENTTIME] - 1
         )
