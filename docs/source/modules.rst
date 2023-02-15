@@ -13,11 +13,3 @@ HDF5er
    :maxdepth: 4
 
    HDF5er
-
-ReferenceMaker
-==============
-
-.. toctree::
-   :maxdepth: 4
-
-   ReferenceMaker
