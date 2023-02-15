@@ -68,6 +68,7 @@ intersphinx_mapping = {
     "rtd": ("https://docs.readthedocs.io/en/stable/", None),
     "python": ("https://docs.python.org/3/", None),
     "sphinx": ("https://www.sphinx-doc.org/en/master/", None),
+    "numpy": ("http://docs.scipy.org/doc/numpy", None),
 }
 intersphinx_disabled_domains = ["std"]
 
