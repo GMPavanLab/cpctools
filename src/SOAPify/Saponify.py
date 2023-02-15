@@ -3,7 +3,7 @@ import time
 from typing import Iterable
 import numpy
 
-from HDF5er import (
+from .HDF5er import (
     HDF52AseAtomsChunckedwithSymbols as HDF2ase,
     isTrajectoryGroup,
 )

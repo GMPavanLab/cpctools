@@ -1,6 +1,6 @@
 import pytest
 import SOAPify
-import HDF5er
+import SOAPify.HDF5er as HDF5er
 import numpy
 import h5py
 from numpy.random import randint
