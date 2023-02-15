@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: changelog-enforcer
     steps:
-    
+    - uses: actions/checkout@v3
     - name: Set Up Python 3.8
       uses: actions/setup-python@v3
       with:
