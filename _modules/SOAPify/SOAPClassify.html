@@ -47,7 +47,6 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../modules.html">SOAPify</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../modules.html#hdf5er">HDF5er</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../modules.html#referencemaker">ReferenceMaker</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Utils</span></p>
 <ul>
@@ -88,7 +87,6 @@
 <span class="kn">from</span> <span class="nn">.SOAPbase</span> <span class="kn">import</span> <span class="n">SOAPdistance</span><span class="p">,</span> <span class="n">SOAPdistanceNormalized</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">fillSOAPVectorFromdscribe</span><span class="p">,</span> <span class="n">normalizeArray</span>
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
-<span class="kn">from</span> <span class="nn">deprecated.sphinx</span> <span class="kn">import</span> <span class="n">deprecated</span>
 
 
 <div class="viewcode-block" id="SOAPclassification"><a class="viewcode-back" href="../../generated/SOAPify.SOAPClassify.html#SOAPify.SOAPClassify.SOAPclassification">[docs]</a><span class="nd">@dataclass</span>
@@ -317,90 +315,6 @@
     <span class="n">minimumDistID</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">minimumDist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">amin</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">SOAPclassification</span><span class="p">(</span><span class="n">minimumDist</span><span class="p">,</span> <span class="n">minimumDistID</span><span class="p">,</span> <span class="n">references</span><span class="o">.</span><span class="n">names</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="loadRefs"><a class="viewcode-back" href="../../generated/SOAPify.SOAPClassify.html#SOAPify.SOAPClassify.loadRefs">[docs]</a><span class="nd">@deprecated</span><span class="p">(</span>
-    <span class="n">version</span><span class="o">=</span><span class="s2">&quot;0.0.3&quot;</span><span class="p">,</span>
-    <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;now we have a easier and better way of classifying, use the SOAPReferences pipeline&quot;</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="k">def</span> <span class="nf">loadRefs</span><span class="p">(</span>
-    <span class="n">hdf5FileReference</span><span class="p">:</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">,</span> <span class="n">referenceAddresses</span><span class="p">:</span> <span class="nb">list</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;tuple[np.ndarray[float],list[str]]&quot;</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;loads the references given in referenceAddresses from an hdf5 file</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        hdf5FileReference (h5py.File): the hdf5 file that contains the references</span>
-<span class="sd">        referenceAddresses (list): a list of the addresses of the references and/or</span>
-<span class="sd">        of the groups that contain the references in hdf5FileReference</span>
-<span class="sd">    Returns:</span>
-<span class="sd">        tuple[np.ndarray[float],list[str]]: returns a tuple with the fingerprint and the relative names of the references</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">spectra</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># np.zeros((0, 0), dtype=dtype=np.float64)</span>
-    <span class="n">legend</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">address</span> <span class="ow">in</span> <span class="n">referenceAddresses</span><span class="p">:</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">hdf5FileReference</span><span class="p">[</span><span class="n">address</span><span class="p">]</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">h5py</span><span class="o">.</span><span class="n">Group</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">refName</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                <span class="n">dataset</span> <span class="o">=</span> <span class="n">hdf5FileReference</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">address</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">refName</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
-                <span class="n">legend</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">refName</span><span class="p">)</span>
-                <span class="n">spectra</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dataset</span><span class="p">[:],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
-
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">h5py</span><span class="o">.</span><span class="n">Dataset</span><span class="p">):</span>
-            <span class="n">legend</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-            <span class="n">spectra</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">data</span><span class="p">[:],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;loadRefs cannot create a reference from given input: repr=</span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="p">)</span>
-            <span class="n">exit</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span>
-    <span class="n">spectra</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">spectra</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">spectra</span><span class="p">,</span> <span class="n">legend</span></div>
-
-
-<div class="viewcode-block" id="classifyWithSOAP"><a class="viewcode-back" href="../../generated/SOAPify.SOAPClassify.html#SOAPify.SOAPClassify.classifyWithSOAP">[docs]</a><span class="nd">@deprecated</span><span class="p">(</span>
-    <span class="n">version</span><span class="o">=</span><span class="s2">&quot;0.0.3&quot;</span><span class="p">,</span>
-    <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;now we have a easier and better way of classifying, use the SOAPReferences pipeline&quot;</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="k">def</span> <span class="nf">classifyWithSOAP</span><span class="p">(</span>
-    <span class="n">SOAPTrajData</span><span class="p">:</span> <span class="n">h5py</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">hdf5FileReference</span><span class="p">:</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">,</span> <span class="n">referenceAddresses</span><span class="p">:</span> <span class="nb">list</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SOAPclassification</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;classifies all atoms in a system, given the precalculated set of SOAP fingerprints, and the references.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        SOAPTrajData (h5py.Dataset): The hdf5 dataset that contaisn the SOAP fingerprints</span>
-<span class="sd">        hdf5FileReference (h5py.File): the hdf5 file that contains the references</span>
-<span class="sd">        referenceAddresses (list): a list of the addresses of the references and\/or of the groups that contain the references in hdf5FileReference</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        SOAPclassification: the information of the whole trajectory divided frame by frame and atom by atom, along with the legend</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">spectra</span><span class="p">,</span> <span class="n">legend</span> <span class="o">=</span> <span class="n">loadRefs</span><span class="p">(</span><span class="n">hdf5FileReference</span><span class="p">,</span> <span class="n">referenceAddresses</span><span class="p">)</span>
-    <span class="n">nframes</span> <span class="o">=</span> <span class="n">SOAPTrajData</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">nat</span> <span class="o">=</span> <span class="n">SOAPTrajData</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-    <span class="n">distances</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nframes</span><span class="p">,</span> <span class="n">nat</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
-    <span class="n">references</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nframes</span><span class="p">,</span> <span class="n">nat</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="nb">int</span><span class="p">))</span>
-    <span class="n">n</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="c1"># nchunks=len(T1.iter_chunks())</span>
-    <span class="c1"># TODO verify if this loop can be parallelized</span>
-    <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">SOAPTrajData</span><span class="o">.</span><span class="n">iter_chunks</span><span class="p">():</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;working on chunk </span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">chunk</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">n</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="k">for</span> <span class="n">chunkID</span><span class="p">,</span> <span class="n">frame</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">SOAPTrajData</span><span class="p">[</span><span class="n">chunk</span><span class="p">]):</span>
-            <span class="n">frameID</span> <span class="o">=</span> <span class="n">chunk</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">start</span> <span class="o">+</span> <span class="n">chunkID</span>
-            <span class="k">for</span> <span class="n">atomID</span><span class="p">,</span> <span class="n">atom</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">frame</span><span class="p">):</span>
-                <span class="n">distances</span><span class="p">[</span><span class="n">frameID</span><span class="p">,</span> <span class="n">atomID</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1000.0</span>
-                <span class="n">references</span><span class="p">[</span><span class="n">frameID</span><span class="p">,</span> <span class="n">atomID</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
-                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">spectra</span><span class="p">)):</span>
-                    <span class="k">try</span><span class="p">:</span>
-                        <span class="n">tdist</span> <span class="o">=</span> <span class="n">SOAPdistance</span><span class="p">(</span><span class="n">atom</span><span class="p">,</span> <span class="n">spectra</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
-                        <span class="k">if</span> <span class="n">tdist</span> <span class="o">&lt;</span> <span class="n">distances</span><span class="p">[</span><span class="n">frameID</span><span class="p">,</span> <span class="n">atomID</span><span class="p">]:</span>
-                            <span class="n">distances</span><span class="p">[</span><span class="n">frameID</span><span class="p">,</span> <span class="n">atomID</span><span class="p">]</span> <span class="o">=</span> <span class="n">tdist</span>
-                            <span class="n">references</span><span class="p">[</span><span class="n">frameID</span><span class="p">,</span> <span class="n">atomID</span><span class="p">]</span> <span class="o">=</span> <span class="n">j</span>
-                    <span class="k">except</span><span class="p">:</span>
-                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;at </span><span class="si">{</span><span class="n">j</span><span class="si">}</span><span class="s2">:&quot;</span><span class="p">)</span>
-                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;spectra: </span><span class="si">{</span><span class="n">spectra</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;atom: </span><span class="si">{</span><span class="n">atomID</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">SOAPclassification</span><span class="p">(</span><span class="n">distances</span><span class="p">,</span> <span class="n">references</span><span class="p">,</span> <span class="n">legend</span><span class="p">)</span></div>
 </pre></div>
 
            </div>

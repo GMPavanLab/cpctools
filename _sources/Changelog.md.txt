@@ -5,6 +5,7 @@ Until we get to a release version you may encounter different broken interface p
 ## Changes since v0.0.5
 
 - Forced float64 precision in most of the calculations
+- Removed the old and unused procedure for calculating the references
 
 ## Changes since v0.0.4
 

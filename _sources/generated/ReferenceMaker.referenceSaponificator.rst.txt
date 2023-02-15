@@ -1,6 +1,0 @@
-﻿ReferenceMaker.referenceSaponificator
-=====================================
-
-.. currentmodule:: ReferenceMaker
-
-.. autofunction:: referenceSaponificator

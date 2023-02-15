@@ -14,13 +14,11 @@
    .. autosummary::
    
       classify
-      classifyWithSOAP
       createReferencesFromTrajectory
       getDistanceBetween
       getDistancesFromRef
       getDistancesFromRefNormalized
       getReferencesFromDataset
-      loadRefs
       mergeReferences
       saveReferences
    
