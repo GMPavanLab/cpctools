@@ -1,4 +1,4 @@
-name: Run tests
+name: "Checking if the PR can be merged"
 
 on:
   push:
@@ -13,6 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
       
   test:
     runs-on: ubuntu-latest
