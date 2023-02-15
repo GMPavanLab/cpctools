@@ -1,8 +1,8 @@
-from .SOAPClassify import *
-from .SOAPbase import *
-from .Saponify import *
+from .classify import *
+from .distances import *
+from .saponify import *
 from .utils import *
-from .SOAPTransitions import *
-from .SOAPengine import *
+from .transitions import *
+from .engine import *
 
 __version__ = "v0.0.5"

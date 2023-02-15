@@ -5,7 +5,7 @@ from numpy.testing import assert_array_equal
 from SOAPify import SOAPReferences
 import h5py
 from ase.data import atomic_numbers
-from SOAPify.SOAPClassify import SOAPclassification
+from SOAPify.classify import SOAPclassification
 import pytest
 
 

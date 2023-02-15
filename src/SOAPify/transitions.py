@@ -1,4 +1,4 @@
-from .SOAPClassify import SOAPclassification
+from .classify import SOAPclassification
 import numpy as np
 
 

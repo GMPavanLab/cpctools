@@ -7,7 +7,7 @@ from .HDF5er import (
     HDF52AseAtomsChunckedwithSymbols as HDF2ase,
     isTrajectoryGroup,
 )
-from .SOAPengine import SOAPengineContainer, getSoapEngine, KNOWNSOAPENGINES
+from .engine import SOAPengineContainer, getSoapEngine, KNOWNSOAPENGINES
 
 
 def _saponifyWorker(
