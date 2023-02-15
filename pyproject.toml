@@ -16,9 +16,21 @@ classifiers = [
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
 ]
-dependencies = ["ase", "mdanalysis", "h5py", "seaborn", "Deprecated"]
+dependencies = ["ase", "mdanalysis", "h5py", "Deprecated"]
 dynamic = ["version"]
-#[project.optional-dependencies]
+
+[project.optional-dependencies]
+docs = [
+    "sphinx",
+    "docutils<0.18",
+    #"mpl-sphinx-theme",
+    "sphinx-rtd-theme",
+    "myst-parser",
+    "sphinx-autodoc-typehints",
+
+    "dscribe >1.2.0, <=1.2.2",
+    "quippy-ase==0.9.10",
+]
 #dscribe = ["dscribe==1.2.1"]
 #quippy = ["quippy-ase==0.9.10"]
 
@@ -43,15 +55,35 @@ only-packages = true
 #[tool.hatch.envs.default]
 #skip-install = false
 
-[tool.hatch.envs.test]
-pre-install-commands = ["which python"]
+#this is set up to not write again the soap extra-dependencies
+[tool.hatch.envs.SOAP]
+dependencies = [    
+    "dscribe >1.2.0, <=1.2.2",
+    "quippy-ase==0.9.10",
+]
 
+[tool.hatch.envs.docs]
+template="SOAP"
+extra-dependencies = [
+    "sphinx",
+    "docutils<0.18",
+    #"mpl-sphinx-theme",
+    "sphinx-rtd-theme",
+    "myst-parser",
+    "sphinx-autodoc-typehints",
+]
+
+[tool.hatch.envs.docs.scripts]
+cov = 'cd docs && make coverage'
+build = 'cd docs && make html'
+
+[tool.hatch.envs.test]
+template="SOAP"
+pre-install-commands = ["which python"]
 extra-dependencies = [
     "coverage[toml]",
     "pytest",
     "pytest-cov",
-    "dscribe >1.2.0, <=1.2.2",
-    "quippy-ase==0.9.10",
 ]
 
 [tool.hatch.envs.test.scripts]
@@ -60,24 +92,5 @@ tools = 'pytest ./tests/test_tools.py'
 #cov = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=src --cov=tests {args} --cov-report html"
 no-cov = "cov --no-cov {args}"
 
-
 [[tool.hatch.envs.test.matrix]]
 python = ["3.8", "3.9"]
-
-
-[tool.hatch.envs.docs]
-extra-dependencies = [
-    "sphinx",
-    "docutils<0.18",
-    #"mpl-sphinx-theme",
-    "sphinx-rtd-theme",
-    "myst-parser",
-    "sphinx-autodoc-typehints",
-
-    "dscribe >1.2.0, <=1.2.2",
-    "quippy-ase==0.9.10",
-]
-
-[tool.hatch.envs.docs.scripts]
-cov = 'cd docs && make coverage'
-build = 'cd docs && make html'
