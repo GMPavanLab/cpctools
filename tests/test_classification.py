@@ -1,4 +1,3 @@
-import pytest
 import SOAPify
 import numpy
 from numpy.testing import (
@@ -7,12 +6,6 @@ from numpy.testing import (
     assert_almost_equal,
 )
 import h5py
-import HDF5er
-from .testSupport import getUniverseWithWaterMolecules
-
-
-# def test_test(referencesIco923NP):
-#    pass
 
 
 def test_creatingReferencesFromTrajectoryAndSavingThem(

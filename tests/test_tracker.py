@@ -80,3 +80,7 @@ def test_RemoveAtomIdentityFromEventTracker(input_mockedTrajectoryClassification
             assert_array_equal(event, newevents[count])
             assert isinstance(newevents[atomID], numpy.ndarray)
             count += 1
+    # if we pass to the function a list of tracker
+    otherevents = SOAPify.RemoveAtomIdentityFromEventTracker(newevents)
+    # nothing should happen
+    assert otherevents == newevents
