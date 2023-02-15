@@ -6,6 +6,7 @@ Until we get to a release version you may encounter different broken interface p
 
 - Forced float64 precision in most of the calculations
 - Removed the old and unused procedure for calculating the references
+- Compacted the workflows for a PR
 
 ## Changes since v0.0.4
 
