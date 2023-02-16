@@ -15,6 +15,7 @@ classifiers = [
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
 ]
 dependencies = [
     "ase==3.22.1", 
@@ -100,4 +101,4 @@ tools = 'pytest ./tests/test_tools.py'
 no-cov = "cov --no-cov {args}"
 
 [[tool.hatch.envs.test.matrix]]
-python = ["3.8", "3.9"]
+python = ["3.8", "3.9", "3.10"]
