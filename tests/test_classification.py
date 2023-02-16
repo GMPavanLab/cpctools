@@ -177,7 +177,7 @@ def test_classifyShortcut(getReferencesConfs, referencesTest):
         minimumDistID = numpy.argmin(distancesCalculated, axis=-1).reshape(-1, nat)
         minimumDist = numpy.amin(distancesCalculated, axis=-1).reshape(-1, nat)
 
-        classification = SOAPify.classify(
+        classification = SOAPify.applyClassification(
             ds, referenceDict[k], SOAPify.SOAPdistanceNormalized, doNormalize=True
         )
         assert_array_almost_equal(minimumDist, classification.distances)

@@ -215,7 +215,7 @@ def getReferencesConfs(tmp_path_factory):
 
     HDF5er.MDA2HDF5(ico923, referenceConfs, "ico923_6", override=True)
     with h5py.File(referenceConfs, "a") as workFile:
-        SOAPify.saponifyGroup(
+        SOAPify.saponifyMultipleTrajectories(
             trajContainers=workFile["Trajectories"],
             SOAPoutContainers=workFile.require_group("SOAP"),
             SOAPOutputChunkDim=1000,

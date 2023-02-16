@@ -210,7 +210,7 @@ def getReferencesFromDataset(dataset: h5py.Dataset) -> SOAPReferences:
     return SOAPReferences(names=names, spectra=fingerprints, lmax=lmax, nmax=nmax)
 
 
-def classify(
+def applyClassification(
     SOAPTrajData: h5py.Dataset,
     references: SOAPReferences,
     distanceCalculator: Callable,
