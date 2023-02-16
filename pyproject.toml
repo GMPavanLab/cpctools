@@ -5,8 +5,8 @@ build-backend = "hatchling.build"
 [project]
 name = "SOAPify-GMPavanLab"
 description = "A package for creating and studying SOAP fingerprints"
-readme = { "file" = "Readme.md", "content-type" = "text/markdown" }
-requires-python = ">=3.8, <3.10"
+readme = "Readme.md"
+requires-python = "<3.11,>=3.8"
 license = "MIT"
 keywords = ["SOAP", "Molecular Dynamics", "simulation", "simulation analysis"]
 authors = [{ name = "Daniele Rapetti", email = "daniele.rapetti@polito.it" }]
@@ -15,6 +15,7 @@ classifiers = [
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
 ]
 dependencies = [
     "ase==3.22.1", 
@@ -98,4 +99,4 @@ tools = 'pytest ./tests/test_tools.py'
 no-cov = "cov --no-cov {args}"
 
 [[tool.hatch.envs.test.matrix]]
-python = ["3.8", "3.9"]
+python = ["3.8", "3.9", "3.10"]
