@@ -12,9 +12,6 @@ log.lammps
 refSave.hdf5
 .secrets
 
-#temporary test dir
-evtest/
-
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
