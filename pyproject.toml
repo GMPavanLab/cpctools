@@ -16,17 +16,22 @@ classifiers = [
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
 ]
-dependencies = ["ase", "mdanalysis", "h5py", "Deprecated"]
+dependencies = [
+    "ase==3.22.1", 
+    "MDAnalysis==2.4.2",
+    "h5py==3.8.0", 
+    "Deprecated==1.2.13",
+    "numpy<1.24,>=1.18", #problems with numba and f90wrap
+    ]
 dynamic = ["version"]
 
 [project.optional-dependencies]
 docs = [
-    "sphinx",
+    "sphinx<6,>=4",
     "docutils<0.18",
-    #"mpl-sphinx-theme",
-    "sphinx-rtd-theme",
-    "myst-parser",
-    "sphinx-autodoc-typehints",
+    "sphinx-rtd-theme==1.2.0",
+    "myst-parser==0.18.1",
+    "sphinx-autodoc-typehints==1.22",
 
     "dscribe >1.2.0, <=1.2.2",
     "quippy-ase==0.9.10",
@@ -65,12 +70,12 @@ dependencies = [
 [tool.hatch.envs.docs]
 template="SOAP"
 extra-dependencies = [
-    "sphinx",
+    "sphinx<6,>=4",
     "docutils<0.18",
+    "sphinx-rtd-theme==1.2.0",
+    "myst-parser==0.18.1",
+    "sphinx-autodoc-typehints==1.22",
     #"mpl-sphinx-theme",
-    "sphinx-rtd-theme",
-    "myst-parser",
-    "sphinx-autodoc-typehints",
 ]
 
 [tool.hatch.envs.docs.scripts]
