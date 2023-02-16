@@ -15,6 +15,7 @@ Until we get to a release version you may encounter different broken interface p
 - Now if the box changes in a mda.Universe the ToHDF5 method saves it correctly
 - set quippy-ase compatibility to 0.9.10
 - Now tests prevents error in merging references
+- Checked and added python 3.10 compatibility
 
 ## Changes since v0.0.3
 
