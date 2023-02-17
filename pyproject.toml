@@ -82,6 +82,8 @@ extra-dependencies = [
 [tool.hatch.envs.docs.scripts]
 cov = 'cd docs && make coverage'
 build = 'cd docs && make html'
+clean = 'cd docs && make clean'
+cleanbuild = 'cd docs && make clean build'
 
 [tool.hatch.envs.test]
 template="SOAP"

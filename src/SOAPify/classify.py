@@ -1,7 +1,7 @@
 from typing import Callable
 import h5py
 import numpy as np
-from .SOAPbase import SOAPdistance, SOAPdistanceNormalized
+from .distances import SOAPdistance, SOAPdistanceNormalized
 from .utils import fillSOAPVectorFromdscribe, normalizeArray
 from dataclasses import dataclass
 
@@ -210,7 +210,7 @@ def getReferencesFromDataset(dataset: h5py.Dataset) -> SOAPReferences:
     return SOAPReferences(names=names, spectra=fingerprints, lmax=lmax, nmax=nmax)
 
 
-def classify(
+def applyClassification(
     SOAPTrajData: h5py.Dataset,
     references: SOAPReferences,
     distanceCalculator: Callable,

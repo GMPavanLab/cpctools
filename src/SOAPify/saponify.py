@@ -3,11 +3,11 @@ import time
 from typing import Iterable
 import numpy
 
-from HDF5er import (
+from .HDF5er import (
     HDF52AseAtomsChunckedwithSymbols as HDF2ase,
     isTrajectoryGroup,
 )
-from .SOAPengine import SOAPengineContainer, getSoapEngine, KNOWNSOAPENGINES
+from .engine import SOAPengineContainer, getSoapEngine, KNOWNSOAPENGINES
 
 
 def _saponifyWorker(
@@ -138,7 +138,7 @@ def _applySOAP(
     )
 
 
-def saponifyGroup(
+def saponifyMultipleTrajectories(
     trajContainers: "h5py.Group|h5py.File",
     SOAPoutContainers: "h5py.Group|h5py.File",
     SOAPrcut: float,
@@ -153,8 +153,7 @@ def saponifyGroup(
     useSoapFrom: KNOWNSOAPENGINES = "dscribe",
     doOverride: bool = False,
 ):
-    """From a trajectory stored in a group calculates and stores the SOAP
-    descriptor in the given group/file
+    """From each trajectory stored in a group or in a file calculates and stores the SOAP descriptor in the given group/file
 
     `SOAPatomMask` and `centersMask` are mutually exclusive (see :func:`SOAPify.SOAPengine.getSoapEngine`)
 
@@ -203,7 +202,7 @@ def saponifyGroup(
             )
 
 
-def saponify(
+def saponifyTrajectory(
     trajContainer: "h5py.Group|h5py.File",
     SOAPoutContainer: "h5py.Group|h5py.File",
     SOAPrcut: float,

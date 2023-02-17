@@ -3,7 +3,7 @@ import SOAPify
 import numpy
 from numpy.testing import assert_array_equal
 import h5py
-import HDF5er
+import SOAPify.HDF5er as HDF5er
 from .testSupport import getUniverseWithWaterMolecules
 
 
@@ -29,7 +29,7 @@ def test_FeedingSaponifyANonTrajGroups(tmp_path):
         with h5py.File(fname, "a") as f:
             soapGroup = f.require_group("SOAP")
             trajGroup = f["Trajectories/notTraj"]
-            SOAPify.saponify(
+            SOAPify.saponifyTrajectory(
                 trajGroup,
                 soapGroup,
                 rcut,
@@ -50,7 +50,7 @@ def test_MultiAtomicSoapify(fixture_AtomMask, engineKind_fixture, tmp_path):
     with h5py.File(fname, "a") as f:
         soapGroup = f.require_group("SOAP")
         trajGroup = f["Trajectories/testH2O"]
-        SOAPify.saponify(
+        SOAPify.saponifyTrajectory(
             trajGroup,
             soapGroup,
             rcut,
@@ -90,7 +90,7 @@ def test_MultiAtomicSoapifyGroup(fixture_AtomMask, engineKind_fixture, tmp_path)
     rcut = 10.0
     with h5py.File(fname, "a") as f:
         soapGroup = f.require_group("SOAP")
-        SOAPify.saponifyGroup(
+        SOAPify.saponifyMultipleTrajectories(
             f["Trajectories"],
             soapGroup,
             rcut,
@@ -132,7 +132,7 @@ def test_slicesNo(tmp_path):
     rcut = 10.0
     with h5py.File(fname, "a") as f:
         soapGroup = f.require_group("SOAP")
-        SOAPify.saponifyGroup(
+        SOAPify.saponifyMultipleTrajectories(
             f["Trajectories"],
             soapGroup,
             rcut,
@@ -165,7 +165,7 @@ def test_MultiAtomicSoapkwargs(tmp_path):
     fullmat = n_max * n_max * (l_max + 1)
     with h5py.File(fname, "a") as f:
         soapGroup = f.require_group("SOAPNoCrossover")
-        SOAPify.saponifyGroup(
+        SOAPify.saponifyMultipleTrajectories(
             f["Trajectories"],
             soapGroup,
             rcut,
@@ -194,7 +194,7 @@ def test_MultiAtomicSoapkwargs(tmp_path):
             ("SOAPouter", {"average": "outer"}),
         ]:
             soapGroup = f.require_group(gname)
-            SOAPify.saponifyGroup(
+            SOAPify.saponifyMultipleTrajectories(
                 f["Trajectories"],
                 soapGroup,
                 rcut,
@@ -224,7 +224,7 @@ def test_MultiAtomicSoapkwargs(tmp_path):
             )
 
         soapGroup = f.require_group("SOAPsparse")
-        SOAPify.saponifyGroup(
+        SOAPify.saponifyMultipleTrajectories(
             f["Trajectories"],
             soapGroup,
             rcut,
@@ -251,7 +251,7 @@ def test_MultiAtomicSoapkwargs(tmp_path):
         assert slices["O" + "O"] == slice(upperDiag + fullmat, 2 * upperDiag + fullmat)
 
         soapGroup = f.require_group("SOAPOxygen")
-        SOAPify.saponifyGroup(
+        SOAPify.saponifyMultipleTrajectories(
             f["Trajectories"],
             soapGroup,
             10.0,
@@ -282,7 +282,7 @@ def test_overrideOutput(tmp_path):
     with h5py.File(fname, "a") as f:
         soapGroup = f.require_group("SOAP")
         SOAPatomMask = [0, 1]
-        SOAPify.saponifyGroup(
+        SOAPify.saponifyMultipleTrajectories(
             f["Trajectories"],
             soapGroup,
             rcut,
@@ -297,7 +297,7 @@ def test_overrideOutput(tmp_path):
         SOAPatomMask = ["O"]
         with pytest.raises(ValueError):
             # raise exception if the user does not ask explicitly to override
-            SOAPify.saponifyGroup(
+            SOAPify.saponifyMultipleTrajectories(
                 f["Trajectories"],
                 soapGroup,
                 rcut,
@@ -306,7 +306,7 @@ def test_overrideOutput(tmp_path):
                 useSoapFrom="dscribe",
                 SOAPatomMask=SOAPatomMask,
             )
-        SOAPify.saponifyGroup(
+        SOAPify.saponifyMultipleTrajectories(
             f["Trajectories"],
             soapGroup,
             rcut,
@@ -320,7 +320,7 @@ def test_overrideOutput(tmp_path):
             for i in [j for j in range(len(u.atoms)) if u.atoms.names[j] == "O"]:
                 assert i in soapGroup[SOAPoutDataset].attrs["centersIndexes"]
         return
-        SOAPify.saponifyGroup(
+        SOAPify.saponifyMultipleTrajectories(
             f["Trajectories"],
             soapGroup,
             rcut,

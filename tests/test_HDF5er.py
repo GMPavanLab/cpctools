@@ -1,4 +1,4 @@
-import HDF5er
+import SOAPify.HDF5er as HDF5er
 import h5py
 import numpy
 from numpy.testing import assert_array_almost_equal
