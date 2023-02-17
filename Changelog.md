@@ -5,6 +5,7 @@ Until we get to a release version you may encounter different broken interface p
 ## Changes since v0.0.5
 
 - Forced **float64** precision in most of the calculations &larr; **THIS IS A MAJOR CHANGE AND COULD IMPACT YOUR RESULTS**
+- Changed the package name to cpctools
 - Removed the old and unused procedure for calculating the references
 - Compacted the workflows for a PR
 - Now documentation in rtd uses the standard rtd workflow
