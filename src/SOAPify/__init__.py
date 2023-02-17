@@ -5,4 +5,4 @@ from .utils import *
 from .SOAPTransitions import *
 from .SOAPengine import *
 
-__version__ = "v0.0.5"
+__version__ = "v0.0.6"

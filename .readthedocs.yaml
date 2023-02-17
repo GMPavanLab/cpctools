@@ -9,8 +9,17 @@ build:
   os: ubuntu-22.04
   tools:
     python: "3.8"
-  commands:
-    - pip install hatch
-    - hatch run docs:build
-    - mkdir -p _readthedocs/html
-    - cp -r docs/build/html/ _readthedocs/
+sphinx:
+   configuration: docs/source/conf.py
+python:
+  install:
+    - method: pip
+      path: .
+      extra_requirements:
+        - docs
+  # with this workflow the flyout does not appear!
+  #commands:
+  #  - pip install hatch
+  #  - hatch run docs:build
+  #  - mkdir -p _readthedocs/html
+  #  - cp -r docs/build/html/ _readthedocs/

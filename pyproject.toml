@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "SOAPify-GMPavanLab"
 description = "A package for creating and studying SOAP fingerprints"
 readme = { "file" = "Readme.md", "content-type" = "text/markdown" }
-requires-python = ">=3.8, <3.10"
+requires-python = "<3.11,>=3.8"
 license = "MIT"
 keywords = ["SOAP", "Molecular Dynamics", "simulation", "simulation analysis"]
 authors = [{ name = "Daniele Rapetti", email = "daniele.rapetti@polito.it" }]
@@ -15,10 +15,22 @@ classifiers = [
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
 ]
 dependencies = ["ase", "mdanalysis", "h5py", "seaborn", "Deprecated"]
 dynamic = ["version"]
-#[project.optional-dependencies]
+
+[project.optional-dependencies]
+docs = [
+    "sphinx<6,>=4",
+    "docutils<0.18",
+    "sphinx-rtd-theme==1.2.0",
+    "myst-parser==0.18.1",
+    "sphinx-autodoc-typehints==1.22",
+
+    "dscribe >1.2.0, <=1.2.2",
+    "quippy-ase==0.9.10",
+]
 #dscribe = ["dscribe==1.2.1"]
 #quippy = ["quippy-ase==0.9.10"]
 
