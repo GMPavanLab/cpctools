@@ -26,11 +26,16 @@ pip install "dscribe >1.2.0 <=1.2.2"
 pip install "quippy-ase==0.9.10"
 ```
 
-(PyPI support is incoming!)
-
 Now with a (very basic) [documentation](https://gmpavanlab.github.io/SOAPify/SOAPify.html) of the latest version pushed to the main branch!
 
-A more complete history of the documetation is avaiable on [read the docs](https://soapify.readthedocs.io/en/latest/), with storage of the old
+A more complete history of the documentation is avaiable on [read the docs](https://soapify.readthedocs.io/en/latest/), with storage of the old
+
+### Now we are on pypi
+
+To install SOAPify just type:
+```bash
+pip install cpctools
+```
 
 ## SOAPify
 
