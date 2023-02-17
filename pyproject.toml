@@ -43,6 +43,7 @@ docs = [
 [project.urls]
 Homepage = "https://github.com/GMPavanLab/SOAPify"
 Documentation = "https://gmpavanlab.github.io/SOAPify/"
+ReadTheDocs = "https://soapify.readthedocs.io/en/latest/"
 Issues = "https://github.com/GMPavanLab/SOAPify/issues"
 Source = "https://github.com/GMPavanLab/SOAPify"
 
