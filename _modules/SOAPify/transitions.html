@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SOAPify.transitions &mdash; SOAPify v0.1.0a0 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            SOAPify
+          </a>
+              <div class="version">
+                v0.1.0a0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Modules</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">SOAPify</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Utils</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../Tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Citation.html">Citing SOAPify</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../About.html">About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">SOAPify</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">SOAPify.transitions</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for SOAPify.transitions</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">..classify</span> <span class="kn">import</span> <span class="n">SOAPclassification</span>
+<span class="kn">from</span> <span class="nn">.tracker</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span>
+
+
+<span class="c1"># TODO add stride/window selection</span>
+<div class="viewcode-block" id="transitionMatrixFromSOAPClassification"><a class="viewcode-back" href="../../generated/SOAPify.transitions.html#SOAPify.transitions.transitionMatrixFromSOAPClassification">[docs]</a><span class="k">def</span> <span class="nf">transitionMatrixFromSOAPClassification</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">SOAPclassification</span><span class="p">,</span> <span class="n">stride</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;numpy.ndarray[float]&quot;</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generates the unnormalized matrix of the transitions from a :func:`classify`</span>
+
+<span class="sd">        see :func:`calculateTransitionMatrix` for a detailed description of an unnormalized transition matrix</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data (SOAPclassification): the results of the soapClassification from :func:`classify`</span>
+<span class="sd">        stride (int): the stride in frames between each state confrontation. Defaults to 1.</span>
+<span class="sd">        of the groups that contain the references in hdf5FileReference</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        numpy.ndarray[float]: the unnormalized matrix of the transitions</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">nframes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">references</span><span class="p">)</span>
+    <span class="n">nat</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">references</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="n">nclasses</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">legend</span><span class="p">)</span>
+    <span class="n">transMat</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nclasses</span><span class="p">,</span> <span class="n">nclasses</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">frameID</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">stride</span><span class="p">,</span> <span class="n">nframes</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">atomID</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">nat</span><span class="p">):</span>
+            <span class="n">classFrom</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">references</span><span class="p">[</span><span class="n">frameID</span> <span class="o">-</span> <span class="n">stride</span><span class="p">][</span><span class="n">atomID</span><span class="p">]</span>
+            <span class="n">classTo</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">references</span><span class="p">[</span><span class="n">frameID</span><span class="p">][</span><span class="n">atomID</span><span class="p">]</span>
+            <span class="n">transMat</span><span class="p">[</span><span class="n">classFrom</span><span class="p">,</span> <span class="n">classTo</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">transMat</span></div>
+
+
+<div class="viewcode-block" id="normalizeMatrix"><a class="viewcode-back" href="../../generated/SOAPify.transitions.html#SOAPify.transitions.normalizeMatrix">[docs]</a><span class="k">def</span> <span class="nf">normalizeMatrix</span><span class="p">(</span><span class="n">transMat</span><span class="p">:</span> <span class="s2">&quot;numpy.ndarray[float]&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;numpy.ndarray[float]&quot;</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;normalizes a matrix that is an ouput of :func:`transitionMatrixFromSOAPClassification`</span>
+
+<span class="sd">    The matrix is normalized with the criterion that the sum of each **row** is `1`</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        numpy.ndarray[float]: the unnormalized matrix of the transitions</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        numpy.ndarray[float]: the normalized matrix of the transitions</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">toRet</span> <span class="o">=</span> <span class="n">transMat</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">transMat</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+        <span class="nb">sum</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">toRet</span><span class="p">[</span><span class="n">row</span><span class="p">,</span> <span class="p">:])</span>
+        <span class="k">if</span> <span class="nb">sum</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">toRet</span><span class="p">[</span><span class="n">row</span><span class="p">,</span> <span class="p">:]</span> <span class="o">/=</span> <span class="nb">sum</span>
+    <span class="k">return</span> <span class="n">toRet</span></div>
+
+
+<span class="c1"># TODO add stride/window selection</span>
+<div class="viewcode-block" id="transitionMatrixFromSOAPClassificationNormalized"><a class="viewcode-back" href="../../generated/SOAPify.transitions.html#SOAPify.transitions.transitionMatrixFromSOAPClassificationNormalized">[docs]</a><span class="k">def</span> <span class="nf">transitionMatrixFromSOAPClassificationNormalized</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">SOAPclassification</span><span class="p">,</span> <span class="n">stride</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;numpy.ndarray[float]&quot;</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generates the normalized matrix of the transitions from a :func:`classify` and normalize it</span>
+
+<span class="sd">        The matrix is organized in the following way:</span>
+<span class="sd">        for each atom in each frame we increment by one the cell whose row is the</span>
+<span class="sd">        state at the frame `n-stride` and the column is the state at the frame `n`</span>
+
+<span class="sd">        The matrix is normalized with the criterion that the sum of each **row** is `1`</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data (SOAPclassification): the results of the soapClassification from :func:`classify`</span>
+<span class="sd">        stride (int): the stride in frames between each state confrontation. Defaults to 1.</span>
+<span class="sd">        of the groups that contain the references in hdf5FileReference</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        numpy.ndarray[float]: the normalized matrix of the transitions</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">transMat</span> <span class="o">=</span> <span class="n">transitionMatrixFromSOAPClassification</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">stride</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">normalizeMatrix</span><span class="p">(</span><span class="n">transMat</span><span class="p">)</span></div>
+
+
+<span class="c1"># TODO add stride here?</span>
+<div class="viewcode-block" id="calculateResidenceTimesFromClassification"><a class="viewcode-back" href="../../generated/SOAPify.transitions.html#SOAPify.transitions.calculateResidenceTimesFromClassification">[docs]</a><span class="k">def</span> <span class="nf">calculateResidenceTimesFromClassification</span><span class="p">(</span>
+    <span class="n">classification</span><span class="p">:</span> <span class="n">SOAPclassification</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;list[numpy.ndarray]&quot;</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Given a SOAPclassification, calculate the resindence time for each element of the classification.</span>
+<span class="sd">        The residence time is how much an atom stays in a determined state: this function calculates the redidence time for each atom and for each state,</span>
+<span class="sd">        and returns an ordered list of residence times for each state (hence losing the atom identity)</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        classification (SOAPclassification): the classified trajectory</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list[numpy.ndarray]: an ordered list of the residence times for each state</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">nofFrames</span> <span class="o">=</span> <span class="n">classification</span><span class="o">.</span><span class="n">references</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">nofAtoms</span> <span class="o">=</span> <span class="n">classification</span><span class="o">.</span><span class="n">references</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">residenceTimes</span> <span class="o">=</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">classification</span><span class="o">.</span><span class="n">legend</span><span class="p">))]</span>
+    <span class="k">for</span> <span class="n">atomID</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nofAtoms</span><span class="p">):</span>
+        <span class="n">atomTraj</span> <span class="o">=</span> <span class="n">classification</span><span class="o">.</span><span class="n">references</span><span class="p">[:,</span> <span class="n">atomID</span><span class="p">]</span>
+        <span class="n">time</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="n">atomTraj</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">frame</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nofFrames</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">atomTraj</span><span class="p">[</span><span class="n">frame</span><span class="p">]</span> <span class="o">!=</span> <span class="n">state</span><span class="p">:</span>
+                <span class="n">residenceTimes</span><span class="p">[</span><span class="n">state</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
+                <span class="n">state</span> <span class="o">=</span> <span class="n">atomTraj</span><span class="p">[</span><span class="n">frame</span><span class="p">]</span>
+                <span class="n">time</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">time</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="c1"># the last state does not have an out transition, appendig negative time to make it clear</span>
+        <span class="n">residenceTimes</span><span class="p">[</span><span class="n">state</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="o">-</span><span class="n">time</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">residenceTimes</span><span class="p">)):</span>
+        <span class="n">residenceTimes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">residenceTimes</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+
+    <span class="k">return</span> <span class="n">residenceTimes</span></div>
+
+
+<div class="viewcode-block" id="calculateResidenceTimes"><a class="viewcode-back" href="../../generated/SOAPify.transitions.html#SOAPify.transitions.calculateResidenceTimes">[docs]</a><span class="k">def</span> <span class="nf">calculateResidenceTimes</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">SOAPclassification</span><span class="p">,</span> <span class="n">statesTracker</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;list[numpy.ndarray]&quot;</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Given a classification (and the state tracker) generates a ordered list of residence times per state</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data (SOAPclassification): the classified trajectory, is statesTracker is passed will be used fog getting the legend of the states</span>
+<span class="sd">        statesTracker (list, optional): a list of list of state trackers, organized by atoms, or a list of state trackers. Defaults to None.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list[numpy.ndarray]: an ordered list of the residence times for each state</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">statesTracker</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">calculateResidenceTimesFromClassification</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">getResidenceTimesFromStateTracker</span><span class="p">(</span><span class="n">statesTracker</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">legend</span><span class="p">)</span></div>
+
+
+<span class="c1"># TODO add stride/window selection</span>
+<div class="viewcode-block" id="calculateTransitionMatrix"><a class="viewcode-back" href="../../generated/SOAPify.transitions.html#SOAPify.transitions.calculateTransitionMatrix">[docs]</a><span class="k">def</span> <span class="nf">calculateTransitionMatrix</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">SOAPclassification</span><span class="p">,</span> <span class="n">stride</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">statesTracker</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generates the unnormalized matrix of the transitions from a :func:`classify` of from a statesTracker</span>
+
+<span class="sd">        The matrix is organized in the following way:</span>
+<span class="sd">        for each atom in each frame we increment by one the cell whose row is the</span>
+<span class="sd">        state at the frame `n-stride` and the column is the state at the frame `n`</span>
+<span class="sd">        If the classification includes an error with a `-1` values the user should add an &#39;error&#39; class in the legend</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data (SOAPclassification): the results of the soapClassification from :func:`classify`</span>
+<span class="sd">        stride (int): the stride in frames between each state confrontation. Defaults to 1.</span>
+<span class="sd">        statesTracker (list, optional): _description_. Defaults to None.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        numpy.ndarray[float]: the unnormalized matrix of the transitions</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">statesTracker</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">transitionMatrixFromSOAPClassification</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">stride</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">transitionMatrixFromStateTracker</span><span class="p">(</span><span class="n">statesTracker</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">legend</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Daniele Rapetti.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

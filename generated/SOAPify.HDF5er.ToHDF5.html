@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HDF5er.ToHDF5 &mdash; SOAPify v0.0.5 documentation</title>
+  <title>SOAPify.HDF5er.ToHDF5 &mdash; SOAPify v0.1.0a0 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -20,8 +20,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="&lt;no title&gt;" href="../Utils.html" />
-    <link rel="prev" title="HDF5er.HDF5To" href="HDF5er.HDF5To.html" /> 
+    <link rel="next" title="SOAPify.engine" href="SOAPify.engine.html" />
+    <link rel="prev" title="SOAPify.HDF5er.HDF5erUtils" href="SOAPify.HDF5er.HDF5erUtils.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -36,7 +36,7 @@
             SOAPify
           </a>
               <div class="version">
-                v0.0.5
+                v0.1.0a0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -48,17 +48,19 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Modules</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../modules.html">SOAPify</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="../modules.html#hdf5er">HDF5er</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="../HDF5er.html">HDF5er</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="HDF5er.HDF5erUtils.html">HDF5er.HDF5erUtils</a></li>
-<li class="toctree-l3"><a class="reference internal" href="HDF5er.HDF5To.html">HDF5er.HDF5To</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">HDF5er.ToHDF5</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#HDF5er.ToHDF5.MDA2HDF5"><code class="docutils literal notranslate"><span class="pre">MDA2HDF5()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#HDF5er.ToHDF5.Universe2HDF5"><code class="docutils literal notranslate"><span class="pre">Universe2HDF5()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#HDF5er.ToHDF5.xyz2hdf5Converter"><code class="docutils literal notranslate"><span class="pre">xyz2hdf5Converter()</span></code></a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../modules.html">SOAPify</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../SOAPify.html">SOAPify</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="SOAPify.HDF5er.html">SOAPify.HDF5er</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="SOAPify.HDF5er.HDF5To.html">SOAPify.HDF5er.HDF5To</a></li>
+<li class="toctree-l4"><a class="reference internal" href="SOAPify.HDF5er.HDF5erUtils.html">SOAPify.HDF5er.HDF5erUtils</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">SOAPify.HDF5er.ToHDF5</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="SOAPify.engine.html">SOAPify.engine</a></li>
+<li class="toctree-l3"><a class="reference internal" href="SOAPify.saponify.html">SOAPify.saponify</a></li>
+<li class="toctree-l3"><a class="reference internal" href="SOAPify.distances.html">SOAPify.distances</a></li>
+<li class="toctree-l3"><a class="reference internal" href="SOAPify.classify.html">SOAPify.classify</a></li>
+<li class="toctree-l3"><a class="reference internal" href="SOAPify.transitions.html">SOAPify.transitions</a></li>
 </ul>
 </li>
 </ul>
@@ -87,10 +89,11 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../modules.html">SOAPify</a></li>
-          <li class="breadcrumb-item"><a href="../HDF5er.html">HDF5er</a></li>
-      <li class="breadcrumb-item active">HDF5er.ToHDF5</li>
+          <li class="breadcrumb-item"><a href="../SOAPify.html">SOAPify</a></li>
+          <li class="breadcrumb-item"><a href="SOAPify.HDF5er.html">SOAPify.HDF5er</a></li>
+      <li class="breadcrumb-item active">SOAPify.HDF5er.ToHDF5</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/generated/HDF5er.ToHDF5.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/generated/SOAPify.HDF5er.ToHDF5.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -98,8 +101,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-HDF5er.ToHDF5">
-<span id="hdf5er-tohdf5"></span><h1>HDF5er.ToHDF5<a class="headerlink" href="#module-HDF5er.ToHDF5" title="Permalink to this heading"></a></h1>
+  <section id="module-SOAPify.HDF5er.ToHDF5">
+<span id="soapify-hdf5er-tohdf5"></span><h1>SOAPify.HDF5er.ToHDF5<a class="headerlink" href="#module-SOAPify.HDF5er.ToHDF5" title="Permalink to this heading"></a></h1>
 <p class="rubric">Functions</p>
 <table class="autosummary longtable docutils align-default">
 <colgroup>
@@ -107,20 +110,20 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#HDF5er.ToHDF5.MDA2HDF5" title="HDF5er.ToHDF5.MDA2HDF5"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MDA2HDF5</span></code></a>(MDAUniverseOrSelection, ...[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#SOAPify.HDF5er.ToHDF5.MDA2HDF5" title="SOAPify.HDF5er.ToHDF5.MDA2HDF5"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MDA2HDF5</span></code></a>(MDAUniverseOrSelection, ...[, ...])</p></td>
 <td><p>Opens or creates the given HDF5 file, request the user's chosen group, then uploads an mda.Universe or an mda.AtomGroup to a h5py.Group in an hdf5 file</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#HDF5er.ToHDF5.Universe2HDF5" title="HDF5er.ToHDF5.Universe2HDF5"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Universe2HDF5</span></code></a>(u, trajFolder[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#SOAPify.HDF5er.ToHDF5.Universe2HDF5" title="SOAPify.HDF5er.ToHDF5.Universe2HDF5"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Universe2HDF5</span></code></a>(u, trajFolder[, ...])</p></td>
 <td><p>Uploads an mda.Universe or an mda.AtomGroup to a h5py.Group in an hdf5 file</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#HDF5er.ToHDF5.xyz2hdf5Converter" title="HDF5er.ToHDF5.xyz2hdf5Converter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">xyz2hdf5Converter</span></code></a>(xyzName, boxfilename, group)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#SOAPify.HDF5er.ToHDF5.xyz2hdf5Converter" title="SOAPify.HDF5er.ToHDF5.xyz2hdf5Converter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">xyz2hdf5Converter</span></code></a>(xyzName, boxfilename, group)</p></td>
 <td><p>Generate an HDF5 trajectory from an xyz file and a box file</p></td>
 </tr>
 </tbody>
 </table>
 <dl class="py function">
-<dt class="sig sig-object py" id="HDF5er.ToHDF5.MDA2HDF5">
-<span class="sig-prename descclassname"><span class="pre">HDF5er.ToHDF5.</span></span><span class="sig-name descname"><span class="pre">MDA2HDF5</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">MDAUniverseOrSelection</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targetHDF5File</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">groupName</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trajChunkSize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">override</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attrs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trajslice</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">slice(None,</span> <span class="pre">None,</span> <span class="pre">None)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/HDF5er/ToHDF5.html#MDA2HDF5"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#HDF5er.ToHDF5.MDA2HDF5" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="SOAPify.HDF5er.ToHDF5.MDA2HDF5">
+<span class="sig-prename descclassname"><span class="pre">SOAPify.HDF5er.ToHDF5.</span></span><span class="sig-name descname"><span class="pre">MDA2HDF5</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">MDAUniverseOrSelection</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targetHDF5File</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">groupName</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trajChunkSize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">override</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attrs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trajslice</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">slice(None,</span> <span class="pre">None,</span> <span class="pre">None)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/SOAPify/HDF5er/ToHDF5.html#MDA2HDF5"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#SOAPify.HDF5er.ToHDF5.MDA2HDF5" title="Permalink to this definition"></a></dt>
 <dd><p>Opens or creates the given HDF5 file, request the user’s chosen group, then uploads an mda.Universe or an mda.AtomGroup to a h5py.Group in an hdf5 file</p>
 <blockquote>
 <div><p><strong>WARNING</strong>: in the HDF5 file if the chosen group is already present it will be overwritten by the new data</p>
@@ -139,8 +142,8 @@
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="HDF5er.ToHDF5.Universe2HDF5">
-<span class="sig-prename descclassname"><span class="pre">HDF5er.ToHDF5.</span></span><span class="sig-name descname"><span class="pre">Universe2HDF5</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trajFolder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trajChunkSize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trajslice</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">slice(None,</span> <span class="pre">None,</span> <span class="pre">None)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/HDF5er/ToHDF5.html#Universe2HDF5"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#HDF5er.ToHDF5.Universe2HDF5" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="SOAPify.HDF5er.ToHDF5.Universe2HDF5">
+<span class="sig-prename descclassname"><span class="pre">SOAPify.HDF5er.ToHDF5.</span></span><span class="sig-name descname"><span class="pre">Universe2HDF5</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trajFolder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trajChunkSize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trajslice</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">slice(None,</span> <span class="pre">None,</span> <span class="pre">None)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/SOAPify/HDF5er/ToHDF5.html#Universe2HDF5"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#SOAPify.HDF5er.ToHDF5.Universe2HDF5" title="Permalink to this definition"></a></dt>
 <dd><p>Uploads an mda.Universe or an mda.AtomGroup to a h5py.Group in an hdf5 file</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -154,8 +157,8 @@
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="HDF5er.ToHDF5.xyz2hdf5Converter">
-<span class="sig-prename descclassname"><span class="pre">HDF5er.ToHDF5.</span></span><span class="sig-name descname"><span class="pre">xyz2hdf5Converter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xyzName</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boxfilename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/HDF5er/ToHDF5.html#xyz2hdf5Converter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#HDF5er.ToHDF5.xyz2hdf5Converter" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="SOAPify.HDF5er.ToHDF5.xyz2hdf5Converter">
+<span class="sig-prename descclassname"><span class="pre">SOAPify.HDF5er.ToHDF5.</span></span><span class="sig-name descname"><span class="pre">xyz2hdf5Converter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xyzName</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boxfilename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/SOAPify/HDF5er/ToHDF5.html#xyz2hdf5Converter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#SOAPify.HDF5er.ToHDF5.xyz2hdf5Converter" title="Permalink to this definition"></a></dt>
 <dd><p>Generate an HDF5 trajectory from an xyz file and a box file</p>
 <blockquote>
 <div><p>This function reads an xyz file with ase and then export it to an trajectory in and hdf5 file,
@@ -179,8 +182,8 @@ the user should pass the group within the hdf5file to this function</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="HDF5er.HDF5To.html" class="btn btn-neutral float-left" title="HDF5er.HDF5To" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../Utils.html" class="btn btn-neutral float-right" title="&lt;no title&gt;" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="SOAPify.HDF5er.HDF5erUtils.html" class="btn btn-neutral float-left" title="SOAPify.HDF5er.HDF5erUtils" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="SOAPify.engine.html" class="btn btn-neutral float-right" title="SOAPify.engine" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

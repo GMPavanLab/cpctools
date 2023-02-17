@@ -6,10 +6,3 @@ SOAPify
 
    SOAPify
    
-HDF5er
-=======
-
-.. toctree::
-   :maxdepth: 4
-
-   HDF5er

@@ -1,0 +1,42 @@
+﻿SOAPify.transitions
+===================
+
+.. automodule:: SOAPify.transitions
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      calculateResidenceTimes
+      calculateResidenceTimesFromClassification
+      calculateTransitionMatrix
+      normalizeMatrix
+      transitionMatrixFromSOAPClassification
+      transitionMatrixFromSOAPClassificationNormalized
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :recursive:
+
+   SOAPify.transitions.tracker
+

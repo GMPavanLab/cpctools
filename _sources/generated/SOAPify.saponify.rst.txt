@@ -1,7 +1,7 @@
-﻿SOAPify.Saponify
+﻿SOAPify.saponify
 ================
 
-.. automodule:: SOAPify.Saponify
+.. automodule:: SOAPify.saponify
 
    
    
@@ -13,8 +13,8 @@
 
    .. autosummary::
    
-      saponify
-      saponifyGroup
+      saponifyMultipleTrajectories
+      saponifyTrajectory
    
    
 

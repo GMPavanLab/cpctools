@@ -1,7 +1,7 @@
-﻿HDF5er.HDF5erUtils
-==================
+SOAPify.HDF5er.HDF5erUtils
+==========================
 
-.. automodule:: HDF5er.HDF5erUtils
+.. automodule:: SOAPify.HDF5er.HDF5erUtils
 
    
    

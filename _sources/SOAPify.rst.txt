@@ -13,11 +13,11 @@ SOAPify
 .. autosummary::
    :recursive:
    :toctree: generated
-   
 
-   SOAPify.utils
-   SOAPify.Saponify
-   SOAPify.SOAPengine
-   SOAPify.SOAPbase
-   SOAPify.SOAPClassify
+   HDF5er
+   engine
+   saponify
+   distances
+   classify
+   transitions
    

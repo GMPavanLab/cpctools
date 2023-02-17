@@ -4,10 +4,25 @@ Until we get to a release version you may encounter different broken interface p
 
 ## Changes since v0.0.5
 
-- Forced float64 precision in most of the calculations
+- Forced **float64** precision in most of the calculations &larr; **THIS IS A MAJOR CHANGE AND COULD IMPACT YOUR RESULTS**
 - Removed the old and unused procedure for calculating the references
 - Compacted the workflows for a PR
-- Now uses the standard rtd workflow
+- Now documentation in rtd uses the standard rtd workflow
+- Moved HDF5er into SOAPify, to simplify the deployment
+    - change your `import HDF5er` to `import SOAPify.HDF5er as HDF5er` in your old codes
+    - `HDF5er.HDF5erUtils` &rarr; `SOAPify.HDF5er.HDF5erUtils`
+    - `HDF5er.HDF5To` &rarr; `SOAPify.HDF5er.HDF5To`
+    - `HDF5er.ToHDF5` &rarr; `SOAPify.HDF5er.ToHDF5`
+- renamed some submodules to clarify the usage:
+    - `SOAPify.SOAPbase` &rarr; `SOAPify.distances`
+    - `SOAPify.SOAPengine` &rarr; `SOAPify.engine`
+    - `SOAPify.SOAPclassify` &rarr; `SOAPify.classify`
+    - `SOAPify.SOAPTransitions` &rarr; `SOAPify.transitions`
+    - `SOAPify.Saponify` &rarr; `SOAPify.saponify`
+- renamed some functions to avoid naming collision:
+    - `SOAPify.SOAPclassify.classify()` &rarr; `SOAPify.classify.applyClassification()`
+    - `SOAPify.Saponify.saponifyGroup()` &rarr; `SOAPify.saponify.saponifyMultipleTrajectories()`
+    - `SOAPify.Saponify.saponify()` &rarr; `SOAPify.saponify.saponifyTrajectory()`
 
 ## Changes since v0.0.4
 

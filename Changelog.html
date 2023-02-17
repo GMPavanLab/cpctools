@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Changelog &mdash; SOAPify v0.0.5 documentation</title>
+  <title>Changelog &mdash; SOAPify v0.1.0a0 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -35,7 +35,7 @@
             SOAPify
           </a>
               <div class="version">
-                v0.0.5
+                v0.1.0a0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -48,7 +48,6 @@
               <p class="caption" role="heading"><span class="caption-text">Modules</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="modules.html">SOAPify</a></li>
-<li class="toctree-l1"><a class="reference internal" href="modules.html#hdf5er">HDF5er</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Utils</span></p>
 <ul class="current">
@@ -97,10 +96,34 @@
 <section id="changes-since-v0-0-5">
 <h2>Changes since v0.0.5<a class="headerlink" href="#changes-since-v0-0-5" title="Permalink to this heading"></a></h2>
 <ul class="simple">
-<li><p>Forced float64 precision in most of the calculations</p></li>
+<li><p>Forced <strong>float64</strong> precision in most of the calculations ← <strong>THIS IS A MAJOR CHANGE AND COULD IMPACT YOUR RESULTS</strong></p></li>
 <li><p>Removed the old and unused procedure for calculating the references</p></li>
 <li><p>Compacted the workflows for a PR</p></li>
-<li><p>Now uses the standard rtd workflow</p></li>
+<li><p>Now documentation in rtd uses the standard rtd workflow</p></li>
+<li><p>Moved HDF5er into SOAPify, to simplify the deployment</p>
+<ul>
+<li><p>change your <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">HDF5er</span></code> to <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">SOAPify.HDF5er</span> <span class="pre">as</span> <span class="pre">HDF5er</span></code> in your old codes</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HDF5er.HDF5erUtils</span></code> → <code class="docutils literal notranslate"><span class="pre">SOAPify.HDF5er.HDF5erUtils</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HDF5er.HDF5To</span></code> → <code class="docutils literal notranslate"><span class="pre">SOAPify.HDF5er.HDF5To</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HDF5er.ToHDF5</span></code> → <code class="docutils literal notranslate"><span class="pre">SOAPify.HDF5er.ToHDF5</span></code></p></li>
+</ul>
+</li>
+<li><p>renamed some submodules to clarify the usage:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">SOAPify.SOAPbase</span></code> → <code class="docutils literal notranslate"><span class="pre">SOAPify.distances</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SOAPify.SOAPengine</span></code> → <code class="docutils literal notranslate"><span class="pre">SOAPify.engine</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SOAPify.SOAPclassify</span></code> → <code class="docutils literal notranslate"><span class="pre">SOAPify.classify</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SOAPify.SOAPTransitions</span></code> → <code class="docutils literal notranslate"><span class="pre">SOAPify.transitions</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SOAPify.Saponify</span></code> → <code class="docutils literal notranslate"><span class="pre">SOAPify.saponify</span></code></p></li>
+</ul>
+</li>
+<li><p>renamed some functions to avoid naming collision:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">SOAPify.SOAPclassify.classify()</span></code> → <code class="docutils literal notranslate"><span class="pre">SOAPify.classify.applyClassification()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SOAPify.Saponify.saponifyGroup()</span></code> → <code class="docutils literal notranslate"><span class="pre">SOAPify.saponify.saponifyMultipleTrajectories()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SOAPify.Saponify.saponify()</span></code> → <code class="docutils literal notranslate"><span class="pre">SOAPify.saponify.saponifyTrajectory()</span></code></p></li>
+</ul>
+</li>
 </ul>
 </section>
 <section id="changes-since-v0-0-4">

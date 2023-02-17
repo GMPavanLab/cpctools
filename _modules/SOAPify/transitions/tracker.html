@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SOAPify.transitions.tracker &mdash; SOAPify v0.1.0a0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            SOAPify
+          </a>
+              <div class="version">
+                v0.1.0a0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Modules</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">SOAPify</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Utils</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../Tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Citation.html">Citing SOAPify</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../About.html">About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SOAPify</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../transitions.html">SOAPify.transitions</a></li>
+      <li class="breadcrumb-item active">SOAPify.transitions.tracker</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for SOAPify.transitions.tracker</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">..classify</span> <span class="kn">import</span> <span class="n">SOAPclassification</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span>
+
+<span class="c1">#: the index of the component of the statetracker that stores the previous state</span>
+<span class="n">TRACK_PREVSTATE</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="c1">#: the index of the component of the statetracker that stores the current state</span>
+<span class="n">TRACK_CURSTATE</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="c1">#: the index of the component of the statetracker that stores the next state</span>
+<span class="n">TRACK_ENDSTATE</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="c1">#: the index of the component of the statetracker that stores the duration of the state, in frames</span>
+<span class="n">TRACK_EVENTTIME</span> <span class="o">=</span> <span class="mi">3</span>
+
+
+<span class="k">def</span> <span class="nf">_createStateTracker</span><span class="p">(</span>
+    <span class="n">prevState</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">curState</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">endState</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">eventTime</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compile the given collection of data in a state tracker</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        prevState (int): the id of the previous state</span>
+<span class="sd">        curState (int): the id of the current state</span>
+<span class="sd">        endState (int): the id of the next state</span>
+<span class="sd">        eventTime (int, optional): the duration (in frames) of this event. Defaults to 0.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        numpy.ndarray: the state tracker</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">prevState</span><span class="p">,</span> <span class="n">curState</span><span class="p">,</span> <span class="n">endState</span><span class="p">,</span> <span class="n">eventTime</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+
+<span class="c1"># TODO add stride/window here</span>
+<div class="viewcode-block" id="trackStates"><a class="viewcode-back" href="../../../generated/SOAPify.transitions.tracker.html#SOAPify.transitions.tracker.trackStates">[docs]</a><span class="k">def</span> <span class="nf">trackStates</span><span class="p">(</span><span class="n">classification</span><span class="p">:</span> <span class="n">SOAPclassification</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Creates an ordered list of events for each atom in the classified trajectory</span>
+<span class="sd">    each event is a numpy.array with four compontents: the previous state, the current state, the final state and the duration of the current state</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        classification (SOAPclassification): the classified trajectory</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list: ordered list of events for each atom in the classified trajectory</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">nofFrames</span> <span class="o">=</span> <span class="n">classification</span><span class="o">.</span><span class="n">references</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">nofAtoms</span> <span class="o">=</span> <span class="n">classification</span><span class="o">.</span><span class="n">references</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">stateHistory</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># should I use a dedicated class?</span>
+    <span class="k">for</span> <span class="n">atomID</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nofAtoms</span><span class="p">):</span>
+        <span class="n">statesPerAtom</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">atomTraj</span> <span class="o">=</span> <span class="n">classification</span><span class="o">.</span><span class="n">references</span><span class="p">[:,</span> <span class="n">atomID</span><span class="p">]</span>
+        <span class="c1"># TODO: this can be made concurrent per atom</span>
+
+        <span class="c1"># the array is [start state, state, end state,time]</span>
+        <span class="c1"># when PREVSTATE and CURSTATE are the same the event is the first event for the atom in the simulation</span>
+        <span class="c1"># when ENDSTATE and CURSTATE are the same the event is the last event for the atom in the simulation</span>
+        <span class="n">stateTracker</span> <span class="o">=</span> <span class="n">_createStateTracker</span><span class="p">(</span>
+            <span class="n">prevState</span><span class="o">=</span><span class="n">atomTraj</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="n">curState</span><span class="o">=</span><span class="n">atomTraj</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="n">endState</span><span class="o">=</span><span class="n">atomTraj</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="n">eventTime</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">frame</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nofFrames</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">atomTraj</span><span class="p">[</span><span class="n">frame</span><span class="p">]</span> <span class="o">!=</span> <span class="n">stateTracker</span><span class="p">[</span><span class="n">TRACK_CURSTATE</span><span class="p">]:</span>
+                <span class="n">stateTracker</span><span class="p">[</span><span class="n">TRACK_ENDSTATE</span><span class="p">]</span> <span class="o">=</span> <span class="n">atomTraj</span><span class="p">[</span><span class="n">frame</span><span class="p">]</span>
+                <span class="n">statesPerAtom</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stateTracker</span><span class="p">)</span>
+                <span class="n">stateTracker</span> <span class="o">=</span> <span class="n">_createStateTracker</span><span class="p">(</span>
+                    <span class="n">prevState</span><span class="o">=</span><span class="n">stateTracker</span><span class="p">[</span><span class="n">TRACK_CURSTATE</span><span class="p">],</span>
+                    <span class="n">curState</span><span class="o">=</span><span class="n">atomTraj</span><span class="p">[</span><span class="n">frame</span><span class="p">],</span>
+                    <span class="n">endState</span><span class="o">=</span><span class="n">atomTraj</span><span class="p">[</span><span class="n">frame</span><span class="p">],</span>
+                <span class="p">)</span>
+
+            <span class="n">stateTracker</span><span class="p">[</span><span class="n">TRACK_EVENTTIME</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="c1"># append the last event</span>
+        <span class="n">statesPerAtom</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stateTracker</span><span class="p">)</span>
+        <span class="n">stateHistory</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">statesPerAtom</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">stateHistory</span></div>
+
+
+<div class="viewcode-block" id="RemoveAtomIdentityFromEventTracker"><a class="viewcode-back" href="../../../generated/SOAPify.transitions.tracker.html#SOAPify.transitions.tracker.RemoveAtomIdentityFromEventTracker">[docs]</a><span class="k">def</span> <span class="nf">RemoveAtomIdentityFromEventTracker</span><span class="p">(</span><span class="n">statesTracker</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Merge all of the list of stateTracker into a single lists, by removing the information of what atom did a given event.</span>
+
+
+<span class="sd">    Args:</span>
+<span class="sd">        statesTracker (list): a list of list of state trackers, organized by atoms</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list: the list of stateTracker organized only by states</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">statesTracker</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">tracks</span> <span class="ow">in</span> <span class="n">statesTracker</span><span class="p">:</span>
+            <span class="n">t</span> <span class="o">+=</span> <span class="n">tracks</span>
+        <span class="k">return</span> <span class="n">t</span>
+    <span class="k">return</span> <span class="n">statesTracker</span></div>
+
+
+<div class="viewcode-block" id="getResidenceTimesFromStateTracker"><a class="viewcode-back" href="../../../generated/SOAPify.transitions.tracker.html#SOAPify.transitions.tracker.getResidenceTimesFromStateTracker">[docs]</a><span class="k">def</span> <span class="nf">getResidenceTimesFromStateTracker</span><span class="p">(</span>
+    <span class="n">statesTracker</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">legend</span><span class="p">:</span> <span class="nb">list</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;list[numpy.ndarray]&quot;</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Given a state tracker and the list of the states returns the list of residence times per state</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        statesTracker (list): a list of list of state trackers, organized by atoms, or a list of state trackers</span>
+<span class="sd">        legend (list): the list of states</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list[numpy.ndarray]: an ordered list of the residence times for each state</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">states</span> <span class="o">=</span> <span class="n">RemoveAtomIdentityFromEventTracker</span><span class="p">(</span><span class="n">statesTracker</span><span class="p">)</span>
+
+    <span class="n">residenceTimes</span> <span class="o">=</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">legend</span><span class="p">))]</span>
+    <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">states</span><span class="p">:</span>
+        <span class="n">residenceTimes</span><span class="p">[</span><span class="n">event</span><span class="p">[</span><span class="n">TRACK_CURSTATE</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">event</span><span class="p">[</span><span class="n">TRACK_EVENTTIME</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">event</span><span class="p">[</span><span class="n">TRACK_ENDSTATE</span><span class="p">]</span> <span class="o">!=</span> <span class="n">event</span><span class="p">[</span><span class="n">TRACK_CURSTATE</span><span class="p">]</span>
+            <span class="k">else</span> <span class="o">-</span><span class="n">event</span><span class="p">[</span><span class="n">TRACK_EVENTTIME</span><span class="p">]</span>
+        <span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">residenceTimes</span><span class="p">)):</span>
+        <span class="n">residenceTimes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">residenceTimes</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+    <span class="k">return</span> <span class="n">residenceTimes</span></div>
+
+
+<div class="viewcode-block" id="transitionMatrixFromStateTracker"><a class="viewcode-back" href="../../../generated/SOAPify.transitions.tracker.html#SOAPify.transitions.tracker.transitionMatrixFromStateTracker">[docs]</a><span class="k">def</span> <span class="nf">transitionMatrixFromStateTracker</span><span class="p">(</span>
+    <span class="n">statesTracker</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">legend</span><span class="p">:</span> <span class="nb">list</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generates the unnormalized matrix of the transitions from a statesTracker</span>
+
+<span class="sd">    see :func:`calculateTransitionMatrix` for a detailed description of an unnormalized transition matrix</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        statesTracker (list): a list of list of state trackers, organized by atoms, or a list of state trackers</span>
+<span class="sd">        legend (list): the list of states</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        numpy.ndarray[float]: the unnormalized matrix of the transitions</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">states</span> <span class="o">=</span> <span class="n">RemoveAtomIdentityFromEventTracker</span><span class="p">(</span><span class="n">statesTracker</span><span class="p">)</span>
+
+    <span class="n">nclasses</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">legend</span><span class="p">)</span>
+    <span class="n">transMat</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nclasses</span><span class="p">,</span> <span class="n">nclasses</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="c1"># print(len(states), states[0], file=sys.stderr)</span>
+    <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">states</span><span class="p">:</span>
+        <span class="n">transMat</span><span class="p">[</span><span class="n">event</span><span class="p">[</span><span class="n">TRACK_CURSTATE</span><span class="p">],</span> <span class="n">event</span><span class="p">[</span><span class="n">TRACK_CURSTATE</span><span class="p">]]</span> <span class="o">+=</span> <span class="p">(</span>
+            <span class="n">event</span><span class="p">[</span><span class="n">TRACK_EVENTTIME</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="p">)</span>
+
+        <span class="c1"># the transition matrix is genetated with:</span>
+        <span class="c1">#   classFrom = data.references[frameID - stride][atomID]</span>
+        <span class="c1">#   classTo = data.references[frameID][atomID]</span>
+        <span class="n">transMat</span><span class="p">[</span><span class="n">event</span><span class="p">[</span><span class="n">TRACK_PREVSTATE</span><span class="p">],</span> <span class="n">event</span><span class="p">[</span><span class="n">TRACK_CURSTATE</span><span class="p">]]</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">transMat</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Daniele Rapetti.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

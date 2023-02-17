@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SOAPify.SOAPbase &mdash; SOAPify v0.0.5 documentation</title>
+  <title>SOAPify.distances &mdash; SOAPify v0.1.0a0 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -33,7 +33,7 @@
             SOAPify
           </a>
               <div class="version">
-                v0.0.5
+                v0.1.0a0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -46,7 +46,6 @@
               <p class="caption" role="heading"><span class="caption-text">Modules</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../modules.html">SOAPify</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../modules.html#hdf5er">HDF5er</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Utils</span></p>
 <ul>
@@ -71,7 +70,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
-      <li class="breadcrumb-item active">SOAPify.SOAPbase</li>
+      <li class="breadcrumb-item active">SOAPify.distances</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -80,13 +79,13 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <h1>Source code for SOAPify.SOAPbase</h1><div class="highlight"><pre>
+  <h1>Source code for SOAPify.distances</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">numpy.linalg</span> <span class="k">as</span> <span class="nn">la</span>
 <span class="kn">import</span> <span class="nn">scipy</span>
 
 
-<div class="viewcode-block" id="simpleKernelSoap"><a class="viewcode-back" href="../../generated/SOAPify.SOAPbase.html#SOAPify.SOAPbase.simpleKernelSoap">[docs]</a><span class="k">def</span> <span class="nf">simpleKernelSoap</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<div class="viewcode-block" id="simpleKernelSoap"><a class="viewcode-back" href="../../generated/SOAPify.distances.html#SOAPify.distances.simpleKernelSoap">[docs]</a><span class="k">def</span> <span class="nf">simpleKernelSoap</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;a simpler SOAP Kernel than :func:`KernelSoap`, power is always 1</span>
 
 <span class="sd">    Args:</span>
@@ -101,7 +100,7 @@
     <span class="c1"># return np.dot(x, y) / (la.norm(x) * la.norm(y))</span>
 
 
-<div class="viewcode-block" id="simpleSOAPdistance"><a class="viewcode-back" href="../../generated/SOAPify.SOAPbase.html#SOAPify.SOAPbase.simpleSOAPdistance">[docs]</a><span class="k">def</span> <span class="nf">simpleSOAPdistance</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<div class="viewcode-block" id="simpleSOAPdistance"><a class="viewcode-back" href="../../generated/SOAPify.distances.html#SOAPify.distances.simpleSOAPdistance">[docs]</a><span class="k">def</span> <span class="nf">simpleSOAPdistance</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;a simpler SOAP distance than :func:`SOAPdistance`, power is always 1</span>
 
 <span class="sd">    Args:</span>
@@ -117,7 +116,7 @@
         <span class="k">return</span> <span class="mf">0.0</span></div>
 
 
-<div class="viewcode-block" id="KernelSoap"><a class="viewcode-back" href="../../generated/SOAPify.SOAPbase.html#SOAPify.SOAPbase.KernelSoap">[docs]</a><span class="k">def</span> <span class="nf">KernelSoap</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<div class="viewcode-block" id="KernelSoap"><a class="viewcode-back" href="../../generated/SOAPify.distances.html#SOAPify.distances.KernelSoap">[docs]</a><span class="k">def</span> <span class="nf">KernelSoap</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The SOAP Kernel with a variable power</span>
 
 <span class="sd">    Args:</span>
@@ -133,7 +132,7 @@
     <span class="k">return</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">la</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="n">la</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">y</span><span class="p">)))</span> <span class="o">**</span> <span class="n">n</span></div>
 
 
-<div class="viewcode-block" id="SOAPdistance"><a class="viewcode-back" href="../../generated/SOAPify.SOAPbase.html#SOAPify.SOAPbase.SOAPdistance">[docs]</a><span class="k">def</span> <span class="nf">SOAPdistance</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<div class="viewcode-block" id="SOAPdistance"><a class="viewcode-back" href="../../generated/SOAPify.distances.html#SOAPify.distances.SOAPdistance">[docs]</a><span class="k">def</span> <span class="nf">SOAPdistance</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;the SOAP distance between two SOAP fingerprints</span>
 
 <span class="sd">    Args:</span>
@@ -150,7 +149,7 @@
         <span class="k">return</span> <span class="mf">0.0</span></div>
 
 
-<div class="viewcode-block" id="SOAPdistanceNormalized"><a class="viewcode-back" href="../../generated/SOAPify.SOAPbase.html#SOAPify.SOAPbase.SOAPdistanceNormalized">[docs]</a><span class="k">def</span> <span class="nf">SOAPdistanceNormalized</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<div class="viewcode-block" id="SOAPdistanceNormalized"><a class="viewcode-back" href="../../generated/SOAPify.distances.html#SOAPify.distances.SOAPdistanceNormalized">[docs]</a><span class="k">def</span> <span class="nf">SOAPdistanceNormalized</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;the SOAP distance between two normalized SOAP fingerprints</span>
 <span class="sd">    The pre-normalized vectors should net some performace over the classic kernel</span>
 

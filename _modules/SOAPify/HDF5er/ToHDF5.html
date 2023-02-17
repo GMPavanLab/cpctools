@@ -3,22 +3,22 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HDF5er.ToHDF5 &mdash; SOAPify v0.0.5 documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <title>SOAPify.HDF5er.ToHDF5 &mdash; SOAPify v0.1.0a0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
-    <script src="../../_static/js/theme.js"></script>
-    <link rel="index" title="Index" href="../../genindex.html" />
-    <link rel="search" title="Search" href="../../search.html" /> 
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -29,14 +29,14 @@
 
           
           
-          <a href="../../index.html" class="icon icon-home">
+          <a href="../../../index.html" class="icon icon-home">
             SOAPify
           </a>
               <div class="version">
-                v0.0.5
+                v0.1.0a0
               </div>
 <div role="search">
-  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
@@ -45,15 +45,14 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Modules</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../modules.html">SOAPify</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../modules.html#hdf5er">HDF5er</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">SOAPify</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Utils</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../Tutorials.html">Tutorials</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../Citation.html">Citing SOAPify</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../About.html">About</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../Changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Citation.html">Citing SOAPify</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../About.html">About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Changelog.html">Changelog</a></li>
 </ul>
 
         </div>
@@ -62,16 +61,16 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../../index.html">SOAPify</a>
+          <a href="../../../index.html">SOAPify</a>
       </nav>
 
       <div class="wy-nav-content">
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
-      <li class="breadcrumb-item active">HDF5er.ToHDF5</li>
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">SOAPify.HDF5er.ToHDF5</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -80,7 +79,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <h1>Source code for HDF5er.ToHDF5</h1><div class="highlight"><pre>
+  <h1>Source code for SOAPify.HDF5er.ToHDF5</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">h5py</span>
 <span class="kn">import</span> <span class="nn">numpy</span>
 <span class="kn">from</span> <span class="nn">MDAnalysis</span> <span class="kn">import</span> <span class="n">Universe</span> <span class="k">as</span> <span class="n">mdaUniverse</span><span class="p">,</span> <span class="n">AtomGroup</span> <span class="k">as</span> <span class="n">mdaAtomGroup</span>
@@ -89,7 +88,7 @@
 <span class="kn">from</span> <span class="nn">.HDF5erUtils</span> <span class="kn">import</span> <span class="n">exportChunk2HDF5</span>
 
 
-<div class="viewcode-block" id="Universe2HDF5"><a class="viewcode-back" href="../../generated/HDF5er.ToHDF5.html#HDF5er.ToHDF5.Universe2HDF5">[docs]</a><span class="k">def</span> <span class="nf">Universe2HDF5</span><span class="p">(</span>
+<div class="viewcode-block" id="Universe2HDF5"><a class="viewcode-back" href="../../../generated/SOAPify.HDF5er.ToHDF5.html#SOAPify.HDF5er.ToHDF5.Universe2HDF5">[docs]</a><span class="k">def</span> <span class="nf">Universe2HDF5</span><span class="p">(</span>
     <span class="n">u</span><span class="p">:</span> <span class="s2">&quot;mdaUniverse | mdaAtomGroup&quot;</span><span class="p">,</span>
     <span class="n">trajFolder</span><span class="p">:</span> <span class="n">h5py</span><span class="o">.</span><span class="n">Group</span><span class="p">,</span>
     <span class="n">trajChunkSize</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
@@ -150,7 +149,7 @@
         <span class="n">exportChunk2HDF5</span><span class="p">(</span><span class="n">trajFolder</span><span class="p">,</span> <span class="n">first</span><span class="p">,</span> <span class="n">frameNum</span><span class="p">,</span> <span class="n">boxes</span><span class="p">,</span> <span class="n">atomicframes</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="MDA2HDF5"><a class="viewcode-back" href="../../generated/HDF5er.ToHDF5.html#HDF5er.ToHDF5.MDA2HDF5">[docs]</a><span class="k">def</span> <span class="nf">MDA2HDF5</span><span class="p">(</span>
+<div class="viewcode-block" id="MDA2HDF5"><a class="viewcode-back" href="../../../generated/SOAPify.HDF5er.ToHDF5.html#SOAPify.HDF5er.ToHDF5.MDA2HDF5">[docs]</a><span class="k">def</span> <span class="nf">MDA2HDF5</span><span class="p">(</span>
     <span class="n">MDAUniverseOrSelection</span><span class="p">:</span> <span class="s2">&quot;mdaUniverse | mdaAtomGroup&quot;</span><span class="p">,</span>
     <span class="n">targetHDF5File</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">groupName</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -186,7 +185,7 @@
 <span class="kn">import</span> <span class="nn">warnings</span>
 
 
-<div class="viewcode-block" id="xyz2hdf5Converter"><a class="viewcode-back" href="../../generated/HDF5er.ToHDF5.html#HDF5er.ToHDF5.xyz2hdf5Converter">[docs]</a><span class="k">def</span> <span class="nf">xyz2hdf5Converter</span><span class="p">(</span>
+<div class="viewcode-block" id="xyz2hdf5Converter"><a class="viewcode-back" href="../../../generated/SOAPify.HDF5er.ToHDF5.html#SOAPify.HDF5er.ToHDF5.xyz2hdf5Converter">[docs]</a><span class="k">def</span> <span class="nf">xyz2hdf5Converter</span><span class="p">(</span>
     <span class="n">xyzName</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">boxfilename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">group</span><span class="p">:</span> <span class="n">h5py</span><span class="o">.</span><span class="n">Group</span>
 <span class="p">):</span>  <span class="c1"># pragma: no cover</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate an HDF5 trajectory from an xyz file and a box file</span>

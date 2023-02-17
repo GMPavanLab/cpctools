@@ -1,7 +1,7 @@
-﻿SOAPify.SOAPbase
-================
+﻿SOAPify.distances
+=================
 
-.. automodule:: SOAPify.SOAPbase
+.. automodule:: SOAPify.distances
 
    
    

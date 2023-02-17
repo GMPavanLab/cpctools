@@ -1,0 +1,41 @@
+SOAPify.transitions.tracker
+===========================
+
+.. automodule:: SOAPify.transitions.tracker
+
+   
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      TRACK_PREVSTATE
+      TRACK_CURSTATE
+      TRACK_ENDSTATE
+      TRACK_EVENTTIME
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      RemoveAtomIdentityFromEventTracker
+      getResidenceTimesFromStateTracker
+      trackStates
+      transitionMatrixFromStateTracker
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
