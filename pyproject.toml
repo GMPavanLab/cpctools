@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "SOAPify-GMPavanLab"
+name = "cpctools"
 description = "A package for creating and studying SOAP fingerprints"
 readme = "Readme.md"
 requires-python = "<3.11,>=3.8"
@@ -43,6 +43,7 @@ docs = [
 [project.urls]
 Homepage = "https://github.com/GMPavanLab/SOAPify"
 Documentation = "https://gmpavanlab.github.io/SOAPify/"
+ReadTheDocs = "https://soapify.readthedocs.io/en/latest/"
 Issues = "https://github.com/GMPavanLab/SOAPify/issues"
 Source = "https://github.com/GMPavanLab/SOAPify"
 
