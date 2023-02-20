@@ -97,6 +97,7 @@ extra-dependencies = [
 
 [tool.hatch.envs.test.scripts]
 cov = 'pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=src --cov-report html'
+lcov = 'pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=src --cov-report lcov:coverage/lcov.info'
 tools = 'pytest ./tests/test_tools.py'
 #cov = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=src --cov=tests {args} --cov-report html"
 no-cov = "cov --no-cov {args}"
