@@ -1,4 +1,4 @@
-name: "Checking if the PR can be merged"
+name: "Checking coverage"
 
 on:
   push:
