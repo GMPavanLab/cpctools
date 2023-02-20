@@ -8,6 +8,7 @@ Until we get to a release version you may encounter different broken interface p
 - Changed the package name to cpctools, for storing it on https://pypi.org/
 - Removed the old and unused procedure for calculating the references
 - Compacted the workflows for a PR
+- Added the coveralls.io badge
 - Now documentation in rtd uses the standard rtd workflow
 - Moved HDF5er into SOAPify, to simplify the deployment
     - change your `import HDF5er` to `import SOAPify.HDF5er as HDF5er` in your old codes
