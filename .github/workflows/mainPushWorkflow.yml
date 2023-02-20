@@ -1,0 +1,51 @@
+name: "Checking if the PR can be merged"
+
+on:
+  push:
+    branches:
+      - main
+  
+jobs:
+
+  test-coverage:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # Run in all these versions of Python
+        python-version: [3.8, 3.9, "3.10"]
+
+    steps:
+      - uses: actions/checkout@v3
+        # Setup which version of Python to use
+      - name: Set Up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+        # Display the Python version being used
+      - name: Display Python version
+        run: python -c "import sys; print(sys.version)"
+
+      - name: Install requisites
+        run: |
+          python -m pip install --upgrade pip hatch        
+
+      - name: Run tests
+        run: hatch run test.py${{ matrix.python-version }}:lcov
+      - name: Coveralls Parallel
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.coveralls_token }}
+          flag-name: run-${{ matrix.python-version }}
+          parallel: true
+
+  publishTOcoveralls:
+    needs: test-coverage
+    runs-on: ubuntu-latest
+    steps:
+    - name: Coveralls Finished
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.coveralls_token }}
+        parallel-finished: true
+
+
