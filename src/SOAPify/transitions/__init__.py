@@ -1,4 +1,4 @@
-"""Simple module for generating trasition matrices from SOAPclassification
+"""Simple submodule for generating trasition matrices from SOAPclassification
 """
 import numpy
 
