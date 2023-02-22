@@ -2,8 +2,9 @@
 
 Until we get to a release version you may encounter different broken interface problem each time we increase a minor version.
 
-## Changes since v0.0.5
+## Changes since v0.0.6
 
+- The **v0.0.6** has been set flagged as the 'stable version'
 - Forced **float64** precision in most of the calculations &larr; **THIS IS A MAJOR CHANGE AND COULD IMPACT YOUR RESULTS**
 - Changed the package name to cpctools, for storing it on https://pypi.org/
 - Removed the old and unused procedure for calculating the references
