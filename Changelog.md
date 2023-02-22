@@ -21,10 +21,11 @@ Until we get to a release version you may encounter different broken interface p
     - `SOAPify.SOAPclassify` &rarr; `SOAPify.classify`
     - `SOAPify.SOAPTransitions` &rarr; `SOAPify.transitions`
     - `SOAPify.Saponify` &rarr; `SOAPify.saponify`
-- renamed some functions to avoid naming collision:
+- renamed some functions to avoid naming collision, and to be more clear:
     - `SOAPify.SOAPclassify.classify()` &rarr; `SOAPify.classify.applyClassification()`
     - `SOAPify.Saponify.saponifyGroup()` &rarr; `SOAPify.saponify.saponifyMultipleTrajectories()`
     - `SOAPify.Saponify.saponify()` &rarr; `SOAPify.saponify.saponifyTrajectory()`
+    - `SOAPify.SOAPTransitions.normalizeMatrix()` &rarr; `SOAPify.transitions.normalizeMatrixByRow()`
 
 ## Changes since v0.0.4
 

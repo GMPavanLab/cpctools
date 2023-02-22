@@ -46,7 +46,7 @@ def test_normalizeMatrix():
     # this forces the test with an empy row
     mat = numpy.array([[0.0, 0.0, 0.0], [5.0, 5.0, 0.0], [4.0, 0.0, 0.0]])
     numpy.testing.assert_array_almost_equal(
-        SOAPify.normalizeMatrix(mat),
+        SOAPify.normalizeMatrixByRow(mat),
         numpy.array([[0.0, 0.0, 0.0], [0.5, 0.5, 0.0], [1.0, 0.0, 0.0]]),
     )
     rng = numpy.random.default_rng(12345)
@@ -54,7 +54,7 @@ def test_normalizeMatrix():
         size = rng.integers(2, 152)
         newMat = rng.random((size, size))
         testMat = newMat.copy()
-        newMatNorm = SOAPify.normalizeMatrix(newMat)
+        newMatNorm = SOAPify.normalizeMatrixByRow(newMat)
 
         numpy.testing.assert_array_almost_equal(testMat, newMat)
         for row in range(newMatNorm.shape[0]):
@@ -292,7 +292,7 @@ def test_transitionMatrix(input_mockedTrajectoryClassification):
         data, stride=stride
     )
     assert tmatNorm.shape[0] == len(data.legend)
-    assert_array_equal(tmatNorm, SOAPify.normalizeMatrix(expectedTmat))
+    assert_array_equal(tmatNorm, SOAPify.normalizeMatrixByRow(expectedTmat))
 
 
 def test_residenceTime(input_mockedTrajectoryClassification):
