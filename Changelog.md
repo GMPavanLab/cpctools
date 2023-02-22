@@ -26,6 +26,7 @@ Until we get to a release version you may encounter different broken interface p
     - `SOAPify.Saponify.saponifyGroup()` &rarr; `SOAPify.saponify.saponifyMultipleTrajectories()`
     - `SOAPify.Saponify.saponify()` &rarr; `SOAPify.saponify.saponifyTrajectory()`
     - `SOAPify.SOAPTransitions.normalizeMatrix()` &rarr; `SOAPify.transitions.normalizeMatrixByRow()`
+    - `SOAPify.SOAPbase.KernelSoap()` &rarr; `SOAPify.distances.kernelSoap()`
 
 ## Changes since v0.0.4
 

@@ -1,3 +1,4 @@
+"""This submodules contaisn a collection of SOAP distances"""
 import numpy as np
 import numpy.linalg as la
 import scipy
@@ -26,7 +27,7 @@ def simpleSOAPdistance(x: np.ndarray, y: np.ndarray) -> float:
         y (np.ndarray): a SOAP fingerprint
 
     Returns:
-        float: the distance between the two fingerprints, between 0 and :math:`\sqrt{2}`
+        float: the distance between the two fingerprints, between :math:`0` and :math:`2`
     """
     try:
         return np.sqrt(2.0 - 2.0 * simpleKernelSoap(x, y))
@@ -34,7 +35,7 @@ def simpleSOAPdistance(x: np.ndarray, y: np.ndarray) -> float:
         return 0.0
 
 
-def KernelSoap(x: np.ndarray, y: np.ndarray, n: int) -> float:
+def kernelSoap(x: np.ndarray, y: np.ndarray, n: int) -> float:
     """The SOAP Kernel with a variable power
 
     Args:
@@ -59,10 +60,10 @@ def SOAPdistance(x: np.ndarray, y: np.ndarray, n: int = 1) -> float:
         n (int): the power to elevate the result of the kernel
 
     Returns:
-        float: the distance between the two fingerprints, between 0 and :math:`\sqrt{2}`
+        float: the distance between the two fingerprints, between :math:`0` and :math:`2`
     """
     try:
-        return np.sqrt(2.0 - 2.0 * KernelSoap(x, y, n))
+        return np.sqrt(2.0 - 2.0 * kernelSoap(x, y, n))
     except FloatingPointError:
         return 0.0
 
@@ -76,7 +77,7 @@ def SOAPdistanceNormalized(x: np.ndarray, y: np.ndarray) -> float:
         y (np.ndarray): a normalized SOAP fingerprint
 
     Returns:
-        float: the distance between the two fingerprints, between 0 and 2
+        float: the distance between the two fingerprints, between :math:`0` and :math:`2`
     """
 
     return np.sqrt(np.abs(2.0 - 2.0 * x.dot(y)))
