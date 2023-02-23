@@ -130,8 +130,8 @@ class dscribeSOAPengineContainer(SOAPengineContainer):
 
     """
 
-    def __init__(self, SOAPengine, centerMask, SOAPengineKind):
-        super().__init__(SOAPengine, centerMask, SOAPengineKind)
+    def __init__(self, SOAPengine, centerMask):
+        super().__init__(SOAPengine, centerMask, "dscribe")
 
     @property
     def features(self):
@@ -139,7 +139,8 @@ class dscribeSOAPengineContainer(SOAPengineContainer):
 
     @property
     def nmax(self):
-        # this will automatically produce a miss in the coverage, becasue I cannot have two different versions of dscribe installed at the same time
+        # this will automatically produce a miss in the coverage, becasue I cannot
+        # have two different versions of dscribe installed at the same time
         if hasattr(self.SOAPengine, "_nmax"):
             return self.SOAPengine._nmax
         if hasattr(self.SOAPengine, "_n_max"):
@@ -148,7 +149,8 @@ class dscribeSOAPengineContainer(SOAPengineContainer):
 
     @property
     def lmax(self):
-        # this will automatically produce a miss in the coverage, becasue I cannot have two different versions of dscribe installed at the same time
+        # this will automatically produce a miss in the coverage, becasue I cannot
+        # have two different versions of dscribe installed at the same time
         if hasattr(self.SOAPengine, "_lmax"):
             return self.SOAPengine._lmax
         if hasattr(self.SOAPengine, "_l_max"):
@@ -157,7 +159,8 @@ class dscribeSOAPengineContainer(SOAPengineContainer):
 
     @property
     def rcut(self):
-        # this will automatically produce a miss in the coverage, becasue I cannot have two different versions of dscribe installed at the same time
+        # this will automatically produce a miss in the coverage, becasue I cannot
+        # have two different versions of dscribe installed at the same time
         if hasattr(self.SOAPengine, "_rcut"):
             return self.SOAPengine._rcut
         if hasattr(self.SOAPengine, "_r_cut"):
@@ -191,8 +194,8 @@ class quippySOAPengineContainer(SOAPengineContainer):
 
     """
 
-    def __init__(self, SOAPengine, centerMask, SOAPengineKind):
-        super().__init__(SOAPengine, centerMask, SOAPengineKind)
+    def __init__(self, SOAPengine, centerMask):
+        super().__init__(SOAPengine, centerMask, "quippy")
         species = self.species
         nmax = self.nmax
         lmax = self.lmax
@@ -245,8 +248,8 @@ class quippySOAPengineContainer(SOAPengineContainer):
 
     def getLocation(self, specie1, specie2):
         """returns the slice where the two asked species are stored in the ouput array"""
-        a, b = orderByZ([specie1, specie2])
-        return self._slices[a + b]
+        sp1, sp2 = orderByZ([specie1, specie2])
+        return self._slices[sp1 + sp2]
 
     def __call__(self, atoms, **kwargs):
         if isinstance(atoms, ase.Atoms):
@@ -295,6 +298,23 @@ def _getAtomMask(
     return None
 
 
+def _makeSP(spArray: "list[str]") -> "tuple[list,str]":
+    """creates the atom mask for using quippy in :func:`getSoapEngine`
+
+        this is an helper function for :func:`getSoapEngine`
+
+    Args:
+        spArray (list[str]): the list of the name of the atoms
+
+    Returns:
+        tuple[list,str]:
+            the numerical Z of the involved atoms, ad a comma separated list of
+            the atom Z
+    """
+    spZ = [atomic_numbers[specie] for specie in spArray]
+    return spZ, ", ".join([str(ii) for ii in spZ])
+
+
 def getSoapEngine(
     atomNames: "list[str]",
     SOAPrcut: float,
@@ -315,6 +335,8 @@ def getSoapEngine(
 
     - `centerMask` is a list of atoms whose SOAP fingerprints will be calculate
     - `SOAPatomMask` is the list of species that will be included in the `centerMask`
+
+    **NB**: if you use quippy, we impose it to not normalize the soap vector
 
     Args:
         atomNames (list[str]): The list of species present in the system
@@ -351,13 +373,12 @@ def getSoapEngine(
     # safely dict as with a default value:
     if SOAPkwargs is None:
         SOAPkwargs = {}
-    species = list(set(atomNames))
+    species = orderByZ(list(set(atomNames)))
 
     useCentersMask = _getAtomMask(
         atomNames=atomNames, SOAPatomMask=SOAPatomMask, centersMask=centersMask
     )
 
-    species = orderByZ(species)
     if useSoapFrom == "dscribe":
         if not HAVE_DSCRIBE:  # pragma: no cover
             raise ImportError("dscribe is not installed in your current environment")
@@ -371,54 +392,17 @@ def getSoapEngine(
             }
         )
         if "sparse" in SOAPkwargs.keys():
-            if SOAPkwargs["sparse"]:
-                SOAPkwargs["sparse"] = False
-                warnings.warn("sparse output is not supported yet, switching to dense")
-        return dscribeSOAPengineContainer(
-            dscribeSOAP(**SOAPkwargs), useCentersMask, "dscribe"
-        )
+            SOAPkwargs["sparse"] = False
+            warnings.warn("sparse output is not supported yet, forcing  dense output")
+        return dscribeSOAPengineContainer(dscribeSOAP(**SOAPkwargs), useCentersMask)
     if useSoapFrom == "quippy":
         if not HAVE_QUIPPY:  # pragma: no cover
             raise ImportError("quippy-ase is not installed in your current environment")
-        # //from quippy.module_descriptors <-
-        # ============================= ===== =============== ===================================================
-        # Name                          Type  Value           Doc
-        # ============================= ===== =============== ===================================================
-        # cutoff                        None  PARAM_MANDATORY Cutoff for soap-type descriptors
-        # cutoff_transition_width       float 0.50            Cutoff transition width for soap-type descriptors
-        # cutoff_dexp                   int   0               Cutoff decay exponent
-        # cutoff_scale                  float 1.0             Cutoff decay scale
-        # cutoff_rate                   float 1.0             Inverse cutoff decay rate
-        # l_max                         None  PARAM_MANDATORY L_max(spherical harmonics basis band limit) for
-        # soap-type descriptors
-        # n_max                         None  PARAM_MANDATORY N_max(number of radial basis functions) for
-        # soap-type descriptors
-        # atom_gaussian_width           None  PARAM_MANDATORY Width of atomic Gaussians for soap-type
-        # descriptors
-        # central_weight                float 1.0             Weight of central atom in environment
-        # central_reference_all_species bool  F               Place a Gaussian reference for all atom species
-        # densities.
-        # average                       bool  F               Whether to calculate averaged SOAP - one
-        # descriptor per atoms object. If false(default)
-        # atomic SOAP is returned.
-        # diagonal_radial               bool  F
-        # covariance_sigma0             float 0.0             sigma_0 parameter in polynomial covariance
-        # function
-        # normalise                     bool  T               Normalise descriptor so magnitude is 1. In this
-        # case the kernel of two equivalent environments is
-        # 1.
-        # basis_error_exponent          float 10.0            10^(-basis_error_exponent) is the max difference
-        # between the target and the expanded function
-        # n_Z                           int   1               How many different types of central atoms to
-        # consider
-        # n_species                     int   1               Number of species for the descriptor
-        # species_Z                     None                  Atomic number of species
-        # xml_version                   int   1426512068      Version of GAP the XML potential file was created
-        # species_Z                     None  //MANDATORY//   Atomic number of species
-        # Z                             None  //MANDATORY//   Atomic numbers to be considered for central atom,
-        # must be a list
-        # ============================= ===== =============== ===================================================
 
+        if useCentersMask is not None and SOAPatomMask is None:
+            raise NotImplementedError(
+                "WARNING: the quippy interface works only with SOAPatomMask"
+            )
         SOAPkwargs.update(
             {
                 "cutoff": SOAPrcut,
@@ -431,29 +415,61 @@ def getSoapEngine(
         # By default we impose quippy not to normalize the descriptor
         SOAPkwargs["normalise"] = "F"
 
-        def _makeSP(spArray):
-            sp_z = [atomic_numbers[specie] for specie in spArray]
-            spString = str(sp_z[0])
-            for sp in sp_z[1:]:
-                spString += ", " + str(sp)
-            return sp_z, spString
-
-        species_z, thesps = _makeSP(species)
-        Zs, theZs = species_z, thesps
+        speciesZ, listOfTheZs = _makeSP(species)
+        calculatedZs, listOftheCalcZs = speciesZ, listOfTheZs
 
         # TODO: Z and theZs personalized
-        if SOAPatomMask is None and useCentersMask is not None:
-            raise NotImplementedError(
-                "WARNING: the quippy interface works only with SOAPatomMask"
-            )
         if SOAPatomMask is not None:
-            Zs, theZs = _makeSP(SOAPatomMask)
+            calculatedZs, listOftheCalcZs = _makeSP(SOAPatomMask)
 
         settings = "soap"
         for key, value in SOAPkwargs.items():
             settings += f" {key}={value}"
-        settings += f" n_species={len(species_z)} species_Z={{{thesps}}}"
-        settings += f" n_Z={len(Zs)} Z={{{theZs}}}"
-        return quippySOAPengineContainer(Descriptor(settings), useCentersMask, "quippy")
+        settings += f" n_species={len(speciesZ)} species_Z={{{listOfTheZs}}}"
+        settings += f" n_Z={len(calculatedZs)} Z={{{listOftheCalcZs}}}"
+        return quippySOAPengineContainer(Descriptor(settings), useCentersMask)
 
     raise NotImplementedError(f"{useSoapFrom} is not implemented yet")
+
+
+# //from quippy.module_descriptors <-
+# ============================= ===== =============== ==============================================
+# Name                          Type  Value           Doc
+# ============================= ===== =============== ==============================================
+# cutoff                        None  //MANDATORY//   Cutoff for soap-type descriptors
+# cutoff_transition_width       float 0.50            Cutoff transition width for soap-type
+#                                                     descriptors
+# cutoff_dexp                   int   0               Cutoff decay exponent
+# cutoff_scale                  float 1.0             Cutoff decay scale
+# cutoff_rate                   float 1.0             Inverse cutoff decay rate
+# l_max                         None  PARAM_MANDATORY L_max(spherical harmonics basis band limit)
+#                                                     for soap-type descriptors
+# n_max                         None  PARAM_MANDATORY N_max(number of radial basis functions) for
+#                                                     soap-type descriptors
+# atom_gaussian_width           None  PARAM_MANDATORY Width of atomic Gaussians for soap-type
+#                                                     descriptors
+# central_weight                float 1.0             Weight of central atom in environment
+# central_reference_all_species bool  F               Place a Gaussian reference for all atom
+#                                                     species densities.
+# average                       bool  F               Whether to calculate averaged SOAP -
+#                                                     one descriptor per atoms object.
+#                                                     If false(default) atomic SOAP is returned.
+# diagonal_radial               bool  F
+# covariance_sigma0             float 0.0             sigma_0 parameter in polynomial covariance
+#                                                     function
+# normalise                     bool  T               Normalise descriptor so magnitude is 1.
+#                                                     In this case the kernel of two equivalent
+#                                                     environments is 1.
+# basis_error_exponent          float 10.0            10^(-basis_error_exponent) is the max
+#                                                     difference between the target and the
+#                                                     expanded function
+# n_Z                           int   1               How many different types of central atoms to
+#                                                     consider
+# n_species                     int   1               Number of species for the descriptor
+# species_Z                     None                  Atomic number of species
+# xml_version                   int   1426512068      Version of GAP the XML potential file was
+#                                                     created
+# species_Z                     None  //MANDATORY//   Atomic number of species
+# Z                             None  //MANDATORY//   Atomic numbers to be considered for central
+#                                                     atom, must be a list
+# ============================= ===== =============== ==============================================
