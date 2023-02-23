@@ -47,7 +47,7 @@ def _saponifyWorker(
     for i in range(nspecies):
         for j in range(nspecies):
             if soapEngine.crossover or (i == j):
-                temp = soapEngine.get_location(
+                temp = soapEngine.getLocation(
                     soapEngine.species[i], soapEngine.species[j]
                 )
                 SOAPoutDataset.attrs[
