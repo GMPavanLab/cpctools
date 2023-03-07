@@ -25,7 +25,7 @@ def test_transitionMatrix(
     if (
         window is not None and window > data.references.shape[0]
     ) or stride > data.references.shape[0]:
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError) as excinfo:
             SOAPify.transitionMatrixFromSOAPClassification(
                 data, stride=stride, window=window
             )

@@ -30,16 +30,22 @@ def _createStateTracker(
 
 
 # TODO add stride/window here
-def trackStates(classification: SOAPclassification) -> list:
+def trackStates(classification: SOAPclassification, stride: int = 1) -> list:
     """Creates an ordered list of events for each atom in the classified trajectory
     each event is a numpy.array with four compontents: the previous state, the current state, the final state and the duration of the current state
 
     Args:
         classification (SOAPclassification): the classified trajectory
-
+        stride (int):
+            the stride in frames between each window. Defaults to 1.
     Returns:
         list: ordered list of events for each atom in the classified trajectory
     """
+    window = None
+    if window is None:
+        window = stride
+    if window > classification.references.shape[0]:
+        raise ValueError("stride and window must be smaller than simulation lenght")
     nofFrames = classification.references.shape[0]
     nofAtoms = classification.references.shape[1]
     stateHistory = []
@@ -58,7 +64,7 @@ def trackStates(classification: SOAPclassification) -> list:
             endState=atomTraj[0],
             eventTime=0,
         )
-        for frame in range(1, nofFrames):
+        for frame in range(window, nofFrames, stride):
             if atomTraj[frame] != stateTracker[TRACK_CURSTATE]:
                 stateTracker[TRACK_ENDSTATE] = atomTraj[frame]
                 statesPerAtom.append(stateTracker)

@@ -1,26 +1,47 @@
 from numpy.testing import assert_array_equal
 import SOAPify
 import numpy
+import pytest
 from SOAPify.classify import SOAPclassification
 
 
-def test_transitionMatrixFromTracking(input_mockedTrajectoryClassification):
+def test_transitionMatrixFromTracking(
+    input_mockedTrajectoryClassification, inputStrides
+):
     data = input_mockedTrajectoryClassification
-    events = SOAPify.trackStates(data)
+    stride = inputStrides
+    window = None
+    if (
+        window is not None and window > data.references.shape[0]
+    ) or stride > data.references.shape[0]:
+        # will fail, so returns
+        return
+    events = SOAPify.trackStates(data, stride=stride)
     for event in events:
         print(event)
     transitionMatrixFromTracking = SOAPify.calculateTransitionMatrix(
-        data, stride=1, statesTracker=events
+        data, stride=stride, statesTracker=events
     )
-    expectedTmat = SOAPify.transitionMatrixFromSOAPClassification(data, stride=1)
-    standardTmat = SOAPify.calculateTransitionMatrix(data, stride=1)
+    expectedTmat = SOAPify.transitionMatrixFromSOAPClassification(
+        data, stride=stride, window=window
+    )
+    standardTmat = SOAPify.calculateTransitionMatrix(data, stride=stride)
     assert_array_equal(transitionMatrixFromTracking, expectedTmat)
     assert_array_equal(standardTmat, expectedTmat)
     assert isinstance(events[0], list)
 
 
-def test_stateTracker(input_mockedTrajectoryClassification):
+def test_stateTracker(input_mockedTrajectoryClassification, inputStrides):
     data: SOAPclassification = input_mockedTrajectoryClassification
+    stride = inputStrides
+    window = stride
+    if (
+        window is not None and window > data.references.shape[0]
+    ) or stride > data.references.shape[0]:
+        with pytest.raises(ValueError) as excinfo:
+            SOAPify.trackStates(data, stride=stride)  # , window=window
+            assert "window must be smaller" in str(excinfo.value)
+        return
     # code for derermining the events
     CURSTATE = SOAPify.TRACK_CURSTATE
     ENDSTATE = SOAPify.TRACK_ENDSTATE
@@ -32,7 +53,7 @@ def test_stateTracker(input_mockedTrajectoryClassification):
         # the array is [start state, state, end state,time]
         # wg
         event = numpy.array([atomTraj[0], atomTraj[0], atomTraj[0], 0], dtype=int)
-        for frame in range(1, data.references.shape[0]):
+        for frame in range(window, data.references.shape[0], stride):
             if atomTraj[frame] != event[CURSTATE]:
                 event[ENDSTATE] = atomTraj[frame]
                 eventsperAtom.append(event)
@@ -45,7 +66,7 @@ def test_stateTracker(input_mockedTrajectoryClassification):
         eventsperAtom.append(event)
         expectedEvents.append(eventsperAtom)
 
-    events = SOAPify.trackStates(data)
+    events = SOAPify.trackStates(data, stride)
     for atomID in range(data.references.shape[1]):
         for event, expectedEvent in zip(events[atomID], expectedEvents[atomID]):
             assert_array_equal(event, expectedEvent)

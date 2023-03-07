@@ -26,8 +26,8 @@ def transitionMatrixFromSOAPClassification(
         raise ValueError("the window must be bigger than the stride")
     if window is None:
         window = stride
-    if window and window > data.references.shape[0]:
-        raise ValueError("the window must be smaller than simulation lenght")
+    if window > data.references.shape[0]:
+        raise ValueError("stride and window must be smaller than simulation lenght")
     nframes = len(data.references)
     nat = len(data.references[0])
 
