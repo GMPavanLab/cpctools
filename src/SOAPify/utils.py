@@ -13,17 +13,23 @@ def _SOAPpstr(l, Z, n, Zp, np) -> str:
 def getdscribeSOAPMapping(
     lmax: int, nmax: int, species: "list[str]", crossover: bool = True
 ) -> numpy.ndarray:
-    """return a list of string with the identities of the data returned from dscribe,
-       see the note in https://singroup.github.io/dscribe/1.2.x/tutorials/descriptors/soap.html
+    """returns how dscribe saves the SOAP results
+
+       return a list of string with the identities of the data returned from
+       dscribe, see the note in
+       https://singroup.github.io/dscribe/1.2.x/tutorials/descriptors/soap.html
 
     Args:
         lmax (int): the lmax specified in the calculation.
         nmax (int): the nmax specified in the calculation.
         species (list[str]): the list of atomic species.
-        crossover (bool): if True, the SOAP descriptors are generated for the mixed species
+        crossover (bool):
+            if True, the SOAP descriptors are generated for the mixed species.
+            Defaults to True.
 
     Returns:
-        numpy.ndarray: an array of strings with the mapping of the output of the analysis
+        numpy.ndarray:
+        an array of strings with the mapping of the output of the analysis
     """
     species = orderByZ(species)
     pdscribe = []
@@ -53,18 +59,23 @@ def _getRSindex(nmax: int, species: "list[str]") -> numpy.ndarray:
 def getquippySOAPMapping(
     lmax: int, nmax: int, species: "list[str]", diagonalRadial: bool = False
 ) -> numpy.ndarray:
-    """return a list of string with the identities of the data returned from quippy,
-       see https://github.com/libAtoms/GAP/blob/main/descriptors.f95#L7588
+    """returns how quippi saves the SOAP results
+
+
+        return a list of string with the identities of the data returned from quippy,
+        see https://github.com/libAtoms/GAP/blob/main/descriptors.f95#L7588
 
     Args:
         lmax (int): the lmax specified in the calculation.
         nmax (int): the nmax specified in the calculation.
         species (list[str]): the list of atomic species.
-        diagonalRadial (bool): if True, Only return the n1=n2 elements of the power spectrum. *NOT IMPLEMENTED*
-
+        diagonalRadial (bool):
+            if True, Only return the n1=n2 elements of the power spectrum.
+            **NOT IMPLEMENTED**. Defaults to False.
 
     Returns:
-        numpy.ndarray: an array of strings with the mapping of the output of the analysis
+        numpy.ndarray:
+        an array of strings with the mapping of the output of the analysis
     """
     species = orderByZ(species)
     rs_index = _getRSindex(nmax, species)
@@ -98,7 +109,10 @@ def orderByZ(species: "list[str]") -> "list[str]":
 def getAddressesQuippyLikeDscribe(
     lmax: int, nmax: int, species: "list[str]"
 ) -> numpy.ndarray:
-    """Given the lmax and nmax of a SOAP calculation and the species of the atoms returns an array of idexes for reordering the quippy results as the dscribe results
+    """create a support bdarray to reorder the quippy output in a dscribe fashion
+
+        Given the lmax and nmax of a SOAP calculation and the species of the atoms
+        returns an array of idexes for reordering the quippy results as the dscribe results
 
     Args:
         lmax (int): the lmax specified in the calculation.
@@ -143,7 +157,8 @@ def getSlicesFromAttrs(attrs: dict) -> "tuple(list,dict)":
         attrs (dict): the attributes of the SOAP dataset
 
     Returns:
-        tuple(list,dict): the slices of the SOAP vector to be extracted and the atomic types
+        tuple(list,dict):
+        the slices of the SOAP vector to be extracted and the atomic types
     """
     species = attrs["species"]
     slices = {}
