@@ -6,28 +6,37 @@ import numpy
 
 # TODO add stride/window selection
 def transitionMatrixFromSOAPClassification(
-    data: SOAPclassification, stride: int = 1
+    data: SOAPclassification, stride: int = 1, window: "int|None" = None
 ) -> "numpy.ndarray[float]":
     """Generates the unnormalized matrix of the transitions from a :func:`classify`
 
         see :func:`calculateTransitionMatrix` for a detailed description of an unnormalized transition matrix
+        If the user specifies windows equal to None the
 
     Args:
         data (SOAPclassification): the results of the soapClassification from :func:`classify`
         stride (int): the stride in frames between each state confrontation. Defaults to 1.
-        of the groups that contain the references in hdf5FileReference
+        window (int):
+            the dimension of the windows between each state confrontations.
+            Defaults to None.
     Returns:
         numpy.ndarray[float]: the unnormalized matrix of the transitions
     """
+    if window and window < stride:
+        raise ValueError("the window must be bigger than the stride")
+    if window is None:
+        window = stride
+    if window and window > data.references.shape[0]:
+        raise ValueError("the window must be smaller than simulation lenght")
     nframes = len(data.references)
     nat = len(data.references[0])
 
     nclasses = len(data.legend)
     transMat = numpy.zeros((nclasses, nclasses), dtype=numpy.float64)
 
-    for frameID in range(stride, nframes, 1):
+    for frameID in range(window, nframes, stride):
         for atomID in range(0, nat):
-            classFrom = data.references[frameID - stride][atomID]
+            classFrom = data.references[frameID - window][atomID]
             classTo = data.references[frameID][atomID]
             transMat[classFrom, classTo] += 1
     return transMat
@@ -54,7 +63,7 @@ def normalizeMatrix(transMat: "numpy.ndarray[float]") -> "numpy.ndarray[float]":
 
 # TODO add stride/window selection
 def transitionMatrixFromSOAPClassificationNormalized(
-    data: SOAPclassification, stride: int = 1
+    data: SOAPclassification, stride: int = 1, window: "int|None" = None
 ) -> "numpy.ndarray[float]":
     """Generates the normalized matrix of the transitions from a :func:`classify` and normalize it
 
@@ -67,11 +76,13 @@ def transitionMatrixFromSOAPClassificationNormalized(
     Args:
         data (SOAPclassification): the results of the soapClassification from :func:`classify`
         stride (int): the stride in frames between each state confrontation. Defaults to 1.
-        of the groups that contain the references in hdf5FileReference
+        window (int):
+            the dimension of the windows between each state confrontations.
+            Defaults to None.
     Returns:
         numpy.ndarray[float]: the normalized matrix of the transitions
     """
-    transMat = transitionMatrixFromSOAPClassification(data, stride)
+    transMat = transitionMatrixFromSOAPClassification(data, stride, window)
     return normalizeMatrix(transMat)
 
 

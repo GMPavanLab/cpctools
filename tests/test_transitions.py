@@ -1,28 +1,55 @@
 """tests for SOAPify.transitions"""
 from numpy.testing import assert_array_equal
 import numpy
+import pytest
 import SOAPify
 from SOAPify.classify import SOAPclassification
-import pytest
 
 
-def test_transitionMatrix(input_mockedTrajectoryClassification):
+# ,inputWindows
+def test_transitionMatrix(
+    input_mockedTrajectoryClassification, inputStrides, inputWindows
+):
     data: SOAPclassification = input_mockedTrajectoryClassification
     expectedTmat = numpy.zeros((len(data.legend), len(data.legend)))
-    stride = 1
+    stride = inputStrides
+    window = inputWindows
+    print(data.references.shape[0], window, stride)
+    if window is not None and window < stride:
+        with pytest.raises(ValueError) as excinfo:
+            SOAPify.transitionMatrixFromSOAPClassification(
+                data, stride=stride, window=window
+            )
+            assert "window must be bigger" in str(excinfo.value)
+        return
+    if (
+        window is not None and window > data.references.shape[0]
+    ) or stride > data.references.shape[0]:
+        with pytest.raises(ValueError):
+            SOAPify.transitionMatrixFromSOAPClassification(
+                data, stride=stride, window=window
+            )
+            assert "window must be smaller" in str(excinfo.value)
+        return
+
+    if window is None:
+        window = stride
+    print(data.references.shape[0], f"{window=}, {stride=}")
     for atomID in range(data.references.shape[1]):
-        for frame in range(stride, data.references.shape[0]):
+        for frame in range(window, data.references.shape[0], stride):
             expectedTmat[
-                data.references[frame - stride, atomID],
+                data.references[frame - window, atomID],
                 data.references[frame, atomID],
             ] += 1
 
-    tmat = SOAPify.transitionMatrixFromSOAPClassification(data, stride=stride)
+    tmat = SOAPify.transitionMatrixFromSOAPClassification(
+        data, stride=stride, window=window
+    )
     assert tmat.shape[0] == len(data.legend)
     assert_array_equal(tmat, expectedTmat)
 
     tmatNorm = SOAPify.transitionMatrixFromSOAPClassificationNormalized(
-        data, stride=stride
+        data, stride=stride, window=window
     )
     assert tmatNorm.shape[0] == len(data.legend)
     assert_array_equal(tmatNorm, SOAPify.normalizeMatrix(expectedTmat))
