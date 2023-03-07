@@ -155,6 +155,22 @@ def species_fixture(request):
 
 @pytest.fixture(
     scope="module",
+    params=[None, 1, 5, 10],
+)
+def inputWindows(request):
+    return request.param
+
+
+@pytest.fixture(
+    scope="module",
+    params=[1, 5, 10],
+)
+def inputStrides(request):
+    return request.param
+
+
+@pytest.fixture(
+    scope="module",
     params=[1, 4, 8],
 )
 def nMaxFixture(request):
