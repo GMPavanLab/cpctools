@@ -20,12 +20,16 @@ def test_transitionMatrixFromTracking(
     for event in events:
         print(event)
     transitionMatrixFromTracking = SOAPify.calculateTransitionMatrix(
-        data, stride=stride, statesTracker=events
+        data, statesTracker=events
     )
     expectedTmat = SOAPify.transitionMatrixFromSOAPClassification(
         data, stride=stride, window=window
     )
-    standardTmat = SOAPify.calculateTransitionMatrix(data, stride=stride)
+    standardTmat = SOAPify.calculateTransitionMatrix(
+        data,
+        stride=stride,
+        window=window,
+    )
     assert_array_equal(transitionMatrixFromTracking, expectedTmat)
     assert_array_equal(standardTmat, expectedTmat)
     assert isinstance(events[0], list)

@@ -144,7 +144,7 @@ def calculateResidenceTimes(
 
 # TODO add stride/window selection
 def calculateTransitionMatrix(
-    data: SOAPclassification, stride: int = 1, statesTracker: list = None
+    data: SOAPclassification, statesTracker: list = None, **algokwargs
 ) -> numpy.ndarray:
     """Generates the unnormalized matrix of the transitions from a :func:`classify` of from a statesTracker
 
@@ -155,7 +155,6 @@ def calculateTransitionMatrix(
 
     Args:
         data (SOAPclassification): the results of the soapClassification from :func:`classify`
-        stride (int): the stride in frames between each state confrontation. Defaults to 1.
         statesTracker (list, optional): _description_. Defaults to None.
 
     Returns:
@@ -163,6 +162,6 @@ def calculateTransitionMatrix(
     """
 
     if not statesTracker:
-        return transitionMatrixFromSOAPClassification(data, stride)
+        return transitionMatrixFromSOAPClassification(data, **algokwargs)
     else:
         return transitionMatrixFromStateTracker(statesTracker, data.legend)
