@@ -157,7 +157,7 @@ def species_fixture(request):
     scope="module",
     params=[None, 1, 5, 10],
 )
-def inputWindows(request):
+def inputNone_1_5_10(request):
     return request.param
 
 
@@ -165,8 +165,14 @@ def inputWindows(request):
     scope="module",
     params=[1, 5, 10],
 )
-def inputStrides(request):
+def input1_5_10(request):
     return request.param
+
+
+inputStrides = input1_5_10
+inputWindows = input1_5_10
+inputWindowsWithNone = inputNone_1_5_10
+inputStridesWithNone = inputNone_1_5_10
 
 
 @pytest.fixture(
