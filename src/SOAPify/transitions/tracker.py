@@ -29,8 +29,9 @@ def _createStateTracker(
     return numpy.array([prevState, curState, endState, eventTime], dtype=int)
 
 
-# TODO add stride/window here
-def trackStates(classification: SOAPclassification, stride: int = 1) -> list:
+def trackStates(
+    classification: SOAPclassification, window: int = 1, stride: "int|None" = None
+) -> list:
     """Creates an ordered list of events for each atom in the classified trajectory
     each event is a numpy.array with four compontents: the previous state, the current state, the final state and the duration of the current state
 
@@ -41,43 +42,50 @@ def trackStates(classification: SOAPclassification, stride: int = 1) -> list:
     Returns:
         list: ordered list of events for each atom in the classified trajectory
     """
-    window = None
-    if window is None:
-        window = stride
-    if window > classification.references.shape[0]:
+
+    if stride is None:
+        stride = window
+    if stride > window:
+        raise ValueError("the window must be bigger than the stride")
+
+    if (
+        window > classification.references.shape[0]
+        or stride > classification.references.shape[0]
+    ):
         raise ValueError("stride and window must be smaller than simulation lenght")
+
     nofFrames = classification.references.shape[0]
     nofAtoms = classification.references.shape[1]
-    stateHistory = []
+    stateHistory = [None for _ in range(nofAtoms)]
     # should I use a dedicated class?
+    # TODO: this can be made concurrent per atom
     for atomID in range(nofAtoms):
         statesPerAtom = []
         atomTraj = classification.references[:, atomID]
-        # TODO: this can be made concurrent per atom
+        for iframe in range(0, window, stride):
+            # the array is [start state, state, end state,time]
+            # when PREVSTATE and CURSTATE are the same the event is the first event for the atom in the simulation
+            # when ENDSTATE and CURSTATE are the same the event is the last event for the atom in the simulation
+            stateTracker = _createStateTracker(
+                prevState=atomTraj[iframe],
+                curState=atomTraj[iframe],
+                endState=atomTraj[iframe],
+                eventTime=0,
+            )
+            for frame in range(window + iframe, nofFrames, window):
+                if atomTraj[frame] != stateTracker[TRACK_CURSTATE]:
+                    stateTracker[TRACK_ENDSTATE] = atomTraj[frame]
+                    statesPerAtom.append(stateTracker)
+                    stateTracker = _createStateTracker(
+                        prevState=stateTracker[TRACK_CURSTATE],
+                        curState=atomTraj[frame],
+                        endState=atomTraj[frame],
+                    )
 
-        # the array is [start state, state, end state,time]
-        # when PREVSTATE and CURSTATE are the same the event is the first event for the atom in the simulation
-        # when ENDSTATE and CURSTATE are the same the event is the last event for the atom in the simulation
-        stateTracker = _createStateTracker(
-            prevState=atomTraj[0],
-            curState=atomTraj[0],
-            endState=atomTraj[0],
-            eventTime=0,
-        )
-        for frame in range(window, nofFrames, stride):
-            if atomTraj[frame] != stateTracker[TRACK_CURSTATE]:
-                stateTracker[TRACK_ENDSTATE] = atomTraj[frame]
-                statesPerAtom.append(stateTracker)
-                stateTracker = _createStateTracker(
-                    prevState=stateTracker[TRACK_CURSTATE],
-                    curState=atomTraj[frame],
-                    endState=atomTraj[frame],
-                )
-
-            stateTracker[TRACK_EVENTTIME] += 1
-        # append the last event
-        statesPerAtom.append(stateTracker)
-        stateHistory.append(statesPerAtom)
+                stateTracker[TRACK_EVENTTIME] += 1
+            # append the last event
+            statesPerAtom.append(stateTracker)
+        stateHistory[atomID] = statesPerAtom
     return stateHistory
 
 

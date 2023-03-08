@@ -22,10 +22,10 @@ def transitionMatrixFromSOAPClassification(
     Returns:
         numpy.ndarray[float]: the unnormalized matrix of the transitions
     """
-    if window and window < stride:
-        raise ValueError("the window must be bigger than the stride")
     if window is None:
         window = stride
+    if window < stride:
+        raise ValueError("the window must be bigger than the stride")
     if window > data.references.shape[0]:
         raise ValueError("stride and window must be smaller than simulation lenght")
     nframes = len(data.references)
@@ -119,16 +119,14 @@ def calculateResidenceTimesFromClassification(
         list[numpy.ndarray]:
         an ordered list of the residence times for each state
     """
-    if stride is not None and stride > window:
-        raise ValueError("the window must be bigger than the stride")
-
-    if window > data.references.shape[0] or (
-        stride is not None and stride > data.references.shape[0]
-    ):
-        raise ValueError("stride and window must be smaller than simulation lenght")
-
     if stride is None:
         stride = window
+    if stride > window:
+        raise ValueError("the window must be bigger than the stride")
+
+    if window > data.references.shape[0] or stride > data.references.shape[0]:
+        raise ValueError("stride and window must be smaller than simulation lenght")
+
     nofFrames = data.references.shape[0]
     nofAtoms = data.references.shape[1]
     residenceTimes = [[] for i in range(len(data.legend))]
