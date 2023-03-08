@@ -65,17 +65,20 @@ def normalizeMatrix(transMat: "numpy.ndarray[float]") -> "numpy.ndarray[float]":
 def transitionMatrixFromSOAPClassificationNormalized(
     data: SOAPclassification, stride: int = 1, window: "int|None" = None
 ) -> "numpy.ndarray[float]":
-    """Generates the normalized matrix of the transitions from a :func:`classify` and normalize it
+    """Generates the normalized transition matrix from a :func:`classify`
 
         The matrix is organized in the following way:
         for each atom in each frame we increment by one the cell whose row is the
         state at the frame `n-stride` and the column is the state at the frame `n`
 
-        The matrix is normalized with the criterion that the sum of each **row** is `1`
+        The matrix is normalized with the criterion that the sum of each **row**
+          is `1`
 
     Args:
-        data (SOAPclassification): the results of the soapClassification from :func:`classify`
-        stride (int): the stride in frames between each state confrontation. Defaults to 1.
+        data (SOAPclassification):
+            the results of the soapClassification from :func:`classify`
+        stride (int):
+            the stride in frames between each state confrontation. Defaults to 1.
         window (int):
             the dimension of the windows between each state confrontations.
             Defaults to None.
@@ -86,36 +89,63 @@ def transitionMatrixFromSOAPClassificationNormalized(
     return normalizeMatrix(transMat)
 
 
-# TODO add stride here?
 def calculateResidenceTimesFromClassification(
-    classification: SOAPclassification,
+    data: SOAPclassification, window: int = 1, stride: "int|None" = None
 ) -> "list[numpy.ndarray]":
-    """Given a SOAPclassification, calculate the resindence time for each element of the classification.
-        The residence time is how much an atom stays in a determined state: this function calculates the redidence time for each atom and for each state,
-        and returns an ordered list of residence times for each state (hence losing the atom identity)
+    """Calculates the resindence time for each element of the classification.
+
+        The residence time is how much an atom stays in a determined state: this
+        function calculates the residence time for each atom and for each state,
+        and returns an ordered list of residence times for each state
+        hence losing the atom identity)
+
+        When a `stride` is specified, the algorithm accumulates the resiedence
+        times of up to `window` simulations on hte same trajectory samplet at
+        the `window` rate
+
 
     Args:
-        classification (SOAPclassification): the classified trajectory
+        data (SOAPclassification):
+            the classified trajectory
+        window (int):
+            the dimension of the windows between each state confrontations.
+            Defaults to 1.
+        stride (int):
+            the stride in frames between each state confrontation.
+            Defaults to None.
+
 
     Returns:
-        list[numpy.ndarray]: an ordered list of the residence times for each state
+        list[numpy.ndarray]:
+        an ordered list of the residence times for each state
     """
+    if stride is not None and stride > window:
+        raise ValueError("the window must be bigger than the stride")
 
-    nofFrames = classification.references.shape[0]
-    nofAtoms = classification.references.shape[1]
-    residenceTimes = [[] for i in range(len(classification.legend))]
+    if window > data.references.shape[0] or (
+        stride is not None and stride > data.references.shape[0]
+    ):
+        raise ValueError("stride and window must be smaller than simulation lenght")
+
+    if stride is None:
+        stride = window
+    nofFrames = data.references.shape[0]
+    nofAtoms = data.references.shape[1]
+    residenceTimes = [[] for i in range(len(data.legend))]
+
     for atomID in range(nofAtoms):
-        atomTraj = classification.references[:, atomID]
-        time = 0
-        state = atomTraj[0]
-        for frame in range(1, nofFrames):
-            if atomTraj[frame] != state:
-                residenceTimes[state].append(time)
-                state = atomTraj[frame]
-                time = 0
-            time += 1
-        # the last state does not have an out transition, appendig negative time to make it clear
-        residenceTimes[state].append(-time)
+        atomTraj = data.references[:, atomID]
+        for initialFrame in range(0, window, stride):
+            time = 0
+            state = atomTraj[initialFrame]
+            for frame in range(window + initialFrame, nofFrames, window):
+                if atomTraj[frame] != state:
+                    residenceTimes[state].append(time)
+                    state = atomTraj[frame]
+                    time = 0
+                time += 1
+            # the last state does not have an out transition, appendig negative time to make it clear
+            residenceTimes[state].append(-time)
 
     for i in range(len(residenceTimes)):
         residenceTimes[i] = numpy.sort(numpy.array(residenceTimes[i]))
@@ -124,20 +154,26 @@ def calculateResidenceTimesFromClassification(
 
 
 def calculateResidenceTimes(
-    data: SOAPclassification, statesTracker: list = None
+    data: SOAPclassification, statesTracker: list = None, **algokwargs
 ) -> "list[numpy.ndarray]":
-    """Given a classification (and the state tracker) generates a ordered list of residence times per state
+    """Given a classification (and the state tracker) generates a ordered list
+    of residence times per state
 
     Args:
-        data (SOAPclassification): the classified trajectory, is statesTracker is passed will be used fog getting the legend of the states
-        statesTracker (list, optional): a list of list of state trackers, organized by atoms, or a list of state trackers. Defaults to None.
-
+        data (SOAPclassification):
+            the classified trajectory, is statesTracker is passed will be used
+            fog getting the legend of the states
+        statesTracker (list, optional):
+            a list of list of state trackers, organized by atoms, or a list of
+            state trackers. Defaults to None.
+        algokwargs:
+            arguments passed to the called functions
     Returns:
         list[numpy.ndarray]: an ordered list of the residence times for each state
     """
 
     if not statesTracker:
-        return calculateResidenceTimesFromClassification(data)
+        return calculateResidenceTimesFromClassification(data, **algokwargs)
     else:
         return getResidenceTimesFromStateTracker(statesTracker, data.legend)
 
@@ -146,17 +182,22 @@ def calculateResidenceTimes(
 def calculateTransitionMatrix(
     data: SOAPclassification, statesTracker: list = None, **algokwargs
 ) -> numpy.ndarray:
-    """Generates the unnormalized matrix of the transitions from a :func:`classify` of from a statesTracker
+    """Generates the unnormalized matrix of the transitions from a :func:`classify`
+        of from a statesTracker
 
         The matrix is organized in the following way:
         for each atom in each frame we increment by one the cell whose row is the
         state at the frame `n-stride` and the column is the state at the frame `n`
-        If the classification includes an error with a `-1` values the user should add an 'error' class in the legend
+        If the classification includes an error with a `-1` values the user should
+        add an 'error' class in the legend
 
     Args:
-        data (SOAPclassification): the results of the soapClassification from :func:`classify`
-        statesTracker (list, optional): _description_. Defaults to None.
-
+        data (SOAPclassification):
+            the results of the soapClassification from :func:`classify`
+        statesTracker (list, optional):
+            _description_. Defaults to None.
+        algokwargs:
+            arguments passed to the called functions
     Returns:
         numpy.ndarray[float]: the unnormalized matrix of the transitions
     """
