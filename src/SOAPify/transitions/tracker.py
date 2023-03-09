@@ -36,11 +36,14 @@ def trackStates(
     """Creates an ordered list of events for each atom in the classified trajectory
 
     each tracker is composed of events, each events is and array of foir components:
-    `[start state, state, end state,time]`
-            - if `PREVSTATE == CURSTATE` is the first event for the atom
-            - if `ENDSTATE == CURSTATE` is the last event for the atom
+    `[start state, state, end state,time]`:
+
+        - if `PREVSTATE == CURSTATE` is the first event for the atom
+        - if `ENDSTATE == CURSTATE` is the last event for the atom
+
     Args:
-        classification (SOAPclassification): the classified trajectory
+        classification (SOAPclassification):
+            the classified trajectory
         stride (int):
             the stride in frames between each window. Defaults to 1.
     Returns:

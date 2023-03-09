@@ -77,6 +77,7 @@ extra-dependencies = [
     "sphinx-rtd-theme==1.2.0",
     "myst-parser==0.18.1",
     "sphinx-autodoc-typehints==1.22",
+    "nbsphinx"
 
     #"mpl-sphinx-theme",
 ]
@@ -96,10 +97,11 @@ extra-dependencies = [
     "myst-parser==0.18.1",
     "sphinx-autodoc-typehints==1.22",
     "sphinx-autobuild",
+    "nbsphinx"
     ]
 
 [tool.hatch.envs.livedocs.scripts]
-build = 'cd docs && SPHINXBUILD=sphinx-autobuild make html'
+serve = 'cd docs && SPHINXBUILD=sphinx-autobuild SPHINXOPTS=-a make html'
 
 
 [tool.hatch.envs.test]
