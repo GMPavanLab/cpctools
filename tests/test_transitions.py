@@ -85,7 +85,7 @@ def test_residenceTime(
             assert "window must be smaller" in str(excinfo.value)
             return
 
-    ResidenceTimes = SOAPify.calculateResidenceTimesFromClassification(
+    residenceTimes = SOAPify.calculateResidenceTimesFromClassification(
         data, stride=stride, window=window
     )
     # hand calculation of the expected quantities
@@ -112,4 +112,4 @@ def test_residenceTime(
         expectedResidenceTimes[i] = numpy.sort(numpy.array(expectedResidenceTimes[i]))
 
     for stateID in range(len(expectedResidenceTimes)):
-        assert_array_equal(ResidenceTimes[stateID], expectedResidenceTimes[stateID])
+        assert_array_equal(residenceTimes[stateID], expectedResidenceTimes[stateID])

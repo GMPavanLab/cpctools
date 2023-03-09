@@ -129,46 +129,73 @@ def test_stateTracker(
 
 
 def test_transitionMatrixFromTracking(
-    input_mockedTrajectoryClassification, inputStrides
+    input_mockedTrajectoryClassification, inputStrides, inputWindows
 ):
+    """Testing "same input-different procedure" for calculating transition matrices"""
     data = input_mockedTrajectoryClassification
+    # the None entries are verified in other tests
     stride = inputStrides
-    window = None
+    window = inputWindows
+
     if (
-        window is not None and window > data.references.shape[0]
-    ) or stride > data.references.shape[0]:
-        # will fail, so returns
-        return
-    events = SOAPify.trackStates(data, stride=stride)
-    for event in events:
-        print(event)
-    transitionMatrixFromTracking = SOAPify.calculateTransitionMatrix(
-        data, statesTracker=events
-    )
+        window > data.references.shape[0]
+        or stride > data.references.shape[0]
+        or stride > window
+    ):
+        pytest.skip("failing condition are tested separately")
+    # calculate tmat from data and stride and window
     expectedTmat = SOAPify.transitionMatrixFromSOAPClassification(
         data, stride=stride, window=window
     )
+    # calculate tmat from data and stride and window, using the shortcut
     standardTmat = SOAPify.calculateTransitionMatrix(
         data,
         stride=stride,
         window=window,
     )
-    assert_array_equal(transitionMatrixFromTracking, expectedTmat)
     assert_array_equal(standardTmat, expectedTmat)
-    assert isinstance(events[0], list)
+    # calculate tmat from tracker
+    events = SOAPify.trackStates(data, window=window, stride=stride)
+    transitionMatrixFromTracking = SOAPify.calculateTransitionMatrix(
+        data, statesTracker=events
+    )
+    assert_array_equal(transitionMatrixFromTracking, expectedTmat)
 
 
-def test_residenceTimesFromTracking(input_mockedTrajectoryClassification):
+def test_residenceTimesFromTracking(
+    input_mockedTrajectoryClassification, inputStrides, inputWindows
+):
+    """Testing "same input-different procedure" for calculating residence times"""
     data = input_mockedTrajectoryClassification
-    events = SOAPify.trackStates(data)
-    residenceTimesFromTracking = SOAPify.calculateResidenceTimes(data, events)
-    expectedResidenceTimes = SOAPify.calculateResidenceTimes(data)
+    # the None entries are verified in other tests
+    stride = inputStrides
+    window = inputWindows
+    if (
+        window > data.references.shape[0]
+        or stride > data.references.shape[0]
+        or stride > window
+    ):  # will fail, so returns
+        pytest.skip("failing condition are tested separately")
 
-    for stateID in range(len(expectedResidenceTimes)):
-        assert_array_equal(
-            residenceTimesFromTracking[stateID], expectedResidenceTimes[stateID]
-        )
-    assert isinstance(events[0], list)
+    # calculate RTs from data and stride and window
+    expectedResidenceTimes = SOAPify.calculateResidenceTimesFromClassification(
+        data, window=window, stride=stride
+    )
+    # calculate RTs from data and stride and window with shortcut
+    shortcutResidenceTimes = SOAPify.calculateResidenceTimesFromClassification(
+        data, window=window, stride=stride
+    )
+    # calculate RTs from events
+    events = SOAPify.trackStates(data, window=window, stride=stride)
+    residenceTimesFromTracking = SOAPify.calculateResidenceTimes(data, events)
+
+    for rtFromTrack, rtShortcut, rtExpected in zip(
+        residenceTimesFromTracking,
+        shortcutResidenceTimes,
+        expectedResidenceTimes,
+    ):
+        assert_array_equal(rtFromTrack, rtExpected)
+        assert_array_equal(rtShortcut, rtExpected)
 
 
 def test_RemoveAtomIdentityFromEventTracker(input_mockedTrajectoryClassification):

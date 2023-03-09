@@ -1,3 +1,5 @@
+"""Module for time-analysis of the trajectory
+Author: Daniele Rapetti"""
 from ..classify import SOAPclassification
 from .tracker import *
 
