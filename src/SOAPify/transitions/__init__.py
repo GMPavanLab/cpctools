@@ -1,19 +1,21 @@
 """Module for time-analysis of the trajectory
 Author: Daniele Rapetti"""
+import numpy
+
 from ..classify import SOAPclassification
 from .tracker import *
 
-import numpy
 
-
-# TODO add stride/window selection
 def transitionMatrixFromSOAPClassification(
     data: SOAPclassification, stride: int = 1, window: "int|None" = None
 ) -> "numpy.ndarray[float]":
     """Generates the unnormalized matrix of the transitions from a :func:`classify`
 
-        see :func:`calculateTransitionMatrix` for a detailed description of an unnormalized transition matrix
-        If the user specifies windows equal to None the
+        see :func:`calculateTransitionMatrix` for a detailed description of an
+        unnormalized transition matrix.
+
+        If the user specifies windows equal to None the windows is set equal to
+        the stride
 
     Args:
         data (SOAPclassification): the results of the soapClassification from :func:`classify`
@@ -57,13 +59,12 @@ def normalizeMatrix(transMat: "numpy.ndarray[float]") -> "numpy.ndarray[float]":
     """
     toRet = transMat.copy()
     for row in range(transMat.shape[0]):
-        sum = numpy.sum(toRet[row, :])
-        if sum != 0:
-            toRet[row, :] /= sum
+        rowSum = numpy.sum(toRet[row, :])
+        if rowSum != 0:
+            toRet[row, :] /= rowSum
     return toRet
 
 
-# TODO add stride/window selection
 def transitionMatrixFromSOAPClassificationNormalized(
     data: SOAPclassification, stride: int = 1, window: "int|None" = None
 ) -> "numpy.ndarray[float]":
@@ -144,11 +145,12 @@ def calculateResidenceTimesFromClassification(
                     state = atomTraj[frame]
                     time = 0
                 time += 1
-            # the last state does not have an out transition, appendig negative time to make it clear
+            # the last state does not have an out transition:
+            # appendig negative time to make it clear
             residenceTimes[state].append(-time)
 
-    for i in range(len(residenceTimes)):
-        residenceTimes[i] = numpy.sort(numpy.array(residenceTimes[i]))
+    for i, rts in enumerate(residenceTimes):
+        residenceTimes[i] = numpy.sort(numpy.array(rts))
 
     return residenceTimes
 
@@ -178,7 +180,6 @@ def calculateResidenceTimes(
         return getResidenceTimesFromStateTracker(statesTracker, data.legend)
 
 
-# TODO add stride/window selection
 def calculateTransitionMatrix(
     data: SOAPclassification, statesTracker: list = None, **algokwargs
 ) -> numpy.ndarray:

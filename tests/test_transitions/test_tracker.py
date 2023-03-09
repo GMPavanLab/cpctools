@@ -201,7 +201,7 @@ def test_residenceTimesFromTracking(
 def test_RemoveAtomIdentityFromEventTracker(input_mockedTrajectoryClassification):
     data = input_mockedTrajectoryClassification
     events = SOAPify.trackStates(data)
-    newevents = SOAPify.RemoveAtomIdentityFromEventTracker(events)
+    newevents = SOAPify.removeAtomIdentityFromEventTracker(events)
     # verify that nothing is changed:
     assert isinstance(events[0], list)
     assert isinstance(events, list)
@@ -215,6 +215,6 @@ def test_RemoveAtomIdentityFromEventTracker(input_mockedTrajectoryClassification
             assert isinstance(newevents[atomID], numpy.ndarray)
             count += 1
     # if we pass to the function a list of tracker
-    otherevents = SOAPify.RemoveAtomIdentityFromEventTracker(newevents)
+    otherevents = SOAPify.removeAtomIdentityFromEventTracker(newevents)
     # nothing should happen
     assert otherevents == newevents

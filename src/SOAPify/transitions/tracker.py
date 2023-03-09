@@ -1,6 +1,7 @@
+"""submodules with the stateTracker workflow"""
+import numpy
 from ..classify import SOAPclassification
 
-import numpy
 
 #: the index of the component of the statetracker that stores the previous state
 TRACK_PREVSTATE = 0
@@ -33,8 +34,11 @@ def trackStates(
     classification: SOAPclassification, window: int = 1, stride: "int|None" = None
 ) -> list:
     """Creates an ordered list of events for each atom in the classified trajectory
-    each event is a numpy.array with four compontents: the previous state, the current state, the final state and the duration of the current state
 
+    each tracker is composed of events, each events is and array of foir components:
+    `[start state, state, end state,time]`
+            - if `PREVSTATE == CURSTATE` is the first event for the atom
+            - if `ENDSTATE == CURSTATE` is the last event for the atom
     Args:
         classification (SOAPclassification): the classified trajectory
         stride (int):
@@ -64,8 +68,8 @@ def trackStates(
         atomTraj = classification.references[:, atomID]
         for iframe in range(0, window, stride):
             # the array is [start state, state, end state,time]
-            # when PREVSTATE and CURSTATE are the same the event is the first event for the atom in the simulation
-            # when ENDSTATE and CURSTATE are the same the event is the last event for the atom in the simulation
+            # if PREVSTATE == CURSTATE the event is the first event for the atom
+            # if ENDSTATE == CURSTATE the event is the last event for the atom
             stateTracker = _createStateTracker(
                 prevState=atomTraj[iframe],
                 curState=atomTraj[iframe],
@@ -89,7 +93,7 @@ def trackStates(
     return stateHistory
 
 
-def RemoveAtomIdentityFromEventTracker(statesTracker: list) -> list:
+def removeAtomIdentityFromEventTracker(statesTracker: list) -> list:
     """Merge all of the list of stateTracker into a single lists, by removing the information of what atom did a given event.
 
 
@@ -119,17 +123,19 @@ def getResidenceTimesFromStateTracker(
     Returns:
         list[numpy.ndarray]: an ordered list of the residence times for each state
     """
-    states = RemoveAtomIdentityFromEventTracker(statesTracker)
+    states = removeAtomIdentityFromEventTracker(statesTracker)
 
-    residenceTimes = [[] for i in range(len(legend))]
+    residenceTimes = [[] for _ in range(len(legend))]
     for event in states:
         residenceTimes[event[TRACK_CURSTATE]].append(
             event[TRACK_EVENTTIME]
             if event[TRACK_ENDSTATE] != event[TRACK_CURSTATE]
             else -event[TRACK_EVENTTIME]
         )
-    for i in range(len(residenceTimes)):
-        residenceTimes[i] = numpy.sort(numpy.array(residenceTimes[i]))
+
+    for i, rts in enumerate(residenceTimes):
+        residenceTimes[i] = numpy.sort(numpy.array(rts))
+
     return residenceTimes
 
 
@@ -138,16 +144,20 @@ def transitionMatrixFromStateTracker(
 ) -> numpy.ndarray:
     """Generates the unnormalized matrix of the transitions from a statesTracker
 
-    see :func:`calculateTransitionMatrix` for a detailed description of an unnormalized transition matrix
+    see :func:`calculateTransitionMatrix` for a detailed description of an
+    unnormalized transition matrix
 
     Args:
-        statesTracker (list): a list of list of state trackers, organized by atoms, or a list of state trackers
-        legend (list): the list of states
+        statesTracker (list):
+            a list of list of state trackers, organized by atoms,
+            or a list of state trackers
+        legend (list):
+            the list of states
 
     Returns:
         numpy.ndarray[float]: the unnormalized matrix of the transitions
     """
-    states = RemoveAtomIdentityFromEventTracker(statesTracker)
+    states = removeAtomIdentityFromEventTracker(statesTracker)
 
     nclasses = len(legend)
     transMat = numpy.zeros((nclasses, nclasses), dtype=numpy.float64)
