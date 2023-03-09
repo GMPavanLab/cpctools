@@ -77,6 +77,7 @@ extra-dependencies = [
     "sphinx-rtd-theme==1.2.0",
     "myst-parser==0.18.1",
     "sphinx-autodoc-typehints==1.22",
+
     #"mpl-sphinx-theme",
 ]
 
@@ -85,6 +86,21 @@ cov = 'cd docs && make coverage'
 build = 'cd docs && make html'
 clean = 'cd docs && make clean'
 cleanbuild = 'cd docs && make clean build'
+
+[tool.hatch.envs.livedocs]
+template="docs"
+extra-dependencies = [   
+    "sphinx<6,>=4",
+    "docutils<0.18",
+    "sphinx-rtd-theme==1.2.0",
+    "myst-parser==0.18.1",
+    "sphinx-autodoc-typehints==1.22",
+    "sphinx-autobuild",
+    ]
+
+[tool.hatch.envs.livedocs.scripts]
+build = 'cd docs && SPHINXBUILD=sphinx-autobuild make html'
+
 
 [tool.hatch.envs.test]
 template="SOAP"
