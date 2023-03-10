@@ -12,6 +12,19 @@ from SOAPify.classify import SOAPclassification
 ################################################################################
 
 
+def test_classStateTracker(
+    input_mockedTrajectoryClassification, inputStrides, inputWindows
+):
+    """test for the StateTracker class"""
+    nat = input_mockedTrajectoryClassification.references.shape[1]
+    stride = inputStrides
+    window = inputWindows
+    states = SOAPify.StateTracker(nat, stride=stride, window=window)
+    assert states.window == window
+    assert states.stride == stride
+    assert len(states) == nat
+
+
 def test_stateTracker_old(input_mockedTrajectoryClassification, inputStrides):
     data: SOAPclassification = input_mockedTrajectoryClassification
     stride = inputStrides
@@ -42,7 +55,7 @@ def test_stateTracker_old(input_mockedTrajectoryClassification, inputStrides):
                     [eventsperAtom[-1][CURSTATE], atomTraj[frame], atomTraj[frame], 0],
                     dtype=int,
                 )
-            event[TIME] += 1
+            event[TIME] += window
         # append the last event
         eventsperAtom.append(event)
         expectedEvents.append(eventsperAtom)
@@ -114,7 +127,7 @@ def test_stateTracker(
                         ],
                         dtype=int,
                     )
-                event[TIME] += 1
+                event[TIME] += window
             # append the last event
             eventsperAtom.append(event)
         expectedEvents[atomID] = eventsperAtom
@@ -182,7 +195,7 @@ def test_residenceTimesFromTracking(
         data, window=window, stride=stride
     )
     # calculate RTs from data and stride and window with shortcut
-    shortcutResidenceTimes = SOAPify.calculateResidenceTimesFromClassification(
+    shortcutResidenceTimes = SOAPify.calculateResidenceTimes(
         data, window=window, stride=stride
     )
     # calculate RTs from events
@@ -204,15 +217,15 @@ def test_RemoveAtomIdentityFromEventTracker(input_mockedTrajectoryClassification
     newevents = SOAPify.removeAtomIdentityFromEventTracker(events)
     # verify that nothing is changed:
     assert isinstance(events[0], list)
-    assert isinstance(events, list)
+    assert isinstance(events, SOAPify.StateTracker)
     assert isinstance(events[0][0], numpy.ndarray)
     # verify that the copy is correct:
-    assert isinstance(newevents, list)
+    assert isinstance(newevents, SOAPify.StateTracker)
     count = 0
     for atomID in range(data.references.shape[1]):
         for event in events[atomID]:
-            assert_array_equal(event, newevents[count])
-            assert isinstance(newevents[atomID], numpy.ndarray)
+            assert_array_equal(event, newevents[0][count])
+            assert isinstance(newevents[0][count], numpy.ndarray)
             count += 1
     # if we pass to the function a list of tracker
     otherevents = SOAPify.removeAtomIdentityFromEventTracker(newevents)

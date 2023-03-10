@@ -104,7 +104,7 @@ def test_residenceTime(
                     expectedResidenceTimes[prevState].append(time)
                     time = 0
                     prevState = state
-                time += 1
+                time += window
             # the last state does not have an out transition, appendig negative time to make it clear
             expectedResidenceTimes[prevState].append(-time)
 

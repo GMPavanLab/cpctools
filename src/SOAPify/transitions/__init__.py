@@ -144,9 +144,10 @@ def calculateResidenceTimesFromClassification(
                     residenceTimes[state].append(time)
                     state = atomTraj[frame]
                     time = 0
-                time += 1
+                time += window
             # the last state does not have an out transition:
             # appendig negative time to make it clear
+            # TODO: correct the window going past the last frame, may be secondary
             residenceTimes[state].append(-time)
 
     for i, rts in enumerate(residenceTimes):

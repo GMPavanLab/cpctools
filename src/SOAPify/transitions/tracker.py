@@ -13,7 +13,73 @@ TRACK_ENDSTATE = 2
 TRACK_EVENTTIME = 3
 
 
-def _createStateTracker(
+class StateTracker:
+    """A contained for the state trackers"""
+
+    stateHistory: list
+    window_: int
+    stride_: int
+
+    def __init__(self, nat: int, window: int, stride: int) -> None:
+        """_summary_
+
+        Args:
+            nat (int): _description_
+            window (int): _description_
+            stride (int): _description_
+        """
+        self.stateHistory = [None for _ in range(nat)]
+        self.window_ = window
+        self.stride_ = stride
+
+    @property
+    def window(self) -> int:
+        """_summary_
+
+        Returns:
+            int: _description_
+        """
+        return self.window_
+
+    @property
+    def stride(self) -> int:
+        """_summary_
+
+        Returns:
+            int: _description_
+        """
+        return self.stride_
+
+    def __len__(self) -> int:
+        """_summary_
+
+        Returns:
+            int: _description_
+        """
+        return len(self.stateHistory)
+
+    def __getitem__(self, key):
+        """_summary_
+
+        Args:
+            key (_type_): the addres of the list of the asked atom
+        """
+        return self.stateHistory[key]
+
+    def __setitem__(self, key, data):
+        """_summary_
+
+        Args:
+            key (_type_): the addres of the list of the asked atom
+        """
+        self.stateHistory[key] = data
+
+    def __iter__(self):
+        """iterate thought the stored list of events"""
+        return iter(self.stateHistory)
+
+
+def _createEvent(
     prevState: int, curState: int, endState: int, eventTime: int = 0
 ) -> numpy.ndarray:
     """Compile the given collection of data in a state tracker
@@ -32,7 +98,7 @@ def _createStateTracker(
 
 def trackStates(
     classification: SOAPclassification, window: int = 1, stride: "int|None" = None
-) -> list:
+) -> StateTracker:
     """Creates an ordered list of events for each atom in the classified trajectory
 
     each tracker is composed of events, each events is and array of foir components:
@@ -47,7 +113,7 @@ def trackStates(
         stride (int):
             the stride in frames between each window. Defaults to 1.
     Returns:
-        list: ordered list of events for each atom in the classified trajectory
+        StateTracker: ordered list of events for each atom in the classified trajectory
     """
 
     if stride is None:
@@ -63,7 +129,8 @@ def trackStates(
 
     nofFrames = classification.references.shape[0]
     nofAtoms = classification.references.shape[1]
-    stateHistory = [None for _ in range(nofAtoms)]
+
+    stateHistory = StateTracker(nofAtoms, window, stride)
     # should I use a dedicated class?
     # TODO: this can be made concurrent per atom
     for atomID in range(nofAtoms):
@@ -73,7 +140,7 @@ def trackStates(
             # the array is [start state, state, end state,time]
             # if PREVSTATE == CURSTATE the event is the first event for the atom
             # if ENDSTATE == CURSTATE the event is the last event for the atom
-            stateTracker = _createStateTracker(
+            stateTracker = _createEvent(
                 prevState=atomTraj[iframe],
                 curState=atomTraj[iframe],
                 endState=atomTraj[iframe],
@@ -83,45 +150,51 @@ def trackStates(
                 if atomTraj[frame] != stateTracker[TRACK_CURSTATE]:
                     stateTracker[TRACK_ENDSTATE] = atomTraj[frame]
                     statesPerAtom.append(stateTracker)
-                    stateTracker = _createStateTracker(
+                    stateTracker = _createEvent(
                         prevState=stateTracker[TRACK_CURSTATE],
                         curState=atomTraj[frame],
                         endState=atomTraj[frame],
                     )
 
-                stateTracker[TRACK_EVENTTIME] += 1
+                stateTracker[TRACK_EVENTTIME] += window
             # append the last event
             statesPerAtom.append(stateTracker)
         stateHistory[atomID] = statesPerAtom
     return stateHistory
 
 
-def removeAtomIdentityFromEventTracker(statesTracker: list) -> list:
+def removeAtomIdentityFromEventTracker(statesTracker: StateTracker) -> StateTracker:
     """Merge all of the list of stateTracker into a single lists, by removing the information of what atom did a given event.
 
 
     Args:
-        statesTracker (list): a list of list of state trackers, organized by atoms
+        statesTracker (list):
+            a list of list of state trackers, organized by atoms
 
     Returns:
-        list: the list of stateTracker organized only by states
+        StateTracker: a state tracker
     """
-    if isinstance(statesTracker[0], list):
-        t = []
-        for tracks in statesTracker:
-            t += tracks
-        return t
+    if len(statesTracker) > 1:
+        newST = StateTracker(
+            1, window=statesTracker.window, stride=statesTracker.stride
+        )
+        newST.stateHistory[0] = []
+        for tracks in statesTracker.stateHistory:
+            newST.stateHistory[0] += tracks
+        return newST
     return statesTracker
 
 
 def getResidenceTimesFromStateTracker(
-    statesTracker: list, legend: list
+    statesTracker: StateTracker, legend: list
 ) -> "list[numpy.ndarray]":
     """Given a state tracker and the list of the states returns the list of residence times per state
 
     Args:
-        statesTracker (list): a list of list of state trackers, organized by atoms, or a list of state trackers
-        legend (list): the list of states
+        statesTracker (list):
+            a list of list of state trackers, organized by atoms, or a list of state trackers
+        legend (list):
+            the list of states
 
     Returns:
         list[numpy.ndarray]: an ordered list of the residence times for each state
@@ -143,7 +216,7 @@ def getResidenceTimesFromStateTracker(
 
 
 def transitionMatrixFromStateTracker(
-    statesTracker: list, legend: list
+    statesTracker: StateTracker, legend: list
 ) -> numpy.ndarray:
     """Generates the unnormalized matrix of the transitions from a statesTracker
 
@@ -151,11 +224,10 @@ def transitionMatrixFromStateTracker(
     unnormalized transition matrix
 
     Args:
-        statesTracker (list):
-            a list of list of state trackers, organized by atoms,
-            or a list of state trackers
+        statesTracker (StateTracker):
+            a StateTracker
         legend (list):
-            the list of states
+            the list of the name of the states
 
     Returns:
         numpy.ndarray[float]: the unnormalized matrix of the transitions
@@ -164,10 +236,12 @@ def transitionMatrixFromStateTracker(
 
     nclasses = len(legend)
     transMat = numpy.zeros((nclasses, nclasses), dtype=numpy.float64)
+    window = statesTracker.window
     # print(len(states), states[0], file=sys.stderr)
     for event in states:
+        print(event)
         transMat[event[TRACK_CURSTATE], event[TRACK_CURSTATE]] += (
-            event[TRACK_EVENTTIME] - 1
+            event[TRACK_EVENTTIME] // window - 1
         )
 
         # the transition matrix is genetated with:
