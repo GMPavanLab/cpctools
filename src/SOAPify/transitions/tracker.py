@@ -202,7 +202,8 @@ def getResidenceTimesFromStateTracker(
     states = removeAtomIdentityFromEventTracker(statesTracker)
 
     residenceTimes = [[] for _ in range(len(legend))]
-    for event in states:
+    # using states[0] because we have removed the atom identities
+    for event in states[0]:
         residenceTimes[event[TRACK_CURSTATE]].append(
             event[TRACK_EVENTTIME]
             if event[TRACK_ENDSTATE] != event[TRACK_CURSTATE]
@@ -237,9 +238,8 @@ def transitionMatrixFromStateTracker(
     nclasses = len(legend)
     transMat = numpy.zeros((nclasses, nclasses), dtype=numpy.float64)
     window = statesTracker.window
-    # print(len(states), states[0], file=sys.stderr)
-    for event in states:
-        print(event)
+    # using states[0] because we have removed the atom identities
+    for event in states[0]:
         transMat[event[TRACK_CURSTATE], event[TRACK_CURSTATE]] += (
             event[TRACK_EVENTTIME] // window - 1
         )
