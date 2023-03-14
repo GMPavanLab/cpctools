@@ -76,7 +76,7 @@ def hdf5_file(tmp_path_factory, input_universe):
             [],
             numpy.array(
                 # 0 never changes state
-                # 1 change stare at first frame
+                # 1 change state at first frame
                 # 2 alternates two states
                 [
                     [0, 1, 1],
@@ -95,7 +95,7 @@ def hdf5_file(tmp_path_factory, input_universe):
                 # 0 never changes state
                 # 1 change stare at first frame
                 # 2 alternates two states
-                # 3 as an error at some point
+                # 3 has an error at some point
                 [
                     [0, 1, 1, 1],
                     [0, 2, 2, 2],

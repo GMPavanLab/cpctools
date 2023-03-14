@@ -106,6 +106,8 @@ def calculateResidenceTimesFromClassification(
         times of up to `window` simulations on hte same trajectory samplet at
         the `window` rate
 
+        The first and the last residence time for each atom are saved as negative
+        numbers to signal the user that that time has to be considered more carefully
 
     Args:
         data (SOAPclassification):
@@ -139,17 +141,22 @@ def calculateResidenceTimesFromClassification(
         for initialFrame in range(0, window, stride):
             time = 0
             state = atomTraj[initialFrame]
+            initialStep = True
             for frame in range(window + initialFrame, nofFrames, window):
+                time += window
                 if atomTraj[frame] != state:
                     residenceTimes[state].append(time)
+                    if initialStep:
+                        residenceTimes[state][-1] = -residenceTimes[state][-1]
+                        initialStep = False
                     state = atomTraj[frame]
                     time = 0
-                time += window
+
             # the last state does not have an out transition:
             # appendig negative time to make it clear
             # TODO: correct the window going past the last frame, may be secondary
-            residenceTimes[state].append(-time)
-
+            # NB: the -window is here because the last frame skips a +=
+            residenceTimes[state].append(-time - window)
     for i, rts in enumerate(residenceTimes):
         residenceTimes[i] = numpy.sort(numpy.array(rts))
 
