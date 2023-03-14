@@ -251,12 +251,12 @@ def test_residenceTime(
             )
         if stride is not None and window < stride:
             assert "window must be bigger" in str(excinfo.value)
-            pytest.skip("Excetion thrown correctly")
+            pytest.skip("Exception thrown correctly")
         if (
             stride is not None and stride > data.references.shape[0]
         ) or window > data.references.shape[0]:
             assert "window must be smaller" in str(excinfo.value)
-            pytest.skip("Excetion thrown correctly")
+            pytest.skip("Exception thrown correctly")
 
     residenceTimes = SOAPify.calculateResidenceTimesFromClassification(
         data, stride=stride, window=window

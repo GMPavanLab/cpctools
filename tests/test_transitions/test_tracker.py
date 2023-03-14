@@ -177,44 +177,6 @@ def test_stateTrackerBehaviourWindowAndStrideAndTrajectory():
             assert total == _expectedTotalFrames(nFrames, window, stride)
 
 
-def test_stateTracker_old(input_mockedTrajectoryClassification, inputStrides):
-    data: SOAPclassification = input_mockedTrajectoryClassification
-    stride = inputStrides
-    window = stride
-    if (
-        window is not None and window > data.references.shape[0]
-    ) or stride > data.references.shape[0]:
-        with pytest.raises(ValueError) as excinfo:
-            SOAPify.trackStates(data, stride=stride)  # , window=window
-            assert "window must be smaller" in str(excinfo.value)
-        return
-    # code for derermining the events
-    expectedEvents = []
-    for atomID in range(data.references.shape[1]):
-        eventsperAtom = []
-        atomTraj = data.references[:, atomID]
-        # the array is [start state, state, end state,time]
-        # wg
-        event = numpy.array([atomTraj[0], atomTraj[0], atomTraj[0], 0], dtype=int)
-        for frame in range(window, data.references.shape[0], stride):
-            if atomTraj[frame] != event[CURSTATE]:
-                event[ENDSTATE] = atomTraj[frame]
-                eventsperAtom.append(event)
-                event = numpy.array(
-                    [eventsperAtom[-1][CURSTATE], atomTraj[frame], atomTraj[frame], 0],
-                    dtype=int,
-                )
-            event[TIME] += window
-        # append the last event
-        eventsperAtom.append(event)
-        expectedEvents.append(eventsperAtom)
-
-    events = SOAPify.trackStates(data, window=stride)
-    for atomID in range(data.references.shape[1]):
-        for event, expectedEvent in zip(events[atomID], expectedEvents[atomID]):
-            assert_array_equal(event, expectedEvent)
-
-
 def test_stateTracker(
     input_mockedTrajectoryClassification, inputStridesWithNone, inputWindows
 ):
@@ -232,12 +194,12 @@ def test_stateTracker(
             SOAPify.trackStates(data, stride=stride, window=window)
         if stride is not None and window < stride:
             assert "window must be bigger" in str(excinfo.value)
-            return
+            pytest.skip("Exception thrown correctly")
         if (
             stride is not None and stride > data.references.shape[0]
         ) or window > data.references.shape[0]:
             assert "window must be smaller" in str(excinfo.value)
-            return
+            pytest.skip("Exception thrown correctly")
     events = SOAPify.trackStates(data, stride=stride, window=window)
 
     # hand calculation of the expected quantities
@@ -261,6 +223,7 @@ def test_stateTracker(
                 dtype=int,
             )
             for frame in range(iframe + window, data.references.shape[0], window):
+                event[TIME] += window
                 if atomTraj[frame] != event[CURSTATE]:
                     event[ENDSTATE] = atomTraj[frame]
                     eventsperAtom.append(event)
@@ -273,8 +236,9 @@ def test_stateTracker(
                         ],
                         dtype=int,
                     )
-                event[TIME] += window
+
             # append the last event
+            event[TIME] += window
             eventsperAtom.append(event)
         expectedEvents[atomID] = eventsperAtom
 
