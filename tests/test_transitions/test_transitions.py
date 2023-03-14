@@ -119,7 +119,7 @@ def test_residenceTimeBehaviourAlternatingStates():
 def test_residenceTimeBehaviourAlternatingStatesOdd():
     """The Residence time must pass this tests first
 
-    an alternating states should return a series of ones , with a -1 for
+    an alternating states should return a series of twos , with a -2 for
     starting and ending frame
     """
     threeStates: list = ["state0", "state1", "state2"]
@@ -170,6 +170,19 @@ def test_residenceTimeBehaviourAlternatingStatesTwoInTwo():
         assert isSorted(rt)
 
 
+def _expectedTotalFrames(nFrames, window, stride):
+    expectedTotal = 0
+    for i in range(0, window, stride):
+        tframes = nFrames - i
+        expectedTotalToSum = tframes
+        # if window is not a multiple of nFrames total we expect that the count will
+        if tframes % window != 0:
+            expectedTotalToSum = tframes // window + 1
+            expectedTotalToSum *= window
+        expectedTotal += expectedTotalToSum
+    return expectedTotal
+
+
 def test_residenceTimeBehaviourWindowAndTrajectory():
     """The Residence time must pass this tests first
 
@@ -191,13 +204,7 @@ def test_residenceTimeBehaviourWindowAndTrajectory():
         # print(*[numpy.abs(rt) for rt in residenceTimes])
         print(*residenceTimes)
         total = numpy.sum([numpy.sum(numpy.abs(rt)) for rt in residenceTimes])
-        expectedTotal = nFrames
-        # if window is not a multiple of nFrames total we expect that the count will
-        if nFrames % window != 0:
-            expectedTotal = nFrames // window + 1
-            expectedTotal *= window
-        print(f"{window=} {expectedTotal=} {total=} {nFrames=} {nFrames % window=}")
-        assert total == expectedTotal
+        assert total == _expectedTotalFrames(nFrames, window, stride)
 
 
 def test_residenceTimeBehaviourWindowAndStrideAndTrajectory():
@@ -220,20 +227,8 @@ def test_residenceTimeBehaviourWindowAndStrideAndTrajectory():
             # print(*[numpy.abs(rt) for rt in residenceTimes])
             print(*residenceTimes)
             total = numpy.sum([numpy.sum(numpy.abs(rt)) for rt in residenceTimes])
-            expectedTotal = 0
-            for i in range(0, window, stride):
-                tframes = nFrames - i
-                expectedTotalToSum = tframes
-                print(f"{i=} {tframes=} {expectedTotalToSum=}")
-                # if window is not a multiple of nFrames total we expect that the count will
-                if tframes % window != 0:
-                    expectedTotalToSum = tframes // window + 1
-                    expectedTotalToSum *= window
-                expectedTotal += expectedTotalToSum
 
-            print(f"{window=} {stride=}")
-            print(f"{total=} {nFrames=} {expectedTotal=}")
-            assert total == expectedTotal
+            assert total == _expectedTotalFrames(nFrames, window, stride)
 
 
 def test_residenceTime(
@@ -295,21 +290,10 @@ def test_residenceTime(
     for i in range(len(expectedResidenceTimes)):
         expectedResidenceTimes[i] = numpy.sort(numpy.array(expectedResidenceTimes[i]))
     total = numpy.sum([numpy.sum(numpy.abs(rt)) for rt in residenceTimes])
-    # the total number of frames should depend on the window and on the stride
-    totalFramesNoWindow = data.references.shape[0] * data.references.shape[1]
-    totaFramesWithWindow = totalFramesNoWindow * window - totalFramesNoWindow % window
-    howManytimes = totalFramesNoWindow // window
-    print(totalFramesNoWindow, totalFramesNoWindow % window, totaFramesWithWindow)
-    print(howManytimes, howManytimes * window, howManytimes * window // stride)
-    print(
-        *[
-            window * ((totalFramesNoWindow - iframe) // window)
-            for iframe in range(0, window, stride)
-        ]
-    )
-    print(total)
-    print(*residenceTimes)
-    assert total == 0
+    nFrames = data.references.shape[0]
+    expectedTotal = _expectedTotalFrames(nFrames, window, stride)
+    expectedTotal *= data.references.shape[1]
+    assert total == expectedTotal
 
     for stateID in range(len(expectedResidenceTimes)):
         print(stateID, residenceTimes[stateID], expectedResidenceTimes[stateID])

@@ -4,12 +4,18 @@ import SOAPify
 import numpy
 import pytest
 from SOAPify.classify import SOAPclassification
+from .test_transitions import _expectedTotalFrames
 
 ################################################################################
 ################################################################################
 ###The tests here assume that the tests in test_transitions are all successful##
 ################################################################################
 ################################################################################
+
+PREVSTATE = SOAPify.TRACK_PREVSTATE
+CURSTATE = SOAPify.TRACK_CURSTATE
+ENDSTATE = SOAPify.TRACK_ENDSTATE
+TIME = SOAPify.TRACK_EVENTTIME
 
 
 def test_classStateTracker(
@@ -25,6 +31,152 @@ def test_classStateTracker(
     assert len(states) == nat
 
 
+def test_stateTrackerBehaviourNoStateChanges():
+    """The StateTracker time must pass this tests first:
+
+    There should be only one statewith leght equal to the trajectory"""
+    threeStates: list = ["state0", "state1", "state2"]
+
+    for nFrames in range(4, 8):
+        dataNC: SOAPclassification = SOAPclassification(
+            [], numpy.array([[0]] * nFrames), threeStates
+        )
+        tracker = SOAPify.trackStates(dataNC, stride=1, window=1)
+        # 1 atom
+        assert len(tracker) == 1
+        assert len(tracker[0]) == 1
+        assert tracker[0][0][PREVSTATE] == tracker[0][0][CURSTATE]
+        assert tracker[0][0][ENDSTATE] == tracker[0][0][CURSTATE]
+        assert tracker[0][0][CURSTATE] == 0
+        assert tracker[0][0][TIME] == nFrames
+
+
+def test_stateTrackerBehaviourAlternatingStates():
+    """The StateTracker time must pass this tests first
+
+    an alternating states should return a series of events of lenght one
+    """
+
+    threeStates: list = ["state0", "state1", "state2"]
+    nFrames = 12
+    data: SOAPclassification = SOAPclassification(
+        [], numpy.array([[0], [1]] * (nFrames // 2)), threeStates
+    )
+    tracker = SOAPify.trackStates(data, stride=1, window=1)
+    # 1 atom
+    assert len(tracker) == 1
+    assert len(tracker[0]) == nFrames
+    totalTime = 0
+    for event in tracker[0]:
+        print(event)
+        assert event[TIME] == 1
+        totalTime += event[TIME]
+    assert totalTime == nFrames
+    # ensuringht the behaviour
+    assert tracker[0][0][PREVSTATE] == tracker[0][0][CURSTATE]
+    assert tracker[0][0][ENDSTATE] != tracker[0][0][CURSTATE]
+    assert tracker[0][-1][PREVSTATE] != tracker[0][-1][CURSTATE]
+    assert tracker[0][-1][ENDSTATE] == tracker[0][-1][CURSTATE]
+
+
+def test_stateTrackerBehaviourAlternatingStatesOdd():
+    """The StateTracker time must pass this tests first
+
+    an alternating states should return a series of events of lenght one
+    """
+
+    threeStates: list = ["state0", "state1", "state2"]
+    nFrames = 13
+    # the // makes the 13 behave like a 12 as a integer division
+    data: SOAPclassification = SOAPclassification(
+        [], numpy.array([[0], [1]] * (nFrames // 2) + [[0]]), threeStates
+    )
+    tracker = SOAPify.trackStates(data, stride=1, window=1)
+    # 1 atom
+    assert len(tracker) == 1
+    assert len(tracker[0]) == nFrames
+    totalTime = 0
+    for event in tracker[0]:
+        print(event)
+        assert event[TIME] == 1
+        totalTime += event[TIME]
+    assert totalTime == nFrames
+    # ensuringht the behaviour
+    assert tracker[0][0][PREVSTATE] == tracker[0][0][CURSTATE]
+    assert tracker[0][0][ENDSTATE] != tracker[0][0][CURSTATE]
+    assert tracker[0][-1][PREVSTATE] != tracker[0][-1][CURSTATE]
+    assert tracker[0][-1][ENDSTATE] == tracker[0][-1][CURSTATE]
+
+
+def test_stateTrackerBehaviourAlternatingStatesTwoInTwo():
+    """The StateTracker time must pass this tests first
+
+    an alternating states should return a series of events of lenght two
+    """
+    threeStates: list = ["state0", "state1", "state2"]
+    nFrames = 12
+    data: SOAPclassification = SOAPclassification(
+        [], numpy.array([[0], [0], [1], [1]] * (nFrames // 4)), threeStates
+    )
+    tracker = SOAPify.trackStates(data, stride=1, window=1)
+    # 1 atom
+    assert len(tracker) == 1
+    assert len(tracker[0]) == nFrames // 2
+    totalTime = 0
+    for event in tracker[0]:
+        print(event)
+        assert event[TIME] == 2
+        totalTime += event[TIME]
+    assert totalTime == nFrames
+    # ensuringht the behaviour
+    assert tracker[0][0][PREVSTATE] == tracker[0][0][CURSTATE]
+    assert tracker[0][0][ENDSTATE] != tracker[0][0][CURSTATE]
+    assert tracker[0][-1][PREVSTATE] != tracker[0][-1][CURSTATE]
+    assert tracker[0][-1][ENDSTATE] == tracker[0][-1][CURSTATE]
+
+
+def test_stateTrackerBehaviourWindowAndTrajectory():
+    """The StateTracker time must pass this tests first
+
+    Th resulting time of the simulation will be different,
+    and should be proportional to the given window
+    """
+    threeStates: list = ["state0", "state1", "state2"]
+    nFrames = 12
+    data: SOAPclassification = SOAPclassification(
+        [], numpy.array([[0]] * (nFrames)), threeStates
+    )
+    for window in range(1, nFrames + 1):
+        stride = window
+        tracker = SOAPify.trackStates(data, stride=stride, window=window)
+        assert len(tracker) == 1
+        assert len(tracker[0]) == 1
+        print(*tracker[0])
+        total = numpy.sum([rt[TIME] for rt in tracker[0]])
+        assert total == _expectedTotalFrames(nFrames, window, stride)
+
+
+def test_stateTrackerBehaviourWindowAndStrideAndTrajectory():
+    """The StateTracker time must pass this tests first
+
+    Th resulting time of the simulation will be different,
+    and should be proportional to the given window
+    """
+    threeStates: list = ["state0", "state1", "state2"]
+    nFrames = 12
+    data: SOAPclassification = SOAPclassification(
+        [], numpy.array([[0]] * (nFrames)), threeStates
+    )
+    for window in range(1, nFrames + 1):
+        for stride in range(1, window + 1):
+            tracker = SOAPify.trackStates(data, stride=stride, window=window)
+            assert len(tracker) == 1
+            assert len(tracker[0]) == len(range(0, window, stride))
+            print(*tracker[0])
+            total = numpy.sum([rt[TIME] for rt in tracker[0]])
+            assert total == _expectedTotalFrames(nFrames, window, stride)
+
+
 def test_stateTracker_old(input_mockedTrajectoryClassification, inputStrides):
     data: SOAPclassification = input_mockedTrajectoryClassification
     stride = inputStrides
@@ -37,9 +189,6 @@ def test_stateTracker_old(input_mockedTrajectoryClassification, inputStrides):
             assert "window must be smaller" in str(excinfo.value)
         return
     # code for derermining the events
-    CURSTATE = SOAPify.TRACK_CURSTATE
-    ENDSTATE = SOAPify.TRACK_ENDSTATE
-    TIME = SOAPify.TRACK_EVENTTIME
     expectedEvents = []
     for atomID in range(data.references.shape[1]):
         eventsperAtom = []
@@ -95,9 +244,6 @@ def test_stateTracker(
     if stride is None:
         stride = window
     # code for determining the events
-    CURSTATE = SOAPify.TRACK_CURSTATE
-    ENDSTATE = SOAPify.TRACK_ENDSTATE
-    TIME = SOAPify.TRACK_EVENTTIME
     expectedEvents = [None for _ in range(data.references.shape[1])]
     for atomID in range(data.references.shape[1]):
         eventsperAtom = []

@@ -131,7 +131,6 @@ def trackStates(
     nofAtoms = classification.references.shape[1]
 
     stateHistory = StateTracker(nofAtoms, window, stride)
-    # should I use a dedicated class?
     # TODO: this can be made concurrent per atom
     for atomID in range(nofAtoms):
         statesPerAtom = []
@@ -147,6 +146,7 @@ def trackStates(
                 eventTime=0,
             )
             for frame in range(window + iframe, nofFrames, window):
+                stateTracker[TRACK_EVENTTIME] += window
                 if atomTraj[frame] != stateTracker[TRACK_CURSTATE]:
                     stateTracker[TRACK_ENDSTATE] = atomTraj[frame]
                     statesPerAtom.append(stateTracker)
@@ -156,8 +156,8 @@ def trackStates(
                         endState=atomTraj[frame],
                     )
 
-                stateTracker[TRACK_EVENTTIME] += window
             # append the last event
+            stateTracker[TRACK_EVENTTIME] += window
             statesPerAtom.append(stateTracker)
         stateHistory[atomID] = statesPerAtom
     return stateHistory
@@ -206,7 +206,10 @@ def getResidenceTimesFromStateTracker(
     for event in states[0]:
         residenceTimes[event[TRACK_CURSTATE]].append(
             event[TRACK_EVENTTIME]
-            if event[TRACK_ENDSTATE] != event[TRACK_CURSTATE]
+            if (
+                event[TRACK_ENDSTATE] != event[TRACK_CURSTATE]
+                and event[TRACK_PREVSTATE] != event[TRACK_CURSTATE]
+            )
             else -event[TRACK_EVENTTIME]
         )
 
@@ -243,9 +246,9 @@ def transitionMatrixFromStateTracker(
         transMat[event[TRACK_CURSTATE], event[TRACK_CURSTATE]] += (
             event[TRACK_EVENTTIME] // window - 1
         )
-
         # the transition matrix is genetated with:
         #   classFrom = data.references[frameID - stride][atomID]
         #   classTo = data.references[frameID][atomID]
-        transMat[event[TRACK_PREVSTATE], event[TRACK_CURSTATE]] += 1
+        if event[TRACK_PREVSTATE] != event[TRACK_CURSTATE]:
+            transMat[event[TRACK_PREVSTATE], event[TRACK_CURSTATE]] += 1
     return transMat
