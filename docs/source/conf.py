@@ -44,6 +44,7 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.autosummary",
     "nbsphinx",
+    "sphinx_gallery.load_style",
     # "matplotlib.sphinxext.plot_directive",
     # "matplotlib.sphinxext.mathmpl",
     # "sphinx.ext.todo",

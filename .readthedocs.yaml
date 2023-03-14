@@ -17,6 +17,8 @@ python:
       path: .
       extra_requirements:
         - docs
+        - dscribe
+        - quippy
   # with this workflow the flyout does not appear!
   #commands:
   #  - pip install hatch
