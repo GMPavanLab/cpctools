@@ -11,6 +11,7 @@ Until we get to a release version you may encounter different broken interface p
 - Compacted the workflows for a PR
 - Added the coveralls.io badge
 - Now documentation in rtd uses the standard rtd workflow
+- Refactored of the transition submodules, now support the 'window' and 'stride' concepts, added an entry to the documentation to explain it
 - Moved HDF5er into SOAPify, to simplify the deployment
     - change your `import HDF5er` to `import SOAPify.HDF5er as HDF5er` in your old codes
     - `HDF5er.HDF5erUtils` &rarr; `SOAPify.HDF5er.HDF5erUtils`
@@ -26,6 +27,7 @@ Until we get to a release version you may encounter different broken interface p
     - `SOAPify.SOAPclassify.classify()` &rarr; `SOAPify.classify.applyClassification()`
     - `SOAPify.Saponify.saponifyGroup()` &rarr; `SOAPify.saponify.saponifyMultipleTrajectories()`
     - `SOAPify.Saponify.saponify()` &rarr; `SOAPify.saponify.saponifyTrajectory()`
+    - `SOAPify.RemoveAtomIdentityFromEventTracker()` &rarr; `SOAPify.transitions.saponifyTrajectory()`
 
 ## Changes since v0.0.4
 
