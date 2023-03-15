@@ -2,14 +2,16 @@
 
 Until we get to a release version you may encounter different broken interface problem each time we increase a minor version.
 
-## Changes since v0.0.5
+## Changes since v0.0.6
 
+- The **v0.0.6** has been set flagged as the 'stable version'
 - Forced **float64** precision in most of the calculations &larr; **THIS IS A MAJOR CHANGE AND COULD IMPACT YOUR RESULTS**
 - Changed the package name to cpctools, for storing it on https://pypi.org/
 - Removed the old and unused procedure for calculating the references
 - Compacted the workflows for a PR
 - Added the coveralls.io badge
 - Now documentation in rtd uses the standard rtd workflow
+- Refactored of the transition submodules, now support the 'window' and 'stride' concepts, added an entry to the documentation to explain it
 - Moved HDF5er into SOAPify, to simplify the deployment
     - change your `import HDF5er` to `import SOAPify.HDF5er as HDF5er` in your old codes
     - `HDF5er.HDF5erUtils` &rarr; `SOAPify.HDF5er.HDF5erUtils`
@@ -27,7 +29,9 @@ Until we get to a release version you may encounter different broken interface p
     - `SOAPify.Saponify.saponify()` &rarr; `SOAPify.saponify.saponifyTrajectory()`
     - `SOAPify.SOAPTransitions.normalizeMatrix()` &rarr; `SOAPify.transitions.normalizeMatrixByRow()`
     - `SOAPify.SOAPbase.KernelSoap()` &rarr; `SOAPify.distances.kernelSoap()`
+    - `SOAPify.RemoveAtomIdentityFromEventTracker()` &rarr; `SOAPify.transitions.saponifyTrajectory()`
 - Cleaned the code with pylint
+
 
 ## Changes since v0.0.4
 

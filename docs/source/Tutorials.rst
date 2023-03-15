@@ -1,4 +1,6 @@
-Tutorials
+Tutorials and Examples
 =========
 
-Work in progress
+.. nbgallery::
+   Examples
+   TimeAnalysis

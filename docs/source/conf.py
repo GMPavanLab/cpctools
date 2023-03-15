@@ -43,6 +43,8 @@ extensions = [
     "sphinx.ext.githubpages",
     "sphinx.ext.intersphinx",
     "sphinx.ext.autosummary",
+    "nbsphinx",
+    "sphinx_gallery.load_style",
     # "matplotlib.sphinxext.plot_directive",
     # "matplotlib.sphinxext.mathmpl",
     # "sphinx.ext.todo",
@@ -96,3 +98,5 @@ todo_include_todos = True
 
 # -- Options for coverage output ---------------------------------------------
 coverage_show_missing_items = True
+
+nbsphinx_execute = "never"

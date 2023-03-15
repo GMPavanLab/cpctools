@@ -10,22 +10,20 @@ Welcome to SOAPify's documentation!
    :parser: myst_parser.sphinx_
 
 .. toctree::
-   :maxdepth: 3
-   :caption: Modules
+   :maxdepth: 2
+   :caption: Content
 
-   modules
-   
-...
-   SOAPify
-   HDF5er
-   ReferenceMaker
+   Tutorials
+   Citation
+   About
+   Changelog.md
 
 .. toctree::
-   :maxdepth: 3
-   :caption: Utils
+   :maxdepth: 1
+   :caption: Documentation
 
-   Utils
-   
+   SOAPify
+      
 
 Indices and tables
 ==================
