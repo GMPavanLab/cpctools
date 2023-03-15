@@ -1,8 +1,6 @@
-Tutorials
+Tutorials and Examples
 =========
 
-.. toctree::
-   :maxdepth: 3
-
+.. nbgallery::
    Examples
    TimeAnalysis
