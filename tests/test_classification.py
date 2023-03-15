@@ -123,7 +123,7 @@ def test_distanceFromRefs(getReferencesConfs, referencesTest):
         ndists = len(referenceDict["ico923_6"])
         nat = ds.shape[1]
         data = SOAPify.normalizeArray(
-            SOAPify.fillSOAPVectorFromdscribe(ds[:], l_max=lmax, n_max=nmax)
+            SOAPify.fillSOAPVectorFromdscribe(ds[:], lMax=lmax, nMax=nmax)
         )
         distancesCalculated = SOAPify.getDistanceBetween(
             data.reshape(-1, data.shape[-1]),
@@ -167,7 +167,7 @@ def test_classifyShortcut(getReferencesConfs, referencesTest):
         nmax = ds.attrs["n_max"]
         lmax = ds.attrs["l_max"]
         data = SOAPify.normalizeArray(
-            SOAPify.fillSOAPVectorFromdscribe(ds[:], l_max=lmax, n_max=nmax)
+            SOAPify.fillSOAPVectorFromdscribe(ds[:], lMax=lmax, nMax=nmax)
         )
         distancesCalculated = SOAPify.getDistanceBetween(
             data.reshape(-1, data.shape[-1]),
