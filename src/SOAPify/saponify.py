@@ -228,30 +228,22 @@ def saponifyMultipleTrajectories(
         SOAPkwargs = {}
     print(f"using {useSoapFrom} to calculate SOAP")
     print(SOAPkwargs)
-    soapEngine = None
+
     for key in trajContainers.keys():
         if isTrajectoryGroup(trajContainers[key]):
-            traj = trajContainers[key]
-            symbols = traj["Types"].asstr()[:]
-            if soapEngine is None:
-                soapEngine = getSoapEngine(
-                    atomNames=symbols,
-                    SOAPrcut=SOAPrcut,
-                    SOAPnmax=SOAPnmax,
-                    SOAPlmax=SOAPlmax,
-                    SOAPatomMask=SOAPatomMask,
-                    centersMask=centersMask,
-                    SOAP_respectPBC=SOAP_respectPBC,
-                    SOAPkwargs=SOAPkwargs,
-                    useSoapFrom=useSoapFrom,
-                )
-            _applySOAP(
-                traj,
-                SOAPoutContainers,
-                key,
-                soapEngine,
-                SOAPOutputChunkDim,
-                SOAPnJobs,
+            saponifyTrajectory(
+                trajContainer=trajContainers[key],
+                SOAPoutContainer=SOAPoutContainers,
+                SOAPrcut=SOAPrcut,
+                SOAPnmax=SOAPnmax,
+                SOAPlmax=SOAPlmax,
+                SOAPOutputChunkDim=SOAPOutputChunkDim,
+                SOAPnJobs=SOAPnJobs,
+                SOAPatomMask=SOAPatomMask,
+                centersMask=centersMask,
+                SOAP_respectPBC=SOAP_respectPBC,
+                SOAPkwargs=SOAPkwargs,
+                useSoapFrom=useSoapFrom,
                 doOverride=doOverride,
             )
 
@@ -321,32 +313,32 @@ def saponifyTrajectory(
             if False will raise and exception if the user ask to override an
             already existing DataSet. Defaults to False.
     """
-        if SOAPkwargs is None:
-            SOAPkwargs = {}
-        print(f"using {useSoapFrom} to calculate SOAP")
-        print(SOAPkwargs)
-        if isTrajectoryGroup(trajContainer):
-            symbols = trajContainer["Types"].asstr()[:]
-            soapEngine = getSoapEngine(
-                atomNames=symbols,
-                SOAPrcut=SOAPrcut,
-                SOAPnmax=SOAPnmax,
-                SOAPlmax=SOAPlmax,
-                SOAPatomMask=SOAPatomMask,
-                centersMask=centersMask,
-                SOAP_respectPBC=SOAP_respectPBC,
-                SOAPkwargs=SOAPkwargs,
-                useSoapFrom=useSoapFrom,
-            )
-            exportDatasetName = trajContainer.name.split("/")[-1]
-            _applySOAP(
-                trajContainer,
-                SOAPoutContainer,
-                exportDatasetName,
-                soapEngine,
-                SOAPOutputChunkDim,
-                SOAPnJobs,
-                doOverride=doOverride,
-            )
-        else:
-            raise ValueError("saponify: The input object is not a trajectory group.")
+    if SOAPkwargs is None:
+        SOAPkwargs = {}
+    print(f"using {useSoapFrom} to calculate SOAP")
+    print(SOAPkwargs)
+    if isTrajectoryGroup(trajContainer):
+        symbols = trajContainer["Types"].asstr()[:]
+        soapEngine = getSoapEngine(
+            atomNames=symbols,
+            SOAPrcut=SOAPrcut,
+            SOAPnmax=SOAPnmax,
+            SOAPlmax=SOAPlmax,
+            SOAPatomMask=SOAPatomMask,
+            centersMask=centersMask,
+            SOAP_respectPBC=SOAP_respectPBC,
+            SOAPkwargs=SOAPkwargs,
+            useSoapFrom=useSoapFrom,
+        )
+        exportDatasetName = trajContainer.name.split("/")[-1]
+        _applySOAP(
+            trajContainer,
+            SOAPoutContainer,
+            exportDatasetName,
+            soapEngine,
+            SOAPOutputChunkDim,
+            SOAPnJobs,
+            doOverride=doOverride,
+        )
+    else:
+        raise ValueError("saponify: The input object is not a trajectory group.")
