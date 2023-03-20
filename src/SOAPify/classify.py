@@ -1,46 +1,34 @@
-"""Submodule to classify trajectories
-
-    Contains the definition of the container for the :class:`SOAPclassification`
-    and for the references container :class:`SOAPReferences`.
-    Along with the definition of function to apply a classification to a given 
-    dataset.
-"""
 from typing import Callable
-from dataclasses import dataclass
-import numpy as np
 import h5py
-
-from .distances import SOAPdistanceNormalized
+import numpy as np
+from .distances import SOAPdistance, SOAPdistanceNormalized
 from .utils import fillSOAPVectorFromdscribe, normalizeArray
+from dataclasses import dataclass
 
 
 @dataclass
 class SOAPclassification:
-    """
-    Stores the information about the SOAP classification of a trajectory.
-    """
+    """Utility class to store the information about the SOAP classification of a system."""
 
-    #: stores the (per frame) per atom information about the distance from the
-    #: closest reference fingerprint
-    distances: "np.ndarray[float]"
-    #: stores the (per frame) per atom index of the closest reference
-    references: "np.ndarray[int]"
+    distances: "np.ndarray[float]"  #: stores the (per frame) per atom information about the distance from the closes reference fingerprint
+    references: "np.ndarray[int]"  #: stores the (per frame) per atom index of the closest reference
     legend: "list[str]"  #:: stores the references legend
 
 
 @dataclass
 class SOAPReferences:
     """
-    Stores the spectra selected for a environments dictionary.
+    Utility class to store the spectra selected for a environments dictionary.
+
     """
 
-    names: "list[str]"  #: the names of the references
-    spectra: "np.ndarray[np.float64]"  #: the SOAP spectra of the references
-    lmax: int  #: the parameter lmax used in the calculation
-    nmax: int  #: the parameter nmax used in the calculation
+    names: "list[str]"  #: stores the names of the references
+    spectra: "np.ndarray[np.float64]"  #: stores the SOAP vector of the references
+    lmax: int
+    nmax: int
 
     def __len__(self) -> int:
-        """returns the lenght of the dictionary
+        """returns the lenght of the dictionary, aka the number of stored spectra
 
         Returns:
             int: the number of stored spectra
@@ -55,29 +43,22 @@ def createReferencesFromTrajectory(
     nmax: int,
     doNormalize=True,
 ) -> SOAPReferences:
-    """Generate a SOAPReferences object.
-
-    by storing the data found from h5SOAPDataSet.
+    """Generate a SOAPReferences object by storing the data found from h5SOAPDataSet.
     The atoms are selected trough the addresses dictionary.
 
     Args:
         h5SOAPDataSet (h5py.Dataset): the dataset with the SOAP fingerprints
-        addresses (dict):
-            the dictionary with the names and the addresses of the fingerprints.
-            The keys will be used as the names of the references and the values
-            assigned to the keys must be tuples or similar with the number of
-            the chosen frame and the atom number (for example
-            ``dict(exaple=(framenum, atomID))``)
-        doNormalize (bool, optional):
-            If True normalizes the SOAP vector before storing them.
-            Defaults to True.
-        settingsUsedInDscribe (dscribeSettings|None, optional):
-            If none the SOAP vector are not preprocessed, if not none the SOAP
-            vectors are decompressed, as dscribe omits the symmetric part of the
-            spectra. Defaults to None.
+        addresses (dict): the dictionary with the names and the addresses of the fingerprints.
+                        The keys will be used as the names of the references and the values
+                        assigned to the keys must be tuples or similar with the number of
+                        the chosen frame and the atom number (for example ``dict(exaple=(framenum, atomID))``)
+        doNormalize (bool, optional): If True normalizes the SOAP vector before storing them. Defaults to True.
+        settingsUsedInDscribe (dscribeSettings|None, optional): If none the SOAP vector are
+                        not preprpcessed, if not none the SOAP vectors are decompressed,
+                        as dscribe omits the symmetric part of the spectra. Defaults to None.
 
     Returns:
-        SOAPReferences: the container with the selected references
+        SOAPReferences: _description_
     """
     nofData = len(addresses)
     names = list(addresses.keys())
@@ -96,19 +77,17 @@ def createReferencesFromTrajectory(
 def getDistanceBetween(
     data: np.ndarray, spectra: np.ndarray, distanceCalculator: Callable
 ) -> np.ndarray:
-    """Generate an array with the distances between the the data and the given `spectra`
+    """Generate an array with the distances between the the data and the given collection of `spectra`
 
         TODO: enforce the np.ndarray
 
     Args:
         data (np.ndarray): the array of the data
         spectra (np.ndarray): the references
-        distanceCalculator (Callable):
-            the function to calculate the distances
+        distanceCalculator (Callable): the function to calculate the distances
 
     Returns:
-        np.ndarray:
-            the array of the distances (the shape is `(data.shape[0], spectra.shape[0])`)
+        np.ndarray: the array of the distances (the shape is `(data.shape[0], spectra.shape[0])`)
     """
     toret = np.zeros((data.shape[0], spectra.shape[0]), dtype=data.dtype)
     for j in range(spectra.shape[0]):
@@ -129,15 +108,14 @@ def getDistancesFromRef(
         SOAPTrajData (h5py.Dataset): the dataset containing the SOAP trajectory
         references (SOAPReferences): the contatiner of the references
         distanceCalculator (Callable): the function to calculate the distances
-        doNormalize (bool, optional):
-            informs the function if the given data needs to be normalized before
-            caclulating the distance. Defaults to False.
+        doNormalize (bool, optional): informs the function if the given data needs to be normalized before caclulating the distanceis already normalized. Defaults to False.. Defaults to False.
 
     Returns:
         np.ndarray: the "trajectory" of distance from the given references
     """
-
-    chunkDims = min(100, SOAPTrajData.chunks[0])
+    # TODO use the dataset chunking
+    CHUNK = 100
+    # =min(100,SOAPTrajData.chunks[0])
     # assuming shape is (nframes, natoms, nsoap)
     currentFrame = 0
     doconversion = SOAPTrajData.shape[-1] != references.spectra.shape[-1]
@@ -145,7 +123,7 @@ def getDistancesFromRef(
         (SOAPTrajData.shape[0], SOAPTrajData.shape[1], len(references))
     )
     while SOAPTrajData.shape[0] > currentFrame:
-        upperFrame = min(SOAPTrajData.shape[0], currentFrame + chunkDims)
+        upperFrame = min(SOAPTrajData.shape[0], currentFrame + CHUNK)
         frames = SOAPTrajData[currentFrame:upperFrame]
         if doconversion:
             frames = fillSOAPVectorFromdscribe(frames, references.lmax, references.nmax)
@@ -155,7 +133,7 @@ def getDistancesFromRef(
             distanceFromReference[currentFrame + i] = getDistanceBetween(
                 frame, references.spectra, distanceCalculator
             )
-        currentFrame += chunkDims
+        currentFrame += CHUNK
 
     return distanceFromReference
 
@@ -163,34 +141,20 @@ def getDistancesFromRef(
 def getDistancesFromRefNormalized(
     SOAPTrajData: h5py.Dataset, references: SOAPReferences
 ):
-    """shortcut for :func:`SOAPify.classify.getDistancesFromRef` forcing normalization
-
-        see :func:`SOAPify.SOAPClassify.getDistancesFromRef`,
-        the distance calculator is :func:`SOAPdistanceNormalized` and
-        doNormalize is set to True
-
-    Args:
-        SOAPTrajData (h5py.Dataset):
-            the dataset containing the SOAP trajectory
-        references (SOAPReferences):
-            the contatiner of the references
-    Returns:
-        np.ndarray: the trajectory of distance from the given references
-    """
+    """shortcut for `SOAPify.SOAPClassify.getDistancesFromRef(SOAPTrajData,references,True)`, see :func:`SOAPify.SOAPClassify.getDistancesFromRef`"""
     return getDistancesFromRef(
         SOAPTrajData, references, SOAPdistanceNormalized, doNormalize=True
     )
 
 
 def mergeReferences(*x: SOAPReferences) -> SOAPReferences:
-    """Merges a list of :class:`SOAPReferences` into a single object
+    """Merges a list of `SOAPReferences` into a single object
 
     Raises:
         ValueError: if the lmax and the nmax of the references are not the same
 
     Returns:
-        SOAPReferences:
-            a new `SOAPReferences` that contains the concatenated list of references
+        SOAPReferences: a new `SOAPReferences` that contains the concatenated list of references
     """
     names = []
     for i in x:
@@ -211,8 +175,7 @@ def saveReferences(
     """Export the given references in the indicated group/hdf5 file
 
     Args:
-        h5position (h5py.Group|h5py.File):
-            The file object of the group where to save the references
+        h5position (h5py.Group|h5py.File): The file object of the group where to save the references
         targetDatasetName (str): the name to give to the list of references
         refs (SOAPReferences): the `SOAPReferences` object to be exported
     """
@@ -230,7 +193,7 @@ def saveReferences(
 
 
 def getReferencesFromDataset(dataset: h5py.Dataset) -> SOAPReferences:
-    """Given a `h5py.Dataset` returns a :class:`SOAPReferences` with the initializated data
+    """Given a `h5py.Dataset` returns a `SOAPReferences` with the initializated data
 
         TODO: check if the dataset contains the needed references
 
@@ -253,18 +216,13 @@ def applyClassification(
     distanceCalculator: Callable,
     doNormalize: bool = False,
 ) -> SOAPclassification:
-    """Applies the references to a dataset.
-
-    generates the distances from the given references and then classify all of
-    the atoms by the closest element in the dictionary
+    """generates the distances from the given references and then classyfy all of the atoms by the colosest element in the dictionary
 
     Args:
         SOAPTrajData (h5py.Dataset): the dataset containing the SOAP trajectory
         references (SOAPReferences):  the contatiner of the references
         distanceCalculator (Callable): the function to calculate the distances
-        doNormalize (bool, optional):
-            informs the function if the given data needs to be normalized
-            before caclulating the distance. Defaults to False.
+        doNormalize (bool, optional): informs the function if the given data needs to be normalized before caclulating the distanceis already normalized. Defaults to False.. Defaults to False.
     Returns:
         SOAPclassification: The result of the classification
     """

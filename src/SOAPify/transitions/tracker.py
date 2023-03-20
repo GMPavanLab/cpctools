@@ -1,26 +1,15 @@
-"""
-This submodule contains the function to build and work with the 'state trackers':
-a state tracker is a list of 4-element arrays whose components
-represent an 'event':
-[previous state ID, current state ID, next state ID, the duration of the event]
-
-In the module there is some logic to help to the user to understand if the event
-is a '*first one*' or a '*last one*' (aka the first/las seen in the simulation for
-each atom): a *first one* will have `previous state ID = current state ID` and 
-a *last one* will have `next state ID = current state ID`
-"""
+"""submodules with the stateTracker workflow"""
 import numpy
-
 from ..classify import SOAPclassification
 
 
-#: the index of the component of the statetracker with the previous state
+#: the index of the component of the statetracker that stores the previous state
 TRACK_PREVSTATE = 0
-#: the index of the component of the statetracker with the current state
+#: the index of the component of the statetracker that stores the current state
 TRACK_CURSTATE = 1
-#: the index of the component of the statetracker with the next state
+#: the index of the component of the statetracker that stores the next state
 TRACK_ENDSTATE = 2
-#: the index of the component of the statetracker with the duration of the state, in frames
+#: the index of the component of the statetracker that stores the duration of the state, in frames
 TRACK_EVENTTIME = 3
 
 
@@ -99,8 +88,7 @@ def _createEvent(
         prevState (int): the id of the previous state
         curState (int): the id of the current state
         endState (int): the id of the next state
-        eventTime (int, optional):
-            the duration (in frames) of this event. Defaults to 0.
+        eventTime (int, optional): the duration (in frames) of this event. Defaults to 0.
 
     Returns:
         numpy.ndarray: the state tracker
@@ -182,8 +170,6 @@ def removeAtomIdentityFromEventTracker(statesTracker: StateTracker) -> StateTrac
     Args:
         statesTracker (list):
             a list of list of state trackers, organized by atoms
-        statesTracker (list):
-            a list of list of state trackers, organized by atoms
 
     Returns:
         StateTracker: a state tracker
@@ -202,22 +188,16 @@ def removeAtomIdentityFromEventTracker(statesTracker: StateTracker) -> StateTrac
 def getResidenceTimesFromStateTracker(
     statesTracker: StateTracker, legend: list
 ) -> "list[numpy.ndarray]":
-    """Calculates the resindence times from the events.
-
-        Given a state tracker and the list of the states returns the list of
-        residence times per state
+    """Given a state tracker and the list of the states returns the list of residence times per state
 
     Args:
         statesTracker (list):
-
-            a list of list of state trackers, organized by atoms,
-            or a list of state trackers
+            a list of list of state trackers, organized by atoms, or a list of state trackers
         legend (list):
             the list of states
 
     Returns:
-        list[numpy.ndarray]:
-        an ordered list of the residence times for each state
+        list[numpy.ndarray]: an ordered list of the residence times for each state
     """
     states = removeAtomIdentityFromEventTracker(statesTracker)
 
@@ -242,7 +222,7 @@ def getResidenceTimesFromStateTracker(
 def transitionMatrixFromStateTracker(
     statesTracker: StateTracker, legend: list
 ) -> numpy.ndarray:
-    """Generates the unnormalized matrix of the transitions
+    """Generates the unnormalized matrix of the transitions from a statesTracker
 
     see :func:`calculateTransitionMatrix` for a detailed description of an
     unnormalized transition matrix

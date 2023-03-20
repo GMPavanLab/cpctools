@@ -64,7 +64,7 @@ def test_transitionMatrix(
     assert_array_equal(tmat, expectedTmat)
 
     assert tmatNorm.shape[0] == len(data.legend)
-    assert_array_equal(tmatNorm, SOAPify.normalizeMatrixByRow(expectedTmat))
+    assert_array_equal(tmatNorm, SOAPify.normalizeMatrix(expectedTmat))
 
 
 def test_residenceTimeBehaviourNoStateChanges():

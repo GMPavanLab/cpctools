@@ -12,7 +12,6 @@ Until we get to a release version you may encounter different broken interface p
 - Added the coveralls.io badge
 - Now documentation in rtd uses the standard rtd workflow
 - Refactored of the transition submodules, now support the 'window' and 'stride' concepts, added an entry to the documentation to explain it
-- Now `saponifyMultipleTrajectories` calls `saponifyTrajectory`
 - Moved HDF5er into SOAPify, to simplify the deployment
     - change your `import HDF5er` to `import SOAPify.HDF5er as HDF5er` in your old codes
     - `HDF5er.HDF5erUtils` &rarr; `SOAPify.HDF5er.HDF5erUtils`
@@ -24,15 +23,11 @@ Until we get to a release version you may encounter different broken interface p
     - `SOAPify.SOAPclassify` &rarr; `SOAPify.classify`
     - `SOAPify.SOAPTransitions` &rarr; `SOAPify.transitions`
     - `SOAPify.Saponify` &rarr; `SOAPify.saponify`
-- renamed some functions to avoid naming collision, and to be more clear:
+- renamed some functions to avoid naming collision:
     - `SOAPify.SOAPclassify.classify()` &rarr; `SOAPify.classify.applyClassification()`
     - `SOAPify.Saponify.saponifyGroup()` &rarr; `SOAPify.saponify.saponifyMultipleTrajectories()`
     - `SOAPify.Saponify.saponify()` &rarr; `SOAPify.saponify.saponifyTrajectory()`
-    - `SOAPify.SOAPTransitions.normalizeMatrix()` &rarr; `SOAPify.transitions.normalizeMatrixByRow()`
-    - `SOAPify.SOAPbase.KernelSoap()` &rarr; `SOAPify.distances.kernelSoap()`
     - `SOAPify.RemoveAtomIdentityFromEventTracker()` &rarr; `SOAPify.transitions.saponifyTrajectory()`
-- Cleaned the code with pylint
-
 
 ## Changes since v0.0.4
 

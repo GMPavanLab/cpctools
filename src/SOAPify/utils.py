@@ -1,8 +1,6 @@
-"""Utilities submodule, cointains unclassified support functions
-Author: Daniele Rapetti"""
-from itertools import combinations_with_replacement
 import numpy
 from ase.data import atomic_numbers
+from itertools import combinations_with_replacement
 
 
 def _SOAPpstr(l, Z, n, Zp, np) -> str:
@@ -15,23 +13,17 @@ def _SOAPpstr(l, Z, n, Zp, np) -> str:
 def getdscribeSOAPMapping(
     lmax: int, nmax: int, species: "list[str]", crossover: bool = True
 ) -> numpy.ndarray:
-    """returns how dscribe saves the SOAP results
-
-       return a list of string with the identities of the data returned from
-       dscribe, see the note in
-       https://singroup.github.io/dscribe/1.2.x/tutorials/descriptors/soap.html
+    """return a list of string with the identities of the data returned from dscribe,
+       see the note in https://singroup.github.io/dscribe/1.2.x/tutorials/descriptors/soap.html
 
     Args:
         lmax (int): the lmax specified in the calculation.
         nmax (int): the nmax specified in the calculation.
         species (list[str]): the list of atomic species.
-        crossover (bool):
-            if True, the SOAP descriptors are generated for the mixed species.
-            Defaults to True.
+        crossover (bool): if True, the SOAP descriptors are generated for the mixed species
 
     Returns:
-        numpy.ndarray:
-        an array of strings with the mapping of the output of the analysis
+        numpy.ndarray: an array of strings with the mapping of the output of the analysis
     """
     species = orderByZ(species)
     pdscribe = []
@@ -49,45 +41,40 @@ def getdscribeSOAPMapping(
 
 def _getRSindex(nmax: int, species: "list[str]") -> numpy.ndarray:
     """Support function for quippy"""
-    rsIndex = numpy.zeros((2, nmax * len(species)), dtype=numpy.int32)
+    rs_index = numpy.zeros((2, nmax * len(species)), dtype=numpy.int32)
     i = 0
-    for iSpecies in range(len(species)):
+    for i_species in range(len(species)):
         for na in range(nmax):
-            rsIndex[:, i] = na, iSpecies
+            rs_index[:, i] = na, i_species
             i += 1
-    return rsIndex
+    return rs_index
 
 
 def getquippySOAPMapping(
     lmax: int, nmax: int, species: "list[str]", diagonalRadial: bool = False
 ) -> numpy.ndarray:
-    """returns how quippi saves the SOAP results
-
-
-        return a list of string with the identities of the data returned from quippy,
-        see https://github.com/libAtoms/GAP/blob/main/descriptors.f95#L7588
+    """return a list of string with the identities of the data returned from quippy,
+       see https://github.com/libAtoms/GAP/blob/main/descriptors.f95#L7588
 
     Args:
         lmax (int): the lmax specified in the calculation.
         nmax (int): the nmax specified in the calculation.
         species (list[str]): the list of atomic species.
-        diagonalRadial (bool):
-            if True, Only return the n1=n2 elements of the power spectrum.
-            **NOT IMPLEMENTED**. Defaults to False.
+        diagonalRadial (bool): if True, Only return the n1=n2 elements of the power spectrum. *NOT IMPLEMENTED*
+
 
     Returns:
-        numpy.ndarray:
-        an array of strings with the mapping of the output of the analysis
+        numpy.ndarray: an array of strings with the mapping of the output of the analysis
     """
     species = orderByZ(species)
-    rsIndex = _getRSindex(nmax, species)
+    rs_index = _getRSindex(nmax, species)
     pquippy = []
     for ia in range(len(species) * nmax):
-        np = rsIndex[0, ia]
-        Zp = species[rsIndex[1, ia]]
+        np = rs_index[0, ia]
+        Zp = species[rs_index[1, ia]]
         for jb in range(ia + 1):  # ia is  in the range
-            n = rsIndex[0, jb]
-            Z = species[rsIndex[1, jb]]
+            n = rs_index[0, jb]
+            Z = species[rs_index[1, jb]]
             # if diagonalRadial and np != n:
             #    continue
 
@@ -111,10 +98,7 @@ def orderByZ(species: "list[str]") -> "list[str]":
 def getAddressesQuippyLikeDscribe(
     lmax: int, nmax: int, species: "list[str]"
 ) -> numpy.ndarray:
-    """create a support bdarray to reorder the quippy output in a dscribe fashion
-
-        Given the lmax and nmax of a SOAP calculation and the species of the atoms
-        returns an array of idexes for reordering the quippy results as the dscribe results
+    """Given the lmax and nmax of a SOAP calculation and the species of the atoms returns an array of idexes for reordering the quippy results as the dscribe results
 
     Args:
         lmax (int): the lmax specified in the calculation.
@@ -131,171 +115,147 @@ def getAddressesQuippyLikeDscribe(
     )
     quippyOrder = getquippySOAPMapping(lmax, nmax, species)
     dscribeOrder = getdscribeSOAPMapping(lmax, nmax, species)
-    for i, _ in enumerate(addresses):
+    for i, s in enumerate(addresses):
         addresses[i] = numpy.where(quippyOrder == dscribeOrder[i])[0][0]
     return addresses
 
 
-def normalizeArray(x: numpy.ndarray) -> numpy.ndarray:
+def normalizeArray(a: numpy.ndarray) -> numpy.ndarray:
     """Normalizes the futher axis of the given array
 
     (eg. in an array of shape (100,50,3) normalizes all the  5000 3D vectors)
 
     Args:
-        x (numpy.ndarray): the array to be normalized
+        a (numpy.ndarray): the arra to be normalized
 
     Returns:
         numpy.ndarray: the normalized array
     """
-    norm = numpy.linalg.norm(x, axis=-1, keepdims=True)
+    norm = numpy.linalg.norm(a, axis=-1, keepdims=True)
     norm[norm == 0] = 1
-    return x / norm
+    return a / norm
 
 
 def getSlicesFromAttrs(attrs: dict) -> "tuple(list,dict)":
-    """returns the positional slices for the calculated fingerprints
-
-        Given the attributes of from a SOAP dataset returns the slices of the
-        SOAP vector that contains the pair information
+    """Given the attributes of from a SOAP dataset returns the slices of the SOAP vector that contains the pair information
 
     Args:
         attrs (dict): the attributes of the SOAP dataset
 
     Returns:
-        tuple(list,dict):
-        the slices of the SOAP vector to be extracted and the atomic types
+        tuple(list,dict): the slices of the SOAP vector to be extracted and the atomic types
     """
     species = attrs["species"]
     slices = {}
-    for symbol1 in species:
-        for symbol2 in species:
-            if f"species_location_{symbol1}-{symbol2}" in attrs:
-                slices[symbol1 + symbol2] = slice(
-                    attrs[f"species_location_{symbol1}-{symbol2}"][0],
-                    attrs[f"species_location_{symbol1}-{symbol2}"][1],
+    for s1 in species:
+        for s2 in species:
+            if (f"species_location_{s1}-{s2}") in attrs:
+                slices[s1 + s2] = slice(
+                    attrs[f"species_location_{s1}-{s2}"][0],
+                    attrs[f"species_location_{s1}-{s2}"][1],
                 )
 
     return species, slices
 
 
-def _getIndexesForFillSOAPVectorFromdscribeSameSpecies(
-    lMax: int,
-    nMax: int,
+def _getIndexesForFillSOAPVectorFromdscribeSapeSpecies(
+    l_max: int,
+    n_max: int,
 ) -> numpy.ndarray:
-    """returns the indexes of the SOAP vector to be reordered
-
-    given lMax and nMax returns the indexes of the SOAP vector to be
-    reordered to fill a  complete vector.
-
+    """given l_max and n_max returns the indexes of the SOAP vector to be reordered to filla  complete vector
     useful to calculate the correct distances between the SOAP vectors
 
     Args:
-        lMax (int): the lmax specified in the calculation.
-        nMax (int): the nmax specified in the calculation.
+        l_max (int): the lmax specified in the calculation.
+        n_max (int): the nmax specified in the calculation.
 
     Returns:
         numpy.ndarray: the array of the indexes in the correct order
     """
 
-    completeData = numpy.zeros(((lMax + 1), nMax, nMax), dtype=int)
+    completeData = numpy.zeros(((l_max + 1), n_max, n_max), dtype=int)
     limitedID = 0
-    for l in range(lMax + 1):
-        for n in range(nMax):
-            for nP in range(n, nMax):
-                completeData[l, n, nP] = limitedID
-                completeData[l, nP, n] = limitedID
+    for l in range(l_max + 1):
+        for n in range(n_max):
+            for np in range(n, n_max):
+                completeData[l, n, np] = limitedID
+                completeData[l, np, n] = limitedID
                 limitedID += 1
     return completeData.reshape(-1)
 
 
 def _getIndexesForFillSOAPVectorFromdscribe(
-    lMax: int,
-    nMax: int,
-    atomTypes: list = None,
+    l_max: int,
+    n_max: int,
+    atomTypes: list = [None],
     atomicSlices: dict = None,
 ) -> numpy.ndarray:
     """Given the data of a SOAP calculation from dscribe returns the SOAP power
-        spectrum with also the symmetric part explicitly stored, see the note in
-        https://singroup.github.io/dscribe/1.2.x/tutorials/descriptors/soap.html
+        spectrum with also the symmetric part explicitly stored, see the note in https://singroup.github.io/dscribe/1.2.x/tutorials/descriptors/soap.html
 
         No controls are implemented on the shape of the soapFromdscribe vector.
 
     Args:
-        soapFromdscribe (numpy.ndarray):
-            the result of the SOAP calculation from the dscribe utility
-        lmax (int):
-            the l_max specified in the calculation. Defaults to 8.
-        nMax (int):
-            the n_max specified in the calculation. Defaults to 8.
-        atomTypes (list[str]):
-            the list of atomic species. Defaults to [None].
-        atomicSlices (dict):
-            the slices of the SOAP vector relative to che atomic species combinations.
-            Defaults to None.
+        soapFromdscribe (numpy.ndarray): the result of the SOAP calculation from the dscribe utility
+        l_max (int): the l_max specified in the calculation. Defaults to 8.
+        n_max (int): the n_max specified in the calculation. Defaults to 8.
+        atomTypes (list[str]): the list of atomic species. Defaults to [None].
+        atomicSlices (dict): the slices of the SOAP vector relative to che atomic species combinations. Defaults to None.
 
     Returns:
-        numpy.ndarray:
-            The full soap spectrum, with the symmetric part sored explicitly
+        numpy.ndarray: The full soap spectrum, with the symmetric part sored explicitly
     """
-    if atomTypes is None:
-        atomTypes = [None]
     if atomTypes == [None]:
-        return _getIndexesForFillSOAPVectorFromdscribeSameSpecies(lMax, nMax)
-    nOfFeatures = (lMax + 1) * nMax * nMax
-    nofCombinations = len(list(combinations_with_replacement(atomTypes, 2)))
-    completeData = numpy.zeros(nOfFeatures * nofCombinations, dtype=int)
-    combinationID = 0
-    for i, symbol1 in enumerate(atomTypes):
-        for j in range(i, len(atomTypes)):
-            symbol2 = atomTypes[j]
-            completeID = combinationID * nOfFeatures
-            completeSlice = slice(
-                completeID,
-                completeID + nOfFeatures,
-            )
-            if symbol1 == symbol2:
-                completeData[completeSlice] = (
-                    _getIndexesForFillSOAPVectorFromdscribeSameSpecies(lMax, nMax)
-                    + atomicSlices[symbol1 + symbol2].start
+        return _getIndexesForFillSOAPVectorFromdscribeSapeSpecies(l_max, n_max)
+    else:
+        nOfFeatures = (l_max + 1) * n_max * n_max
+        nofCombinations = len(list(combinations_with_replacement(atomTypes, 2)))
+        completeData = numpy.zeros(nOfFeatures * nofCombinations, dtype=int)
+        combinationID = 0
+        for i, s1 in enumerate(atomTypes):
+            for j in range(i, len(atomTypes)):
+                s2 = atomTypes[j]
+                completeID = combinationID * nOfFeatures
+                completeSlice = slice(
+                    completeID,
+                    completeID + nOfFeatures,
                 )
-            else:
-                completeData[completeSlice] = (
-                    numpy.arange(nOfFeatures, dtype=int)
-                    + atomicSlices[symbol1 + symbol2].start
-                )
-            combinationID += 1
-    return completeData
+                if s1 == s2:
+                    completeData[completeSlice] = (
+                        _getIndexesForFillSOAPVectorFromdscribeSapeSpecies(l_max, n_max)
+                        + atomicSlices[s1 + s2].start
+                    )
+                else:
+                    completeData[completeSlice] = (
+                        numpy.arange(nOfFeatures, dtype=int)
+                        + atomicSlices[s1 + s2].start
+                    )
+                combinationID += 1
+        return completeData
 
 
 def fillSOAPVectorFromdscribe(
     soapFromdscribe: numpy.ndarray,
-    lMax: int,
-    nMax: int,
-    atomTypes: list = None,
+    l_max: int,
+    n_max: int,
+    atomTypes: list = [None],
     atomicSlices: dict = None,
 ) -> numpy.ndarray:
     """Given the result of a SOAP calculation from dscribe returns the SOAP power spectrum
-        with also the symmetric part explicitly stored, see the note in
-        https://singroup.github.io/dscribe/1.2.x/tutorials/descriptors/soap.html
+        with also the symmetric part explicitly stored, see the note in https://singroup.github.io/dscribe/1.2.x/tutorials/descriptors/soap.html
 
         No controls are implemented on the shape of the soapFromdscribe vector.
 
     Args:
-        soapFromdscribe (numpy.ndarray):
-            the result of the SOAP calculation from the dscribe utility
-        lMax (int):
-            the l_max specified in the calculation.
-        nMax (int):
-            the n_max specified in the calculation.
+        soapFromdscribe (numpy.ndarray): the result of the SOAP calculation from the dscribe utility
+        l_max (int): the l_max specified in the calculation.
+        n_max (int): the n_max specified in the calculation.
 
     Returns:
-        numpy.ndarray:
-            The full soap spectrum, with the symmetric part sored explicitly
+        numpy.ndarray: The full soap spectrum, with the symmetric part sored explicitly
     """
-    if atomTypes is None:
-        atomTypes = [None]
-    upperDiag = int((lMax + 1) * nMax * (nMax + 1) / 2)
-    fullmat = nMax * nMax * (lMax + 1)
+    upperDiag = int((l_max + 1) * (n_max) * (n_max + 1) / 2)
+    fullmat = n_max * n_max * (l_max + 1)
     limitedSOAPdim = upperDiag * len(atomTypes) + fullmat * int(
         (len(atomTypes) - 1) * len(atomTypes) / 2
     )
@@ -305,19 +265,19 @@ def fillSOAPVectorFromdscribe(
         atomTypes.sort(key=lambda x: atomic_numbers[x])
 
     if soapFromdscribe.shape[-1] != limitedSOAPdim:
-        raise ValueError(
+        raise Exception(
             "fillSOAPVectorFromdscribe: the given soap vector do not have the expected dimensions"
         )
     indexes = _getIndexesForFillSOAPVectorFromdscribe(
-        lMax, nMax, atomTypes, atomicSlices
+        l_max, n_max, atomTypes, atomicSlices
     )
     if len(soapFromdscribe.shape) == 1:
         return soapFromdscribe[indexes]
-    if len(soapFromdscribe.shape) == 2:
+    elif len(soapFromdscribe.shape) == 2:
         return soapFromdscribe[:, indexes]
-    if len(soapFromdscribe.shape) == 3:
+    elif len(soapFromdscribe.shape) == 3:
         return soapFromdscribe[:, :, indexes]
-
-    raise ValueError(
-        "fillSOAPVectorFromdscribe: cannot convert array with len(shape) >=3"
-    )
+    else:
+        raise Exception(
+            "fillSOAPVectorFromdscribe: cannot convert array with len(shape) >=3"
+        )

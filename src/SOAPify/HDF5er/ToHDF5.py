@@ -1,16 +1,13 @@
-"""This submodule contains some function to import date to the hdf5 files"""
-import warnings
 import h5py
 import numpy
 from MDAnalysis import Universe as mdaUniverse, AtomGroup as mdaAtomGroup
-from deprecated import deprecated
 from ase.io import iread as aseIRead
 from ase.io import read as aseRead
 from .HDF5erUtils import exportChunk2HDF5
 
 
-def universe2HDF5(
-    mdaTrajectory: "mdaUniverse | mdaAtomGroup",
+def Universe2HDF5(
+    u: "mdaUniverse | mdaAtomGroup",
     trajFolder: h5py.Group,
     trajChunkSize: int = 100,
     trajslice: slice = slice(None),
@@ -18,17 +15,13 @@ def universe2HDF5(
     """Uploads an mda.Universe or an mda.AtomGroup to a h5py.Group in an hdf5 file
 
     Args:
-        MDAUniverseOrSelection (MDAnalysis.Universe or MDAnalysis.AtomGroup):
-            the container with the trajectory data
-        trajFolder (h5py.Group):
-            the group in which store the trajectory in the hdf5 file
-        trajChunkSize (int, optional):
-            The desired dimension of the chunks of data that are stored in the hdf5 file.
-            Defaults to 100.
+        MDAUniverseOrSelection (MDAnalysis.Universe or MDAnalysis.AtomGroup): the container with the trajectory data
+        trajFolder (h5py.Group): the group in which store the trajectory in the hdf5 file
+        trajChunkSize (int, optional): The desired dimension of the chunks of data that are stored in the hdf5 file. Defaults to 100.
     """
 
-    atoms = mdaTrajectory.atoms
-    universe = mdaTrajectory.universe
+    atoms = u.atoms
+    universe = u.universe
     nat = len(atoms)
 
     if "Types" not in list(trajFolder.keys()):
@@ -58,7 +51,7 @@ def universe2HDF5(
     first = 0
     boxes = []
     atomicframes = []
-    for _ in universe.trajectory[trajslice]:
+    for frame in universe.trajectory[trajslice]:
         boxes.append(universe.dimensions.copy())
         atomicframes.append(atoms.positions)
         frameNum += 1
@@ -75,7 +68,7 @@ def universe2HDF5(
 
 
 def MDA2HDF5(
-    mdaTrajectory: "mdaUniverse | mdaAtomGroup",
+    MDAUniverseOrSelection: "mdaUniverse | mdaAtomGroup",
     targetHDF5File: str,
     groupName: str,
     trajChunkSize: int = 100,
@@ -83,34 +76,21 @@ def MDA2HDF5(
     attrs: dict = None,
     trajslice: slice = slice(None),
 ):
-    """Creates an HDF5 trajectory groupfrom an mda trajectory
+    """Opens or creates the given HDF5 file, request the user's chosen group, then uploads an mda.Universe or an mda.AtomGroup to a h5py.Group in an hdf5 file
 
-        Opens or creates the given HDF5 file, request the user's chosen group,
-        then uploads an mda.Universe or an mda.AtomGroup to a h5py.Group in an
-        hdf5 file
-
-        **WARNING**: in the HDF5 file if the chosen group is already present it
-        will be overwritten by the new data
+        **WARNING**: in the HDF5 file if the chosen group is already present it will be overwritten by the new data
 
     Args:
-        MDAUniverseOrSelection (MDAnalysis.Universe or MDAnalysis.AtomGroup):
-            the container with the trajectory data
-        targetHDF5File (str):
-            the name of HDF5 file
-        groupName (str):
-            the name of the group in wich save the trajectory data within the
-            `targetHDF5File`
-        trajChunkSize (int, optional):
-            The desired dimension of the chunks of data that are stored in the
-            hdf5 file. Defaults to 100.
-        override (bool, optional):
-            If true the hdf5 file will be completely overwritten.
-            Defaults to False.
+        MDAUniverseOrSelection (MDAnalysis.Universe or MDAnalysis.AtomGroup): the container with the trajectory data
+        targetHDF5File (str): the name of HDF5 file
+        groupName (str): the name of the group in wich save the trajectory data within the `targetHDF5File`
+        trajChunkSize (int, optional): The desired dimension of the chunks of data that are stored in the hdf5 file. Defaults to 100.
+        override (bool, optional): If true the hdf5 file will be completely overwritten. Defaults to False.
     """
     with h5py.File(targetHDF5File, "w" if override else "a") as newTraj:
         trajGroup = newTraj.require_group(f"Trajectories/{groupName}")
-        universe2HDF5(
-            mdaTrajectory,
+        Universe2HDF5(
+            MDAUniverseOrSelection,
             trajGroup,
             trajChunkSize=trajChunkSize,
             trajslice=trajslice,
@@ -120,25 +100,23 @@ def MDA2HDF5(
                 trajGroup.attrs.create(key, attrs[key])
 
 
-@deprecated('xyz2hdf5Converter is "legacy code" **not covered by unit tests**')
+import warnings
+
+
 def xyz2hdf5Converter(
     xyzName: str, boxfilename: str, group: h5py.Group
 ):  # pragma: no cover
     """Generate an HDF5 trajectory from an xyz file and a box file
 
-        This function reads an xyz file with ase and then export it to an
-        trajectory in and hdf5 file,
+        This function reads an xyz file with ase and then export it to an trajectory in and hdf5 file,
         the user should pass the group within the hdf5file to this function
 
         **NB**: this is "legacy code" **not covered by unit tests**, use with caution
 
     Args:
-        xyzName (str):
-            the filename of the xyz trajaectory
-        boxfilename (str):
-            the filename of the  per frame box dimensions
-        group (h5py.Group):
-            the group within the hdf5 file where the trajectroy will be saved
+        xyzName (str): the filename of the xyz trajaectory
+        boxfilename (str): the filename of the  per frame box dimensions
+        group (h5py.Group): the group within the hdf5 file where the trajectroy will be saved
     """
     # TODO: convert use exportChunk2HDF5
     warnings.warn(
