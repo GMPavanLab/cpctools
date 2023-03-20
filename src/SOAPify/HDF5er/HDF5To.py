@@ -1,6 +1,7 @@
-import re
+"""This submodule gives the user some function to extract data from the hdf5 files"""
 from typing import IO, List
-
+import re
+import MDAnalysis
 import h5py
 from ase import Atoms as aseAtoms
 from MDAnalysis.lib.mdamath import triclinic_vectors
@@ -24,10 +25,14 @@ def HDF52AseAtomsChunckedwithSymbols(
     """generates an ase trajectory from an hdf5 trajectory
 
     Args:
-        groupTraj (h5py.Group): the group within the hdf5 file where the trajectroy is stored
-        chunkTraj (tuple[slice]): the list of the chunks of the trajectory within the given group
-        chunkBox (tuple[slice]): the list of the chunks of the frame boxes within the given group
-        symbols (list[str]): the list of the name of the atoms
+        groupTraj (h5py.Group):
+            the group within the hdf5 file where the trajectroy is stored
+        chunkTraj (tuple[slice]):
+            the list of the chunks of the trajectory within the given group
+        chunkBox (tuple[slice]):
+            the list of the chunks of the frame boxes within the given group
+        symbols (list[str]):
+            the list of the name of the atoms
 
 
     Returns:
@@ -62,15 +67,24 @@ def __prepareHeaders(
     """Generates the static part of the header and perform sanity checks on optional data
 
     Args:
-        additionalColumns (dict): the dictionary of the values of the additional columns
-        nframes (int): the total number of frame, used for sanity checks
-        nat (int): the total number of atoms, used for sanity checks (n is fixed)
-        allFramesProperty (str, optional): the property common to all frames. Defaults to None.
-        perFrameProperties (list[str], optional): list of properties that changes frame per frame. Defaults to None.
+        additionalColumns (dict):
+            the dictionary of the values of the additional columns
+        nframes (int):
+            the total number of frame, used for sanity checks
+        nat (int):
+            the total number of atoms, used for sanity checks (n is fixed)
+        allFramesProperty (str, optional):
+            the property common to all frames.
+            Defaults to None.
+        perFrameProperties (list[str], optional):
+            list of properties that changes frame per frame.
+            Defaults to None.
 
     Raises:
-        ValueError: if additionalColumns is ill-formed
-        ValueError: if perFrameProperties is ill-formed
+        ValueError:
+            if additionalColumns is ill-formed
+        ValueError:
+            if perFrameProperties is ill-formed
 
     Returns:
         str: the static part of the header
@@ -81,7 +95,7 @@ def __prepareHeaders(
         dim = shapeOfData[2] if len(shapeOfData) == 3 else 1
         if (  # wrong shape of the array
             (len(shapeOfData) != 2 and len(shapeOfData) != 3)
-            # different data from number of frames the user may accidentally sliced in a wrong way the frame data
+            # different data from number of frames
             or shapeOfData[0] != nframes
             # wrong number of atoms
             or shapeOfData[1] != nat
@@ -112,15 +126,25 @@ def getXYZfromTrajGroup(
         the additionalColumns arguments are added as extra columns to the file,
         they must be numpy.ndarray with shape (nofFrames,NofAtoms) for 1D data
         or (nofFrames,NofAtoms,Nvalues) for multidimensional data
-        this will add one or more columns to the xyz file
+        this will add one or more columns to the xyz file, named after the keyword
+        argument
 
     Args:
-        filelike (IO): the IO destination, can be a file
-        group (h5py.Group): the trajectory group
-        frames (List or slice or None, optional): the frames to export. Defaults to None.
-        allFramesProperty (str, optional): A comment string that will be present in all of the frames. Defaults to "".
-        perFrameProperties (list[str], optional): A list of comment. Defaults to None.
-        additionalColumns(): the additional columns to add to the file
+        filelike (IO):
+            the IO destination, can be a file
+        group (h5py.Group):
+            the trajectory group
+        frames (List or slice or None, optional):
+            the frames to export. Defaults to None.
+        allFramesProperty (str, optional):
+            A comment string that will be present in all of the frames.
+            Defaults to "".
+        perFrameProperties (list[str], optional):
+            A list of comment.
+            Defaults to None.
+        additionalColumns():
+            the additional columns to add to the file: each new keyword arguments
+            will add a column to the xyz file
     """
 
     atomtypes = group["Types"].asstr()
@@ -163,11 +187,18 @@ def saveXYZfromTrajGroup(
     see saveXYZfromTrajGroup this calls getXYZfromTrajGroup and treats the inputs in the same way
 
     Args:
-        filename (str): name of the file
-        group (h5py.Group): the trajectory group
-        additionalColumsn(): the additional columns to add to the file
-        allFramesProperty (str, optional): A comment string that will be present in all of the frames. Defaults to "".
-        perFrameProperties (list[str], optional): A list of comment. Defaults to None.
+        filename (str):
+            name of the file
+        group (h5py.Group):
+            the trajectory group
+        additionalColumsn():
+            the additional columns to add to the file
+        allFramesProperty (str, optional):
+            A comment string that will be present in all of the frames.
+            Defaults to "".
+        perFrameProperties (list[str], optional):
+            A list of comment.
+            Defaults to None.
     """
     with open(filename, "w") as file:
         getXYZfromTrajGroup(
@@ -178,9 +209,6 @@ def saveXYZfromTrajGroup(
             perFrameProperties,
             **additionalColumns,
         )
-
-
-import MDAnalysis
 
 
 def getXYZfromMDA(
@@ -199,12 +227,22 @@ def getXYZfromMDA(
         this will add one or more columns to the xyz file
 
     Args:
-        filelike (IO): the IO destination, can be a file
-        group (MDAnalysis.Universe | MDAnalysis.AtomGroup): the universe or the selection of atoms to export
-        frames (List or slice or None, optional): the frames to export. Defaults to None.
-        allFramesProperty (str, optional): A comment string that will be present in all of the frames. Defaults to "".
-        perFrameProperties (list[str], optional): A list of comment. Defaults to None.
-        additionalColumns(): the additional columns to add to the file
+        filelike (IO):
+            the IO destination, can be a file
+        group (MDAnalysis.Universe | MDAnalysis.AtomGroup):
+            the universe or the selection of atoms to export
+        frames (List or slice or None, optional):
+            the frames to export.
+            Defaults to None.
+        allFramesProperty (str, optional):
+            A comment string that will be present in all of the frames.
+            Defaults to "".
+        perFrameProperties (list[str], optional):
+            A list of comment.
+            Defaults to None.
+        additionalColumns():
+            the additional columns to add to the file: each new keyword arguments
+            will add a column to the xyz file
     """
 
     atoms = trajToExport.atoms
@@ -220,7 +258,7 @@ def getXYZfromMDA(
     header: str = __prepareHeaders(
         additionalColumns, nframes=trajlen, nat=nat, allFramesProperty=allFramesProperty
     )
-    for frameIndex, frame in enumerate(universe.trajectory[framesToExport]):
+    for frameIndex, _ in enumerate(universe.trajectory[framesToExport]):
         coord = atoms.positions
         data = __writeAframe(
             header,
@@ -241,11 +279,11 @@ def __writeAframe(
     atomtypes,
     coord,
     boxDimensions,
-    perFramePorperty: str = None,
+    perFrameProperty: str = None,
     **additionalColumns,
 ) -> str:
     data = f"{header}"
-    data += f" {perFramePorperty}" if perFramePorperty is not None else ""
+    data += f" {perFrameProperty}" if perFrameProperty is not None else ""
     theBox = triclinic_vectors(boxDimensions)
     data += f' Lattice="{theBox[0][0]} {theBox[0][1]} {theBox[0][2]} '
     data += f"{theBox[1][0]} {theBox[1][1]} {theBox[1][2]} "
