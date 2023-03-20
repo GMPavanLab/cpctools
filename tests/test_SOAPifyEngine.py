@@ -65,7 +65,7 @@ def test_askEngine(engineKind_fixture, species_fixture, nMaxFixture, lMaxFixture
                 next = prev + upperDiag
             else:
                 next = prev + fullmat
-            assert engine.get_location(species[i], species[j]) == slice(prev, next)
+            assert engine.getLocation(species[i], species[j]) == slice(prev, next)
             prev = next
 
 

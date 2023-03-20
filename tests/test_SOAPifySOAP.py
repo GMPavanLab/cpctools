@@ -359,7 +359,7 @@ def test_MathSOAP():
             decimal=8,
         )
         for n in range(2, 10):
-            nks = SOAPify.KernelSoap(x, y, n)
+            nks = SOAPify.kernelSoap(x, y, n)
             numpy.testing.assert_almost_equal(
                 nks,
                 (numpy.dot(x, y) / (numpy.linalg.norm(x) * numpy.linalg.norm(y))) ** n,

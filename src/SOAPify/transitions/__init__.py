@@ -1,4 +1,4 @@
-"""Module for time-analysis of the trajectory
+"""Simple submodule for generating trasition matrices from SOAPclassification
 Author: Daniele Rapetti"""
 import numpy
 
@@ -9,7 +9,7 @@ from .tracker import *
 def transitionMatrixFromSOAPClassification(
     data: SOAPclassification, stride: int = 1, window: "int|None" = None
 ) -> "numpy.ndarray[float]":
-    """Generates the unnormalized matrix of the transitions from a :func:`classify`
+    """Generates the unnormalized matrix of the transitions
 
         see :func:`calculateTransitionMatrix` for a detailed description of an
         unnormalized transition matrix.
@@ -18,8 +18,10 @@ def transitionMatrixFromSOAPClassification(
         the stride
 
     Args:
-        data (SOAPclassification): the results of the soapClassification from :func:`classify`
-        stride (int): the stride in frames between each state confrontation. Defaults to 1.
+        data (SOAPclassification):
+            the results of the soapClassification from :func:`classify`
+            stride (int): the stride in frames between each state confrontation.
+            Defaults to 1.
         window (int):
             the dimension of the windows between each state confrontations.
             Defaults to None.
@@ -46,10 +48,11 @@ def transitionMatrixFromSOAPClassification(
     return transMat
 
 
-def normalizeMatrix(transMat: "numpy.ndarray[float]") -> "numpy.ndarray[float]":
-    """normalizes a matrix that is an ouput of :func:`transitionMatrixFromSOAPClassification`
+def normalizeMatrixByRow(transMat: "numpy.ndarray[float]") -> "numpy.ndarray[float]":
+    """Normalizes a transition matrix by row
 
-    The matrix is normalized with the criterion that the sum of each **row** is `1`
+        The matrix is normalized with the criterion that the sum of each
+        **row** is `1`
 
     Args:
         numpy.ndarray[float]: the unnormalized matrix of the transitions
@@ -71,8 +74,9 @@ def transitionMatrixFromSOAPClassificationNormalized(
     """Generates the normalized transition matrix from a :func:`classify`
 
         The matrix is organized in the following way:
-        for each atom in each frame we increment by one the cell whose row is the
-        state at the frame `n-stride` and the column is the state at the frame `n`
+        for each atom in each frame we increment by one the cell whose row is
+        the state at the frame `n-stride` and the column is the state at the
+        frame `n`
 
         The matrix is normalized with the criterion that the sum of each **row**
           is `1`
@@ -89,7 +93,7 @@ def transitionMatrixFromSOAPClassificationNormalized(
         numpy.ndarray[float]: the normalized matrix of the transitions
     """
     transMat = transitionMatrixFromSOAPClassification(data, stride, window)
-    return normalizeMatrix(transMat)
+    return normalizeMatrixByRow(transMat)
 
 
 def calculateResidenceTimesFromClassification(
@@ -169,17 +173,26 @@ def calculateResidenceTimes(
     """Given a classification (and the state tracker) generates a ordered list
     of residence times per state
 
+    The function decides automatically if calling
+        :func:`calculateResidenceTimesFromClassification`
+        or :func:`tracker.getResidenceTimesFromStateTracker`
+
     Args:
         data (SOAPclassification):
+
             the classified trajectory, is statesTracker is passed will be used
-            fog getting the legend of the states
+
+            for getting the legend of the states
         statesTracker (list, optional):
+
             a list of list of state trackers, organized by atoms, or a list of
+
             state trackers. Defaults to None.
         algokwargs:
             arguments passed to the called functions
     Returns:
-        list[numpy.ndarray]: an ordered list of the residence times for each state
+        list[numpy.ndarray]:
+        an ordered list of the residence times for each state
     """
 
     if not statesTracker:
@@ -191,22 +204,30 @@ def calculateResidenceTimes(
 def calculateTransitionMatrix(
     data: SOAPclassification, statesTracker: list = None, **algokwargs
 ) -> numpy.ndarray:
-    """Generates the unnormalized matrix of the transitions from a :func:`classify`
+    """Generates the unnormalized matrix of the transitions
+        from a :func:`classify`
         of from a statesTracker
 
         The matrix is organized in the following way:
-        for each atom in each frame we increment by one the cell whose row is the
-        state at the frame `n-stride` and the column is the state at the frame `n`
-        If the classification includes an error with a `-1` values the user should
+        for each atom in each frame we increment by one the cell whose row is
+        the state at theframe `n-stride` and the column is the state
+        at the frame `n`
+        If the classification includes an error with a `-1` values the user
+        should
         add an 'error' class in the legend
 
     Args:
         data (SOAPclassification):
             the results of the soapClassification from :func:`classify`
+        stride (int):
+            the stride in frames between each state confrontation.
+            Defaults to 1.
         statesTracker (list, optional):
-            _description_. Defaults to None.
+            a list of list of state trackers, organized by atoms, or a list of
+            state trackers. Defaults to None.
         algokwargs:
             arguments passed to the called functions
+
     Returns:
         numpy.ndarray[float]: the unnormalized matrix of the transitions
     """
