@@ -182,9 +182,11 @@ function-naming-style=camelCase
 good-names=i,
            j,
            k,
+           l,
+           m,
+           n,
            x,
            y,
-           n,
            _
 
 # Good variable names regexes, separated by a comma. If names match any regex,

@@ -77,7 +77,7 @@ def _saponifyWorker(
             frameStart = jobStart + chunkTraj[0].start
             frameEnd = jobEnd + chunkTraj[0].start
             print(f"working on frames: [{frameStart}:{frameEnd}]")
-            # TODO: dscribe1.2.1 return (nat,nsoap) instead of (1,nat,nsoap) if we are analysing only 1 frame!
+            # TODO: dscribe1.2.1 return (nat,nsoap) instead of (1,nat,nsoap) with 1 frame input!
             SOAPoutDataset[frameStart:frameEnd] = soapEngine(
                 atoms[jobStart:jobEnd],
                 positions=[soapEngine.centersMask] * jobchunk,
@@ -167,16 +167,23 @@ def saponifyMultipleTrajectories(
     SOAPOutputChunkDim: int = 100,
     SOAPnJobs: int = 1,
     SOAPatomMask: "list[str]" = None,
-    centersMask: Iterable = None,  # TODO: document this
+    centersMask: Iterable = None,
     SOAP_respectPBC: bool = True,
     SOAPkwargs: dict = None,
     useSoapFrom: KNOWNSOAPENGINES = "dscribe",
     doOverride: bool = False,
 ):
-    """Calculates and stores the SOAP descriptor in the given group/file
+    """Calculates and stores the SOAP descriptor for all of the trajectories in
+    the given group/file
+
+    `saponifyMultipleTrajectories` checks if any of the group contained in
+    `trajContainers` is a "trajectory group"
+    (see :func:`SOAPify.HDF5er.HDF5erUtils.isTrajectoryGroup`) and then calculates
+    the soap fingerprints for that trajectory and saves the result in a dataset
+    within the `SOAPoutContainers` group or file
 
     `SOAPatomMask` and `centersMask` are mutually exclusive (see
-    :func:`SOAPify.SOAPengine.getSoapEngine`)
+    :func:`SOAPify.engine.getSoapEngine`)
 
     Args:
         trajContainers (h5py.Group|h5py.File):
@@ -219,9 +226,9 @@ def saponifyMultipleTrajectories(
     """
     if SOAPkwargs is None:
         SOAPkwargs = {}
-    soapEngine = None
     print(f"using {useSoapFrom} to calculate SOAP")
     print(SOAPkwargs)
+    soapEngine = None
     for key in trajContainers.keys():
         if isTrajectoryGroup(trajContainers[key]):
             traj = trajContainers[key]
@@ -261,13 +268,17 @@ def saponifyTrajectory(
     centersMask: Iterable = None,
     SOAP_respectPBC: bool = True,
     SOAPkwargs: dict = None,
-    useSoapFrom: str = "dscribe",
+    useSoapFrom: KNOWNSOAPENGINES = "dscribe",
     doOverride: bool = False,
 ):
     """Calculates the SOAP fingerprints for each atom in a given hdf5 trajectory
 
-    This routine sets up a SOAP engine to calculate the SOAP fingerprints for all
-    the atoms in a given trajectory.
+    Works exaclty as :func:`saponifyMultipleTrajectories` except for that it
+    calculates the fingerprints only for the passed trajectory group
+    (see :func:`SOAPify.HDF5er.HDF5erUtils.isTrajectoryGroup`).
+
+    `SOAPatomMask` and `centersMask` are mutually exclusive (see
+    :func:`SOAPify.engine.getSoapEngine`)
 
     Args:
         trajFname (str):
@@ -310,30 +321,32 @@ def saponifyTrajectory(
             if False will raise and exception if the user ask to override an
             already existing DataSet. Defaults to False.
     """
-    if SOAPkwargs is None:
-        SOAPkwargs = {}
-    if isTrajectoryGroup(trajContainer):
-        symbols = trajContainer["Types"].asstr()[:]
-        soapEngine = getSoapEngine(
-            atomNames=symbols,
-            SOAPrcut=SOAPrcut,
-            SOAPnmax=SOAPnmax,
-            SOAPlmax=SOAPlmax,
-            SOAPatomMask=SOAPatomMask,
-            centersMask=centersMask,
-            SOAP_respectPBC=SOAP_respectPBC,
-            SOAPkwargs=SOAPkwargs,
-            useSoapFrom=useSoapFrom,
-        )
-        exportDatasetName = trajContainer.name.split("/")[-1]
-        _applySOAP(
-            trajContainer,
-            SOAPoutContainer,
-            exportDatasetName,
-            soapEngine,
-            SOAPOutputChunkDim,
-            SOAPnJobs,
-            doOverride=doOverride,
-        )
-    else:
-        raise ValueError("saponify: The input object is not a trajectory group.")
+        if SOAPkwargs is None:
+            SOAPkwargs = {}
+        print(f"using {useSoapFrom} to calculate SOAP")
+        print(SOAPkwargs)
+        if isTrajectoryGroup(trajContainer):
+            symbols = trajContainer["Types"].asstr()[:]
+            soapEngine = getSoapEngine(
+                atomNames=symbols,
+                SOAPrcut=SOAPrcut,
+                SOAPnmax=SOAPnmax,
+                SOAPlmax=SOAPlmax,
+                SOAPatomMask=SOAPatomMask,
+                centersMask=centersMask,
+                SOAP_respectPBC=SOAP_respectPBC,
+                SOAPkwargs=SOAPkwargs,
+                useSoapFrom=useSoapFrom,
+            )
+            exportDatasetName = trajContainer.name.split("/")[-1]
+            _applySOAP(
+                trajContainer,
+                SOAPoutContainer,
+                exportDatasetName,
+                soapEngine,
+                SOAPOutputChunkDim,
+                SOAPnJobs,
+                doOverride=doOverride,
+            )
+        else:
+            raise ValueError("saponify: The input object is not a trajectory group.")

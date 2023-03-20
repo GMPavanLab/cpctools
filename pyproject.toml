@@ -88,7 +88,7 @@ extra-dependencies = [
     ]
 
 [tool.hatch.envs.livedocs.scripts]
-serve = 'cd docs && SPHINXBUILD=sphinx-autobuild SPHINXOPTS=-a make html'
+serve = 'cd docs && SPHINXBUILD=sphinx-autobuild SPHINXOPTS="-a --watch ../src/ " make html'
 
 
 [tool.hatch.envs.test]

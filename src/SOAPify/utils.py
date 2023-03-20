@@ -80,14 +80,14 @@ def getquippySOAPMapping(
         an array of strings with the mapping of the output of the analysis
     """
     species = orderByZ(species)
-    rs_index = _getRSindex(nmax, species)
+    rsIndex = _getRSindex(nmax, species)
     pquippy = []
     for ia in range(len(species) * nmax):
-        np = rs_index[0, ia]
-        Zp = species[rs_index[1, ia]]
+        np = rsIndex[0, ia]
+        Zp = species[rsIndex[1, ia]]
         for jb in range(ia + 1):  # ia is  in the range
-            n = rs_index[0, jb]
-            Z = species[rs_index[1, jb]]
+            n = rsIndex[0, jb]
+            Z = species[rsIndex[1, jb]]
             # if diagonalRadial and np != n:
             #    continue
 

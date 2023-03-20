@@ -1,6 +1,8 @@
-import h5py
+"""Simple submodule with support funcion for SOAPify.HDF5er"""
 from sys import getsizeof
-import numpy
+from numpy import ndarray
+import h5py
+
 from MDAnalysis import Universe as mdaUniverse
 
 
@@ -31,8 +33,8 @@ def exportChunk2HDF5(
     trajFolder: h5py.Group,
     intervalStart: int,
     intervalEnd: int,
-    boxes: "list[list[list[3*float]]]|numpy.ndarray",
-    coordinates: "list|numpy.ndarray",
+    boxes: "list[list[list[3*float]]]|ndarray",
+    coordinates: "list|ndarray",
 ):
     """Export a chunk of atom information in an h5py.Group
 
