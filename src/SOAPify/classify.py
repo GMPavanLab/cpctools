@@ -136,9 +136,8 @@ def getDistancesFromRef(
     Returns:
         np.ndarray: the "trajectory" of distance from the given references
     """
-    # TODO use the dataset chunking
-    CHUNK = 100
-    # =min(100,SOAPTrajData.chunks[0])
+
+    chunkDims = min(100, SOAPTrajData.chunks[0])
     # assuming shape is (nframes, natoms, nsoap)
     currentFrame = 0
     doconversion = SOAPTrajData.shape[-1] != references.spectra.shape[-1]
@@ -146,7 +145,7 @@ def getDistancesFromRef(
         (SOAPTrajData.shape[0], SOAPTrajData.shape[1], len(references))
     )
     while SOAPTrajData.shape[0] > currentFrame:
-        upperFrame = min(SOAPTrajData.shape[0], currentFrame + CHUNK)
+        upperFrame = min(SOAPTrajData.shape[0], currentFrame + chunkDims)
         frames = SOAPTrajData[currentFrame:upperFrame]
         if doconversion:
             frames = fillSOAPVectorFromdscribe(frames, references.lmax, references.nmax)
@@ -156,7 +155,7 @@ def getDistancesFromRef(
             distanceFromReference[currentFrame + i] = getDistanceBetween(
                 frame, references.spectra, distanceCalculator
             )
-        currentFrame += CHUNK
+        currentFrame += chunkDims
 
     return distanceFromReference
 

@@ -1,4 +1,5 @@
-"""Submodule that contains the workhorse routines to apply the SOAP calculations"""
+"""Submodule that contains the workhorse routines to apply the SOAP calculations
+"""
 import time
 from typing import Iterable
 import h5py
