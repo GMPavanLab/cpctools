@@ -38,18 +38,20 @@ def test_FeedingSaponifyANonTrajGroups(tmp_path):
             )
 
 
-def test_MultiAtomicSoapify(fixture_AtomMask, engineKind_fixture, tmp_path):
-    nMol = 27
-    u = getUniverseWithWaterMolecules(nMol)
+def test_MultiAtomicSoapify(
+    fixture_AtomMask, engineKind_fixture, tmp_path, referencesWater
+):
+    confFile, groupName, nMol = referencesWater
+
     fname = f"testH2O_{engineKind_fixture}_{''.join([i for i in fixture_AtomMask]) if fixture_AtomMask else ''}.hdf5"
     fname = tmp_path / fname
-    HDF5er.MDA2HDF5(u, fname, "testH2O", override=True)
+
     n_max = 4
     l_max = 4
     rcut = 10.0
-    with h5py.File(fname, "a") as f:
+    with h5py.File(fname, "a") as f, h5py.File(confFile, "r") as conf:
         soapGroup = f.require_group("SOAP")
-        trajGroup = f["Trajectories/testH2O"]
+        trajGroup = conf[f"Trajectories/{groupName}"]
         SOAPify.saponifyTrajectory(
             trajGroup,
             soapGroup,
@@ -59,39 +61,41 @@ def test_MultiAtomicSoapify(fixture_AtomMask, engineKind_fixture, tmp_path):
             useSoapFrom=engineKind_fixture,
             SOAPatomMask=fixture_AtomMask,
         )
-        assert soapGroup["testH2O"].attrs["SOAPengine"] == engineKind_fixture
-        assert soapGroup["testH2O"].attrs["n_max"] == n_max
-        assert soapGroup["testH2O"].attrs["l_max"] == l_max
-        assert "O" in soapGroup["testH2O"].attrs["species"]
-        assert "H" in soapGroup["testH2O"].attrs["species"]
-        assert numpy.abs(soapGroup["testH2O"].attrs["r_cut"] - rcut) < 1e-8
+        assert soapGroup[groupName].attrs["SOAPengine"] == engineKind_fixture
+        assert soapGroup[groupName].attrs["n_max"] == n_max
+        assert soapGroup[groupName].attrs["l_max"] == l_max
+        assert "O" in soapGroup[groupName].attrs["species"]
+        assert "H" in soapGroup[groupName].attrs["species"]
+        assert numpy.abs(soapGroup[groupName].attrs["r_cut"] - rcut) < 1e-8
         if fixture_AtomMask == None:
-            assert "centersIndexes" not in soapGroup["testH2O"].attrs
+            assert "centersIndexes" not in soapGroup[groupName].attrs
         else:
             assert_array_equal(
-                soapGroup["testH2O"].attrs["centersIndexes"],
+                soapGroup[groupName].attrs["centersIndexes"],
                 [i * 3 for i in range(nMol)],
             )
         assert (
-            soapGroup[f"testH2O"].shape[-1]
+            soapGroup[groupName].shape[-1]
             == (1 + l_max) * n_max * n_max
             + 2 * (1 + l_max) * ((n_max + 1) * n_max) // 2
         )
 
 
-def test_MultiAtomicSoapifyGroup(fixture_AtomMask, engineKind_fixture, tmp_path):
-    nMol = 27
-    u = getUniverseWithWaterMolecules(nMol)
+def test_MultiAtomicSoapifyGroup(
+    fixture_AtomMask, engineKind_fixture, tmp_path, referencesWater
+):
+    confFile, groupName, nMol = referencesWater
+
     fname = f"testH2O_{engineKind_fixture}_{''.join([i for i in fixture_AtomMask]) if fixture_AtomMask else ''}.hdf5"
     fname = tmp_path / fname
-    HDF5er.MDA2HDF5(u, fname, "testH2O", override=True)
+
     n_max = 4
     l_max = 4
     rcut = 10.0
-    with h5py.File(fname, "a") as f:
+    with h5py.File(fname, "a") as f, h5py.File(confFile, "r") as conf:
         soapGroup = f.require_group("SOAP")
         SOAPify.saponifyMultipleTrajectories(
-            f["Trajectories"],
+            conf["Trajectories"],
             soapGroup,
             rcut,
             n_max,
@@ -99,48 +103,47 @@ def test_MultiAtomicSoapifyGroup(fixture_AtomMask, engineKind_fixture, tmp_path)
             useSoapFrom=engineKind_fixture,
             SOAPatomMask=fixture_AtomMask,
         )
-        assert soapGroup["testH2O"].attrs["SOAPengine"] == engineKind_fixture
-        assert soapGroup["testH2O"].attrs["n_max"] == n_max
-        assert soapGroup["testH2O"].attrs["l_max"] == l_max
-        assert "O" in soapGroup["testH2O"].attrs["species"]
-        assert "H" in soapGroup["testH2O"].attrs["species"]
-        assert numpy.abs(soapGroup["testH2O"].attrs["r_cut"] - rcut) < 1e-8
+        assert soapGroup[groupName].attrs["SOAPengine"] == engineKind_fixture
+        assert soapGroup[groupName].attrs["n_max"] == n_max
+        assert soapGroup[groupName].attrs["l_max"] == l_max
+        assert "O" in soapGroup[groupName].attrs["species"]
+        assert "H" in soapGroup[groupName].attrs["species"]
+        assert numpy.abs(soapGroup[groupName].attrs["r_cut"] - rcut) < 1e-8
         assert (
-            soapGroup[f"testH2O"].shape[-1]
+            soapGroup[groupName].shape[-1]
             == (1 + l_max) * n_max * n_max
             + 2 * (1 + l_max) * ((n_max + 1) * n_max) // 2
         )
         if fixture_AtomMask == None:
-            assert "centersIndexes" not in soapGroup["testH2O"].attrs
+            assert "centersIndexes" not in soapGroup[groupName].attrs
         else:
             assert_array_equal(
-                soapGroup["testH2O"].attrs["centersIndexes"],
+                soapGroup[groupName].attrs["centersIndexes"],
                 [i * 3 for i in range(nMol)],
             )
 
 
-def test_slicesNo(tmp_path):
-    nMol = 1
-    u = getUniverseWithWaterMolecules(nMol)
+def test_slicesNo(tmp_path, referencesSingleWater):
+    confFile, groupName, nMol = referencesSingleWater
 
     fname = tmp_path / "testH2O_slices.hdf5"
-    HDF5er.MDA2HDF5(u, fname, "testH2O", override=True)
+
     n_max = 4
     l_max = 4
     upperDiag = (l_max + 1) * ((n_max) * (n_max + 1)) // 2
     fullmat = n_max * n_max * (l_max + 1)
     rcut = 10.0
-    with h5py.File(fname, "a") as f:
+    with h5py.File(fname, "a") as f, h5py.File(confFile, "r") as conf:
         soapGroup = f.require_group("SOAP")
         SOAPify.saponifyMultipleTrajectories(
-            f["Trajectories"],
+            conf["Trajectories"],
             soapGroup,
             rcut,
             n_max,
             l_max,
             useSoapFrom="dscribe",
         )
-        species, slices = SOAPify.getSlicesFromAttrs(f["SOAP/testH2O"].attrs)
+        species, slices = SOAPify.getSlicesFromAttrs(f[f"SOAP/{groupName}"].attrs)
         assert "O" in species
         assert "H" in species
         assert slices["H" + "H"] == slice(0, upperDiag)
@@ -148,25 +151,25 @@ def test_slicesNo(tmp_path):
         assert slices["O" + "H"] == slice(upperDiag, upperDiag + fullmat)  # redundant
         assert slices["O" + "O"] == slice(upperDiag + fullmat, 2 * upperDiag + fullmat)
         fullSpectrum = SOAPify.fillSOAPVectorFromdscribe(
-            f["SOAP/testH2O"][:], l_max, n_max, species, slices
+            f[f"SOAP/{groupName}"][:], l_max, n_max, species, slices
         )
         assert fullSpectrum.shape[-1] == 3 * fullmat
 
 
-def test_MultiAtomicSoapkwargs(tmp_path):
-    nMol = 27
-    u = getUniverseWithWaterMolecules(nMol)
+def test_MultiAtomicSoapkwargs(tmp_path, referencesWater):
+    confFile, groupName, nMol = referencesWater
+
     fname = tmp_path / "testH2O_kwargs.hdf5"
-    HDF5er.MDA2HDF5(u, fname, "testH2O", override=True)
+
     n_max = 4
     l_max = 4
     rcut = 10.0
     upperDiag = (l_max + 1) * ((n_max) * (n_max + 1)) // 2
     fullmat = n_max * n_max * (l_max + 1)
-    with h5py.File(fname, "a") as f:
+    with h5py.File(fname, "a") as f, h5py.File(confFile, "r") as conf:
         soapGroup = f.require_group("SOAPNoCrossover")
         SOAPify.saponifyMultipleTrajectories(
-            f["Trajectories"],
+            conf["Trajectories"],
             soapGroup,
             rcut,
             n_max,
@@ -174,13 +177,13 @@ def test_MultiAtomicSoapkwargs(tmp_path):
             SOAPkwargs={"crossover": False},
             useSoapFrom="dscribe",
         )
-        assert soapGroup["testH2O"].attrs["n_max"] == n_max
-        assert soapGroup["testH2O"].attrs["l_max"] == l_max
-        assert "O" in soapGroup["testH2O"].attrs["species"]
-        assert "H" in soapGroup["testH2O"].attrs["species"]
-        assert numpy.abs(soapGroup["testH2O"].attrs["r_cut"] - rcut) < 1e-8
-        assert "centersIndexes" not in soapGroup["testH2O"].attrs
-        species, slices = SOAPify.getSlicesFromAttrs(soapGroup["testH2O"].attrs)
+        assert soapGroup[groupName].attrs["n_max"] == n_max
+        assert soapGroup[groupName].attrs["l_max"] == l_max
+        assert "O" in soapGroup[groupName].attrs["species"]
+        assert "H" in soapGroup[groupName].attrs["species"]
+        assert numpy.abs(soapGroup[groupName].attrs["r_cut"] - rcut) < 1e-8
+        assert "centersIndexes" not in soapGroup[groupName].attrs
+        species, slices = SOAPify.getSlicesFromAttrs(soapGroup[groupName].attrs)
         print(slices)
         assert "O" in species
         assert "H" in species
@@ -195,7 +198,7 @@ def test_MultiAtomicSoapkwargs(tmp_path):
         ]:
             soapGroup = f.require_group(gname)
             SOAPify.saponifyMultipleTrajectories(
-                f["Trajectories"],
+                conf["Trajectories"],
                 soapGroup,
                 rcut,
                 n_max,
@@ -203,15 +206,15 @@ def test_MultiAtomicSoapkwargs(tmp_path):
                 SOAPkwargs=args,
                 useSoapFrom="dscribe",
             )
-            assert soapGroup["testH2O"].attrs["n_max"] == n_max
-            assert soapGroup["testH2O"].attrs["l_max"] == l_max
-            assert "O" in soapGroup["testH2O"].attrs["species"]
-            assert "H" in soapGroup["testH2O"].attrs["species"]
-            assert numpy.abs(soapGroup["testH2O"].attrs["r_cut"] - rcut) < 1e-8
-            assert "centersIndexes" not in soapGroup["testH2O"].attrs
+            assert soapGroup[groupName].attrs["n_max"] == n_max
+            assert soapGroup[groupName].attrs["l_max"] == l_max
+            assert "O" in soapGroup[groupName].attrs["species"]
+            assert "H" in soapGroup[groupName].attrs["species"]
+            assert numpy.abs(soapGroup[groupName].attrs["r_cut"] - rcut) < 1e-8
+            assert "centersIndexes" not in soapGroup[groupName].attrs
 
-            assert soapGroup[f"testH2O"].shape[-1] == 2 * upperDiag + fullmat
-            species, slices = SOAPify.getSlicesFromAttrs(soapGroup["testH2O"].attrs)
+            assert soapGroup[groupName].shape[-1] == 2 * upperDiag + fullmat
+            species, slices = SOAPify.getSlicesFromAttrs(soapGroup[groupName].attrs)
             print(slices)
             assert "O" in species
             assert "H" in species
@@ -225,7 +228,7 @@ def test_MultiAtomicSoapkwargs(tmp_path):
 
         soapGroup = f.require_group("SOAPsparse")
         SOAPify.saponifyMultipleTrajectories(
-            f["Trajectories"],
+            conf["Trajectories"],
             soapGroup,
             rcut,
             n_max,
@@ -233,15 +236,15 @@ def test_MultiAtomicSoapkwargs(tmp_path):
             SOAPkwargs={"sparse": True},
             useSoapFrom="dscribe",
         )
-        assert soapGroup["testH2O"].attrs["n_max"] == n_max
-        assert soapGroup["testH2O"].attrs["l_max"] == l_max
-        assert "O" in soapGroup["testH2O"].attrs["species"]
-        assert "H" in soapGroup["testH2O"].attrs["species"]
-        assert numpy.abs(soapGroup["testH2O"].attrs["r_cut"] - rcut) < 1e-8
-        assert "centersIndexes" not in soapGroup["testH2O"].attrs
+        assert soapGroup[groupName].attrs["n_max"] == n_max
+        assert soapGroup[groupName].attrs["l_max"] == l_max
+        assert "O" in soapGroup[groupName].attrs["species"]
+        assert "H" in soapGroup[groupName].attrs["species"]
+        assert numpy.abs(soapGroup[groupName].attrs["r_cut"] - rcut) < 1e-8
+        assert "centersIndexes" not in soapGroup[groupName].attrs
         upperDiag = int((l_max + 1) * (n_max) * (n_max + 1) / 2)
-        assert soapGroup[f"testH2O"].shape[-1] == 2 * upperDiag + fullmat
-        species, slices = SOAPify.getSlicesFromAttrs(soapGroup["testH2O"].attrs)
+        assert soapGroup[groupName].shape[-1] == 2 * upperDiag + fullmat
+        species, slices = SOAPify.getSlicesFromAttrs(soapGroup[groupName].attrs)
         print(slices)
         assert "O" in species
         assert "H" in species
@@ -252,7 +255,7 @@ def test_MultiAtomicSoapkwargs(tmp_path):
 
         soapGroup = f.require_group("SOAPOxygen")
         SOAPify.saponifyMultipleTrajectories(
-            f["Trajectories"],
+            conf["Trajectories"],
             soapGroup,
             10.0,
             n_max,
@@ -260,30 +263,29 @@ def test_MultiAtomicSoapkwargs(tmp_path):
             SOAPatomMask=["O"],
             useSoapFrom="dscribe",
         )
-        assert soapGroup["testH2O"].attrs["n_max"] == n_max
-        assert soapGroup["testH2O"].attrs["l_max"] == l_max
-        assert "O" in soapGroup["testH2O"].attrs["species"]
-        assert "H" in soapGroup["testH2O"].attrs["species"]
-        assert numpy.abs(soapGroup["testH2O"].attrs["r_cut"] - rcut) < 1e-8
+        assert soapGroup[groupName].attrs["n_max"] == n_max
+        assert soapGroup[groupName].attrs["l_max"] == l_max
+        assert "O" in soapGroup[groupName].attrs["species"]
+        assert "H" in soapGroup[groupName].attrs["species"]
+        assert numpy.abs(soapGroup[groupName].attrs["r_cut"] - rcut) < 1e-8
         assert_array_equal(
-            soapGroup["testH2O"].attrs["centersIndexes"], [i * 3 for i in range(nMol)]
+            soapGroup[groupName].attrs["centersIndexes"], [i * 3 for i in range(nMol)]
         )
 
 
-def test_overrideOutput(tmp_path):
-    nMol = 27
-    u = getUniverseWithWaterMolecules(nMol)
+def test_overrideOutput(tmp_path, referencesWater):
+    confFile, groupName, nMol = referencesWater
     fname = f"testH2O_override.hdf5"
     fname = tmp_path / fname
-    HDF5er.MDA2HDF5(u, fname, "testH2O", override=True)
+
     n_max = 4
     l_max = 4
     rcut = 10.0
-    with h5py.File(fname, "a") as f:
+    with h5py.File(fname, "a") as f, h5py.File(confFile, "r") as conf:
         soapGroup = f.require_group("SOAP")
         SOAPatomMask = [0, 1]
         SOAPify.saponifyMultipleTrajectories(
-            f["Trajectories"],
+            conf["Trajectories"],
             soapGroup,
             rcut,
             n_max,
@@ -298,7 +300,7 @@ def test_overrideOutput(tmp_path):
         with pytest.raises(ValueError):
             # raise exception if the user does not ask explicitly to override
             SOAPify.saponifyMultipleTrajectories(
-                f["Trajectories"],
+                conf["Trajectories"],
                 soapGroup,
                 rcut,
                 n_max,
@@ -307,7 +309,7 @@ def test_overrideOutput(tmp_path):
                 SOAPatomMask=SOAPatomMask,
             )
         SOAPify.saponifyMultipleTrajectories(
-            f["Trajectories"],
+            conf["Trajectories"],
             soapGroup,
             rcut,
             n_max,
@@ -316,8 +318,10 @@ def test_overrideOutput(tmp_path):
             SOAPatomMask=SOAPatomMask,
             doOverride=True,
         )
+        trajGroup = conf[f"Trajectories/{groupName}"]
+        atomtypes = trajGroup["Types"].asstr()
         for SOAPoutDataset in soapGroup:
-            for i in [j for j in range(len(u.atoms)) if u.atoms.names[j] == "O"]:
+            for i in [j for j in range(len(atomtypes)) if atomtypes[j] == "O"]:
                 assert i in soapGroup[SOAPoutDataset].attrs["centersIndexes"]
         return
         SOAPify.saponifyMultipleTrajectories(
