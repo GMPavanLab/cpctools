@@ -72,3 +72,54 @@ def test_tempoSOAP(referencesTrajectorySOAP, inputWindows):
     assert_array_almost_equal(timedSOAP, expectedTimedSOAP)
 
     assert_array_almost_equal(deltaTimedSOAP, expectedDeltaTimedSOAP)
+
+
+def test_tempoSOAPsimple(referencesTrajectorySOAP, inputWindows):
+    window = inputWindows
+    stride = window
+    confFile, groupName = referencesTrajectorySOAP
+
+    with h5py.File(confFile, "r") as f:
+        t = f[f"/SOAP/{groupName}"]
+        fillArgs = {
+            "soapFromdscribe": t[:],
+            "lMax": t.attrs["l_max"],
+            "nMax": t.attrs["n_max"],
+        }
+        fillArgs["atomTypes"], fillArgs["atomicSlices"] = SOAPify.getSlicesFromAttrs(
+            t.attrs
+        )
+
+    def isInvalidCombination(dataLen, stride, window):
+        return (stride is not None and window < stride) or (
+            (stride is not None and stride >= dataLen) or window >= dataLen
+        )
+
+    if isInvalidCombination(fillArgs["soapFromdscribe"].shape[0], stride, window):
+        with pytest.raises(ValueError) as excinfo:
+            analysis.tempoSOAP(
+                fillArgs["soapFromdscribe"], stride=stride, window=window
+            )
+        if stride is not None and window < stride:
+            assert "window must be bigger" in str(excinfo.value)
+            pytest.skip("Exception thrown correctly")
+        if (
+            stride is not None and stride >= fillArgs["soapFromdscribe"].shape[0]
+        ) or window >= fillArgs["soapFromdscribe"].shape[0]:
+            assert "window must be smaller" in str(excinfo.value)
+            pytest.skip("Exception thrown correctly")
+
+    SOAPTraj = SOAPify.fillSOAPVectorFromdscribe(**fillArgs)
+
+    SOAPTraj = SOAPify.normalizeArray(SOAPTraj)
+
+    expectedTimedSOAP, expectedDeltaTimedSOAP = analysis.tempoSOAP(
+        SOAPTraj, stride=stride, window=window
+    )
+    timedSOAP, deltaTimedSOAP = analysis.tempoSOAPsimple(
+        SOAPTraj, stride=stride, window=window
+    )
+    print(timedSOAP, expectedTimedSOAP)
+    assert_array_almost_equal(timedSOAP, expectedTimedSOAP)
+
+    assert_array_almost_equal(deltaTimedSOAP, expectedDeltaTimedSOAP)
