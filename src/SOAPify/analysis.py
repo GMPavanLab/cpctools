@@ -13,8 +13,8 @@ def tempoSOAP(
 ) -> "tuple[ndarray, ndarray]":
     """performs the 'tempoSOAP' analysis on the given SOAP trajectory
 
-        Original author: Cristina Caruso
-        Mantainer: Daniele Rapetti
+        * Original author: Cristina Caruso
+        * Mantainer: Daniele Rapetti
     Args:
         SOAPTrajectory (int):
             _description_
@@ -66,8 +66,11 @@ def tempoSOAPsimple(
         this is optimized to use :func:`SOAPify.distances.simpleSOAPdistance`
         without calling it
 
-        Original author: Cristina Caruso
-        Mantainer: Daniele Rapetti
+        .. warning:: this function works **only** with normalized numpy.float64 soap vectors!
+
+
+        * Original author: Cristina Caruso
+        * Mantainer: Daniele Rapetti
     Args:
         SOAPTrajectory (int):
             _description_
