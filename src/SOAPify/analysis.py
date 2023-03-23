@@ -103,3 +103,7 @@ def tempoSOAPsimple(
     expectedDeltaTimedSOAP = numpy.diff(timedSOAP, axis=-1)
 
     return timedSOAP, expectedDeltaTimedSOAP
+
+
+def listNeighboursAlongTrajectory():
+    return []
