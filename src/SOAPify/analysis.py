@@ -2,6 +2,8 @@
 import numpy
 from numpy import ndarray
 from .distances import simpleSOAPdistance
+from MDAnalysis import Universe, AtomGroup
+from MDAnalysis.lib.NeighborSearch import AtomNeighborSearch
 
 
 def tempoSOAP(
@@ -105,5 +107,62 @@ def tempoSOAPsimple(
     return timedSOAP, expectedDeltaTimedSOAP
 
 
-def listNeighboursAlongTrajectory():
-    return []
+def listNeighboursAlongTrajectory(
+    inputUniverse: Universe, cutOff: float, trajSlice: slice = slice(None)
+) -> "list[list[AtomGroup]]":
+    """produce a per frame list of the neighbours, atom per atom
+
+    Args:
+        inputUniverse (Universe):
+            the universe, or the atomgroup containing the trajectory
+        cutOff (float):
+            the maximum neighbour distance
+        trajSlice (slice, optional):
+            the slice of the trajectory to consider. Defaults to slice(None).
+
+    Returns:
+        list[list[AtomGroup]]:
+            list of AtomGroup wint the neighbours of each atom for each frame
+    """
+    nnListPerFrame = []
+    for ts in inputUniverse.universe.trajectory[trajSlice]:
+        nnListPerAtom = []
+        nnSearch = AtomNeighborSearch(inputUniverse.atoms, box=inputUniverse.dimensions)
+        for atom in inputUniverse.atoms:
+            nnListPerAtom.append(nnSearch.search(atom, cutOff))
+        nnListPerFrame.append(nnListPerAtom)
+    return nnListPerFrame
+
+
+def neighbourChangeInTime(
+    nnListPerFrame: "list[list[AtomGroup]]",
+) -> "tuple[list,list,list,list]":
+    """return, listed per each atoms the parameters used in the LENS analysis
+
+    Args:
+        nnListPerFrame (list[list[AtomGroup]]): _description_
+
+    Returns:
+        tuple[list,list,list,list]: _description_
+    """
+    # this is
+    ncontTot = []
+    # this is
+    nnTot = []
+    # this is
+    numTot = []
+    # this is
+    denTot = []
+    nAt = numpy.shape(nnListPerFrame)[1]
+    nFrames = numpy.shape(nnListPerFrame)[0]
+    print(nnListPerFrame)
+    for atomID in range(nAt):
+        ncont = numpy.zeros((nFrames,))
+        for frame in range(1, nFrames):
+            continue
+        ncontTot.append(ncont)
+        nnTot.append([])
+        numTot.append([])
+        denTot.append([])
+
+    return ncontTot, nnTot, numTot, denTot

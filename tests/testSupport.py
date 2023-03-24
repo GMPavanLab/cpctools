@@ -1210,7 +1210,7 @@ def giveUniverse_LongChangingBox(
     )
     print(traj.shape)
     rng = numpy.random.default_rng(12345)
-    traj[1:] += rng.random(size=traj[1:].shape) * 0.2
+    traj[1:] += rng.random(size=traj[1:].shape) * 0.7 - 0.35
     u = MDAnalysis.Universe.empty(
         4, trajectory=True, atom_resindex=[0, 0, 0, 0], residue_segindex=[0]
     )

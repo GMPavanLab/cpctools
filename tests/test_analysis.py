@@ -126,39 +126,56 @@ def test_tempoSOAPsimple(referencesTrajectorySOAP, inputWindows):
     assert_array_almost_equal(deltaTimedSOAP, expectedDeltaTimedSOAP)
 
 
-def test_countNeighboursForLENS(hdf5_file):
-    # this is the original version by Martina Crippa
-    t = slice(0, 1001, 1)
-    XYZ_UNI = hdf5_file[1]
-    COFF = 16.0
-    INIT = t.start
-    END = t.stop
-    STRIDE = t.step
+@pytest.fixture(
+    scope="module",
+    params=[1, 2],
+)
+def input1_2(request):
+    return request.param
 
-    beads = XYZ_UNI.select_atoms("all")
+
+def test_countNeighboursForLENS(hdf5_file, input1_2):
+    # this is the original version by Martina Crippa
+
+    inputUniverse: MDAnalysis.Universe = hdf5_file[1]
+    wantedSlice = slice(0, len(inputUniverse.trajectory) // input1_2, 1)
+    COFF = 10.0
+    INIT = wantedSlice.start
+    END = wantedSlice.stop
+    STRIDE = wantedSlice.step
+
+    beads = inputUniverse.select_atoms("all")
     cont_list = list()
     # loop over traj
-    for frame, ts in enumerate(XYZ_UNI.trajectory[INIT:END:STRIDE]):
+    for frame, ts in enumerate(inputUniverse.trajectory[INIT:END:STRIDE]):
         nsearch = MDAnalysis.lib.NeighborSearch.AtomNeighborSearch(
-            beads, box=XYZ_UNI.dimensions
+            beads, box=inputUniverse.dimensions
         )
         cont_list.append([nsearch.search(i, COFF, level="A") for i in beads])
+    for selection in [inputUniverse, beads]:
+        myNNlistPerFrame = analysis.listNeighboursAlongTrajectory(
+            selection, cutOff=COFF, trajSlice=wantedSlice
+        )
 
-    mylist_sum = analysis.listNeighboursAlongTrajectory()
+        assert len(myNNlistPerFrame) == len(cont_list)
+        for NNlistOrig, myNNList in zip(cont_list, myNNlistPerFrame):
+            assert len(NNlistOrig) == len(myNNList)
+            for atomGroupNN, myAtomGroup in zip(NNlistOrig, myNNList):
+                atomsID = numpy.sort([at.ix for at in atomGroupNN])
+                myatomsID = numpy.sort([at.ix for at in myAtomGroup])
+                assert_array_almost_equal(atomsID, myatomsID)
 
-    for NNlistOrig, myNNList in zip(cont_list, mylist_sum):
-        assert len(NNlistOrig) == len(myNNList)
-        for atomGroupNN, myAtomGroup in zip(NNlistOrig, myNNList):
-            atomsID = numpy.sort([at.ix for at in atomGroupNN])
-            myatomsID = numpy.sort([at.ix for at in myAtomGroup])
-            assert_array_almost_equal(atomsID, myatomsID)
 
-
-def test_emulateLENS():
-    list_sum = analysis.listNeighboursAlongTrajectory()
+def test_emulateLENS(hdf5_file, input1_2):
+    inputUniverse: MDAnalysis.Universe = hdf5_file[1]
+    wantedSlice = slice(0, len(inputUniverse.trajectory) // input1_2, 1)
+    COFF = 4.0
+    nnListPerFrame = analysis.listNeighboursAlongTrajectory(
+        inputUniverse, cutOff=COFF, trajSlice=wantedSlice
+    )
     # this is the original version by Martina Crippa
     # def local_dynamics(list_sum):
-    particle = [i for i in range(numpy.shape(list_sum)[1])]
+    particle = [i for i in range(numpy.shape(nnListPerFrame)[1])]
     ncont_tot = list()
     nn_tot = list()
     num_tot = list()
@@ -168,7 +185,7 @@ def test_emulateLENS():
         nn = list()
         num = list()
         den = list()
-        for frame in range(len(list_sum)):
+        for frame in range(len(nnListPerFrame)):
             if frame == 0:
                 ncont.append(0)
                 nn.append(0)
@@ -176,13 +193,18 @@ def test_emulateLENS():
                 # se il set di primi vicini cambia totalmente, l'intersezione è lunga 1 ovvero la bead self
                 # vale anche se il numero di primi vicini prima e dopo cambia
                 if (
-                    len(list(set(list_sum[frame - 1][p]) & set(list_sum[frame][p])))
+                    len(
+                        list(
+                            set(nnListPerFrame[frame - 1][p])
+                            & set(nnListPerFrame[frame][p])
+                        )
+                    )
                     == 1
                 ):
                     # se non ho NN lens è 0
                     if (
-                        len(list(set(list_sum[frame - 1][p]))) == 1
-                        and len(set(list_sum[frame][p])) == 1
+                        len(list(set(nnListPerFrame[frame - 1][p]))) == 1
+                        and len(set(nnListPerFrame[frame][p])) == 1
                     ):
                         ncont.append(0)
                         nn.append(0)
@@ -191,35 +213,52 @@ def test_emulateLENS():
                     # se ho NN lo metto 1
                     else:
                         ncont.append(1)
-                        nn.append(len(list_sum[frame][p]) - 1)
+                        nn.append(len(nnListPerFrame[frame][p]) - 1)
                         num.append(1)
                         den.append(
-                            len(list_sum[frame - 1][p])
+                            len(nnListPerFrame[frame - 1][p])
                             - 1
-                            + len(list_sum[frame][p])
+                            + len(nnListPerFrame[frame][p])
                             - 1
                         )
                 else:
                     # contrario dell'intersezione fra vicini al frame f-1 e al frame f
-                    c_diff = set(list_sum[frame - 1][p]).symmetric_difference(
-                        set(list_sum[frame][p])
+                    c_diff = set(nnListPerFrame[frame - 1][p]).symmetric_difference(
+                        set(nnListPerFrame[frame][p])
                     )
                     ncont.append(
                         len(c_diff)
                         / (
-                            len(list_sum[frame - 1][p])
+                            len(nnListPerFrame[frame - 1][p])
                             - 1
-                            + len(list_sum[frame][p])
+                            + len(nnListPerFrame[frame][p])
                             - 1
                         )
                     )
-                    nn.append(len(list_sum[frame][p]) - 1)
+                    nn.append(len(nnListPerFrame[frame][p]) - 1)
                     num.append(len(c_diff))
                     den.append(
-                        len(list_sum[frame - 1][p]) - 1 + len(list_sum[frame][p]) - 1
+                        len(nnListPerFrame[frame - 1][p])
+                        - 1
+                        + len(nnListPerFrame[frame][p])
+                        - 1
                     )
         num_tot.append(num)
         den_tot.append(den)
         ncont_tot.append(ncont)
         nn_tot.append(nn)
     # return ncont_tot, nn_tot, num_tot, den_tot
+    myncontTot, mynnTot, mynumTot, mydenTot = analysis.neighbourChangeInTime(
+        nnListPerFrame
+    )
+
+    assert len(myncontTot) == len(ncont_tot)
+    assert len(mynnTot) == len(nn_tot)
+    assert len(mynumTot) == len(num_tot)
+    assert len(mydenTot) == len(den_tot)
+    # TODO: tests for mynnTot
+    # TODO: tests for mynumTot
+    # TODO: tests for mydenTot
+
+    for atomData, wantedAtomData in zip(myncontTot, ncont_tot):
+        assert_array_almost_equal(atomData, wantedAtomData)
