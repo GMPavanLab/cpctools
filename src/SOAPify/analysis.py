@@ -19,7 +19,7 @@ def tempoSOAP(
         * Mantainer: Daniele Rapetti
     Args:
         SOAPTrajectory (int):
-            _description_
+            an array containg a soap trajectory, the shape is (frames, atom, SOAPdim)
         window (int):
             the dimension of the windows between each state confrontations.
             Defaults to 1.
