@@ -5,6 +5,23 @@ import re
 from io import StringIO, FileIO
 from MDAnalysis.lib.mdamath import triclinic_vectors, triclinic_box
 
+
+import numba
+
+
+@numba.jit
+def is_sorted(a: numpy.ndarray, /) -> bool:
+    """see https://stackoverflow.com/a/47004533
+
+    checks if an array is sorted
+
+    """
+    for i in range(a.size - 1):
+        if a[i + 1] < a[i]:
+            return False
+    return True
+
+
 __PropertiesFinder = re.compile('Properties="{0,1}(.*?)"{0,1}(?: |$)', flags=0)
 __LatticeFinder = re.compile('Lattice="(.*?)"', flags=0)
 
@@ -1210,7 +1227,7 @@ def giveUniverse_LongChangingBox(
     )
     print(traj.shape)
     rng = numpy.random.default_rng(12345)
-    traj[1:] += rng.random(size=traj[1:].shape) * 0.7 - 0.35
+    traj[1:] += rng.random(size=traj[1:].shape) * 2 - 1
     u = MDAnalysis.Universe.empty(
         4, trajectory=True, atom_resindex=[0, 0, 0, 0], residue_segindex=[0]
     )
@@ -1233,3 +1250,25 @@ def giveUniverse_LongChangingBox(
     # adding this for recognisign this univers during tests:
     u.myUsefulName = "ChangingBox"
     return u
+
+
+# TODO: universe with everchanging neigs
+# TODO: universe with fixed neigs
+
+
+def fewFrameUniverse(trajectory, dimensions):
+    nAt = numpy.shape(trajectory)[1]
+    toRet = MDAnalysis.Universe.empty(
+        n_atoms=nAt,
+        n_residues=nAt,
+        n_segments=1,
+        atom_resindex=numpy.arange(nAt),
+        residue_segindex=[1] * nAt,
+        trajectory=True,
+    )
+    toRet.load_new(
+        numpy.asarray(trajectory),
+        format=MDAnalysis.coordinates.memory.MemoryReader,
+        dimensions=dimensions,
+    )
+    return toRet

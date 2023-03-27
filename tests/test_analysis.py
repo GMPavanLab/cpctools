@@ -1,11 +1,12 @@
 """tests for analysis"""
 import numpy
-from numpy.testing import assert_array_almost_equal
+from numpy.testing import assert_array_almost_equal, assert_array_equal
 import pytest
 import SOAPify.analysis as analysis
 import SOAPify
 import h5py
 import MDAnalysis
+from .testSupport import is_sorted, fewFrameUniverse
 
 
 def test_tempoSOAP(referencesTrajectorySOAP, inputWindows):
@@ -160,10 +161,98 @@ def test_countNeighboursForLENS(hdf5_file, input1_2):
         assert len(myNNlistPerFrame) == len(cont_list)
         for NNlistOrig, myNNList in zip(cont_list, myNNlistPerFrame):
             assert len(NNlistOrig) == len(myNNList)
-            for atomGroupNN, myAtomGroup in zip(NNlistOrig, myNNList):
+            for atomGroupNN, myatomsID in zip(NNlistOrig, myNNList):
                 atomsID = numpy.sort([at.ix for at in atomGroupNN])
-                myatomsID = numpy.sort([at.ix for at in myAtomGroup])
-                assert_array_almost_equal(atomsID, myatomsID)
+                assert is_sorted(myatomsID)
+                assert_array_equal(atomsID, myatomsID)
+
+
+def lensIsZeroFixtures():
+    # no change in NN
+    return (
+        fewFrameUniverse(
+            trajectory=[
+                [[0, 0, 0], [0, 0, 1], [5, 5, 5], [5, 5, 6]],
+                [[0, 0, 0], [0, 0, 1], [5, 5, 5], [5, 5, 6]],
+            ],
+            dimensions=[10, 10, 10, 90, 90, 90],
+        ),
+        [0] * 4,
+    )
+
+
+def lensIsZeroNNFixtures():
+    # Zero NN
+    return (
+        fewFrameUniverse(
+            trajectory=[
+                [[0, 0, 0], [5, 5, 5]],
+                [[0, 0, 0], [5, 5, 5]],
+            ],
+            dimensions=[10, 10, 10, 90, 90, 90],
+        ),
+        [0] * 2,
+    )
+
+
+def lensIsOneFixtures():
+    # all NN changes
+    return (
+        fewFrameUniverse(
+            trajectory=[
+                [[0, 0, 0], [0, 0, 1], [5, 5, 5], [5, 5, 6]],
+                [[0, 0, 0], [5, 5, 6], [5, 5, 5], [0, 0, 1]],
+            ],
+            dimensions=[10, 10, 10, 90, 90, 90],
+        ),
+        [1] * 4,
+    )
+
+
+getUNI = {
+    "LENSISZERO": lensIsZeroFixtures(),
+    "LENSISZERONN": lensIsZeroNNFixtures(),
+    "LENSISONE": lensIsOneFixtures(),
+}
+
+
+@pytest.fixture(scope="module", params=["LENSISZERO", "LENSISZERONN", "LENSISONE"])
+def lensFixtures(request):
+    return getUNI[request.param]
+
+
+def test_specialLENS(lensFixtures):
+    expected = lensFixtures[1]
+    universe = lensFixtures[0]
+    COFF = 1.1
+    nnListPerFrame = analysis.listNeighboursAlongTrajectory(universe, cutOff=COFF)
+    myncontTot, mynnTot, mynumTot, mydenTot = analysis.neighbourChangeInTime(
+        nnListPerFrame
+    )
+
+    assert_array_equal(myncontTot[:, 0], [0] * myncontTot.shape[0])
+    assert_array_equal(myncontTot[:, 1], expected)
+
+    for frame in [0, 1]:
+        for atom in universe.atoms:
+            atomId = atom.ix
+            assert mynnTot[atomId, frame] == len(nnListPerFrame[frame][atomId]) - 1
+    for frame in [1]:
+        for atom in universe.atoms:
+            atomId = atom.ix
+
+            assert (
+                mydenTot[atomId, frame]
+                == len(nnListPerFrame[frame][atomId])
+                + len(nnListPerFrame[frame - 1][atomId])
+                - 2
+            )
+            assert (
+                mynumTot[atomId, frame]
+                == numpy.setxor1d(
+                    nnListPerFrame[frame][atomId], nnListPerFrame[frame - 1][atomId]
+                ).shape[0]
+            )
 
 
 def test_emulateLENS(hdf5_file, input1_2):
@@ -189,6 +278,11 @@ def test_emulateLENS(hdf5_file, input1_2):
             if frame == 0:
                 ncont.append(0)
                 nn.append(0)
+                # Added by Daniele
+                # needed to give same leght the all on the lists
+                num.append(0)
+                den.append(0)
+                # END modification
             else:
                 # se il set di primi vicini cambia totalmente, l'intersezione è lunga 1 ovvero la bead self
                 # vale anche se il numero di primi vicini prima e dopo cambia
@@ -214,7 +308,16 @@ def test_emulateLENS(hdf5_file, input1_2):
                     else:
                         ncont.append(1)
                         nn.append(len(nnListPerFrame[frame][p]) - 1)
-                        num.append(1)
+                        # changed by daniele
+                        # needed to make num/den=1
+                        num.append(
+                            len(nnListPerFrame[frame - 1][p])
+                            - 1
+                            + len(nnListPerFrame[frame][p])
+                            - 1
+                        )
+                        # END modification
+                        # ORGINAL: num.append(1)
                         den.append(
                             len(nnListPerFrame[frame - 1][p])
                             - 1
@@ -256,9 +359,16 @@ def test_emulateLENS(hdf5_file, input1_2):
     assert len(mynnTot) == len(nn_tot)
     assert len(mynumTot) == len(num_tot)
     assert len(mydenTot) == len(den_tot)
-    # TODO: tests for mynnTot
-    # TODO: tests for mynumTot
-    # TODO: tests for mydenTot
 
+    # lens Value
     for atomData, wantedAtomData in zip(myncontTot, ncont_tot):
+        assert_array_almost_equal(atomData, wantedAtomData)
+    # NN count
+    for atomData, wantedAtomData in zip(mynnTot, nn_tot):
+        assert_array_almost_equal(atomData, wantedAtomData)
+    # LENS numerator
+    for atomData, wantedAtomData in zip(mynumTot, num_tot):
+        assert_array_almost_equal(atomData, wantedAtomData)
+    # LENS denominator
+    for atomData, wantedAtomData in zip(mydenTot, den_tot):
         assert_array_almost_equal(atomData, wantedAtomData)
