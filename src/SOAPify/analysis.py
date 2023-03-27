@@ -148,45 +148,30 @@ def neighbourChangeInTime(
     nAt = numpy.shape(nnListPerFrame)[1]
     nFrames = numpy.shape(nnListPerFrame)[0]
     # this is the number of common NN between frames
-    ncontTot = numpy.zeros((nAt, nFrames))
+    lensArray = numpy.zeros((nAt, nFrames))
     # this is the number of NN at that frame
-    nnTot = numpy.zeros((nAt, nFrames))
+    numberOfNeighs = numpy.zeros((nAt, nFrames))
     # this is the numerator of LENS
-    numTot = numpy.zeros((nAt, nFrames))
+    lensNumerators = numpy.zeros((nAt, nFrames))
     # this is the denominator of lens
-    denTot = numpy.zeros((nAt, nFrames))
+    lensDenominators = numpy.zeros((nAt, nFrames))
     # each nnlist contains also the atom that generates them,
     # so 0 nn is a 1 element list
-
     for atomID in range(nAt):
-        # nnTot[atomID, 0] = nnListPerFrame[0][atomID].shape[0] - 1
+        numberOfNeighs[atomID, 0] = nnListPerFrame[0][atomID].shape[0] - 1
+        # let's calculate the numerators and the denominators
         for frame in range(1, nFrames):
-            nnTot[atomID, frame] = nnListPerFrame[frame][atomID].shape[0] - 1
-            denTot[atomID, frame] = (
+            numberOfNeighs[atomID, frame] = nnListPerFrame[frame][atomID].shape[0] - 1
+            lensDenominators[atomID, frame] = (
                 nnListPerFrame[frame][atomID].shape[0]
                 + nnListPerFrame[frame - 1][atomID].shape[0]
                 - 2
             )
-            numTot[atomID, frame] = numpy.setxor1d(
+            lensNumerators[atomID, frame] = numpy.setxor1d(
                 nnListPerFrame[frame][atomID], nnListPerFrame[frame - 1][atomID]
             ).shape[0]
 
-            intesectionNN = numpy.intersect1d(
-                nnListPerFrame[frame][atomID], nnListPerFrame[frame - 1][atomID]
-            )
-            # all neighBours have changed or no NN for both frames:
-            if intesectionNN.shape[0] == 1:
-                # non NN for both frames
-                if (
-                    nnListPerFrame[frame][atomID].shape[0] == 1
-                    and nnListPerFrame[frame - 1][atomID].shape[0] == 1
-                ):
-                    # we are using zeros as initializer
-                    # ncontTot[atomID, frame] = 0
-                    # numTot[atomID, frame] = 0
-                    continue
-                # ncontTot[atomID, frame] = 1
-                # numTot[atomID, frame] = 1
-    denIsNot0 = denTot != 0
-    ncontTot[denIsNot0] = numTot[denIsNot0] / denTot[denIsNot0]
-    return ncontTot, nnTot, numTot, denTot
+    denIsNot0 = lensDenominators != 0
+    # lens
+    lensArray[denIsNot0] = lensNumerators[denIsNot0] / lensDenominators[denIsNot0]
+    return lensArray, numberOfNeighs, lensNumerators, lensDenominators

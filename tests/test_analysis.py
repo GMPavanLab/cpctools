@@ -200,8 +200,8 @@ def lensIsOneFixtures():
     return (
         fewFrameUniverse(
             trajectory=[
-                [[0, 0, 0], [0, 0, 1], [5, 5, 5], [5, 5, 6]],
-                [[0, 0, 0], [5, 5, 6], [5, 5, 5], [0, 0, 1]],
+                [[0, 0, 0], [0, 0, 1], [5, 5, 5], [0, 1, 0]],
+                [[0, 0, 0], [5, 5, 6], [5, 5, 5], [5, 6, 5]],
             ],
             dimensions=[10, 10, 10, 90, 90, 90],
         ),
@@ -277,13 +277,18 @@ def test_emulateLENS(hdf5_file, input1_2):
         for frame in range(len(nnListPerFrame)):
             if frame == 0:
                 ncont.append(0)
-                nn.append(0)
-                # Added by Daniele
-                # needed to give same leght the all on the lists
+                # modifications by Daniele:
+                # needed to give the nn counts on the first nn
+                nn.append(len(nnListPerFrame[frame][p]) - 1)
+                # needed to give same lenght the all on the lists
                 num.append(0)
                 den.append(0)
                 # END modification
+                # ORIGINAL:nn.append(0)
             else:
+                # if the nn set chacne totally set LENS to 1: the nn list contains
+                # the atom, hence the  various ==1 and -1
+
                 # se il set di primi vicini cambia totalmente, l'intersezione è lunga 1 ovvero la bead self
                 # vale anche se il numero di primi vicini prima e dopo cambia
                 if (
