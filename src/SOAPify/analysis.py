@@ -24,7 +24,7 @@ def tempoSOAP(
             the dimension of the windows between each state confrontations.
             Defaults to 1.
         stride (int):
-            the stride in frames between each state confrontation. -NON IN USE-
+            the stride in frames between each state confrontation. **NOT IN USE**.
             Defaults to None.
         deltaT (int): number of frames to skip
         distanceFunction (callable, optional):
@@ -68,7 +68,8 @@ def tempoSOAPsimple(
         this is optimized to use :func:`SOAPify.distances.simpleSOAPdistance`
         without calling it
 
-        .. warning:: this function works **only** with normalized numpy.float64 soap vectors!
+        .. warning:: this function works **only** with normalized numpy.float64
+          soap vectors!
 
 
         * Original author: Cristina Caruso
@@ -80,7 +81,7 @@ def tempoSOAPsimple(
             the dimension of the windows between each state confrontations.
             Defaults to 1.
         stride (int):
-            the stride in frames between each state confrontation. -NON IN USE-
+            the stride in frames between each state confrontation. **NOT IN USE**.
             Defaults to None.
         deltaT (int): number of frames to skip
 
@@ -112,6 +113,8 @@ def listNeighboursAlongTrajectory(
 ) -> "list[list[AtomGroup]]":
     """produce a per frame list of the neighbours, atom per atom
 
+        * Original author: Martina Crippa
+        * Mantainer: Daniele Rapetti
     Args:
         inputUniverse (Universe):
             the universe, or the atomgroup containing the trajectory
@@ -136,14 +139,21 @@ def listNeighboursAlongTrajectory(
 
 def neighbourChangeInTime(
     nnListPerFrame: "list[list[AtomGroup]]",
-) -> "tuple[list,list,list,list]":
+) -> "tuple[ndarray,ndarray,ndarray,ndarray]":
     """return, listed per each atoms the parameters used in the LENS analysis
 
+        * Original author: Martina Crippa
+        * Mantainer: Daniele Rapetti
     Args:
-        nnListPerFrame (list[list[AtomGroup]]): _description_
-
+        nnListPerFrame (list[list[AtomGroup]]):
+             a frame by frame list of the neighbours of each atom: output of
+             :func:`listNeighboursAlongTrajectory
     Returns:
-        tuple[list,list,list,list]: _description_
+        tuple[numpy.ndarray,numpy.ndarray,numpy.ndarray,numpy.ndarray]:
+            - **lensArray** The calculated LENS parameter
+            - **numberOfNeighs** the count of neighbours per frame
+            - **lensNumerators** the numerators used for calculating LENS parameter
+            - **lensDenominators** the denominators used for calculating LENS parameter
     """
     nAt = numpy.shape(nnListPerFrame)[1]
     nFrames = numpy.shape(nnListPerFrame)[0]
