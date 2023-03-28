@@ -2,6 +2,7 @@ import SOAPify.HDF5er as HDF5er
 import h5py
 import pytest
 import numpy
+from numpy.testing import assert_array_almost_equal
 from io import StringIO
 from .testSupport import (
     giveUniverse,
@@ -331,3 +332,23 @@ def test_headerPreparation_errors(input_CreateParametersToExport, diffFrames, di
         HDF5er.HDF5To.__prepareHeaders(
             testData, nframes=nframes + diffFrames, nat=nat + diffNat
         )
+
+
+def test_HDF52Universe(
+    input_framesSlice,
+    hdf5_file,
+):
+    testFname = hdf5_file[0]
+
+    print(testFname)
+    with h5py.File(testFname, "r") as hdf5test:
+        group = hdf5test["Trajectories/4Atoms5Frames"]
+        print("Box", group["Box"][:])
+        newUniverse = HDF5er.createUniverseFromSlice(group, input_framesSlice)
+        for frameTraj, frameBox, ts in zip(
+            group["Trajectory"][input_framesSlice],
+            group["Box"][input_framesSlice],
+            newUniverse.trajectory,
+        ):
+            assert_array_almost_equal(frameTraj, newUniverse.atoms.positions)
+            assert_array_almost_equal(frameBox, newUniverse.dimensions)

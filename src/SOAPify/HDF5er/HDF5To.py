@@ -4,6 +4,7 @@ import re
 import MDAnalysis
 import h5py
 from ase import Atoms as aseAtoms
+import numpy
 from MDAnalysis.lib.mdamath import triclinic_vectors
 
 __all__ = [
@@ -11,6 +12,7 @@ __all__ = [
     "saveXYZfromTrajGroup",
     "HDF52AseAtomsChunckedwithSymbols",
     "getXYZfromMDA",
+    "createUniverseFromSlice",
 ]
 
 
@@ -299,3 +301,42 @@ def __writeAframe(
             data += " " + re.sub("( \[|\[|\])", "", str(additionalColumns[key][atomID]))
         data += "\n"
     return data
+
+
+def createUniverseFromSlice(
+    trajectoryGroup: h5py.Group, useSlice=slice(None)
+) -> MDAnalysis.Universe:
+    """Creates a MDanalysis.Universe from a trajectory group
+
+    Args:
+        trajectoryGroup (h5py.Group):
+            the given trajectory group
+        useSlice (_type_, optional):
+            the asked slice from wich create an universe.
+            Defaults to slice(None).
+
+    Returns:
+        MDAnalysis.Universe:
+            an universe containing the wnated part of the trajectory
+    """
+    traj = trajectoryGroup["Trajectory"]
+    box = trajectoryGroup["Box"]
+    # atomNames = trajectoryGroup["Types"].asstr()
+    nAt = traj.shape[1]
+    # TODO add names
+    toRet = MDAnalysis.Universe.empty(
+        n_atoms=nAt,
+        n_residues=nAt,
+        n_segments=1,
+        atom_resindex=numpy.arange(nAt),
+        residue_segindex=[1] * nAt,
+        trajectory=True,
+    )
+
+    toRet.load_new(
+        traj[useSlice],
+        format=MDAnalysis.coordinates.memory.MemoryReader,
+        dimensions=box[useSlice],
+    )
+
+    return toRet

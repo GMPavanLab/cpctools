@@ -32,6 +32,7 @@ Until we get to a release version you may encounter different broken interface p
     - `SOAPify.SOAPbase.KernelSoap()` &rarr; `SOAPify.distances.kernelSoap()`
     - `SOAPify.RemoveAtomIdentityFromEventTracker()` &rarr; `SOAPify.transitions.saponifyTrajectory()`
 - Cleaned the code with pylint
+- Added LENS and tempoSOAP base functions
 
 
 ## Changes since v0.0.4

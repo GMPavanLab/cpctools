@@ -9,6 +9,7 @@ from .testSupport import (
     giveUniverse_ChangingBox,
     giveUniverse_LongChangingBox,
     give_ico923,
+    getUniverseWithWaterMolecules,
 )
 
 
@@ -250,7 +251,7 @@ def getReferencesConfs(tmp_path_factory):
 
 
 @pytest.fixture(scope="session")
-def referencesTest(tmp_path_factory, getReferencesConfs):
+def referencesTest(getReferencesConfs):
     FramesRequest = dict(
         ico923_6={
             "v_5f_ih": (0, 566),
@@ -276,3 +277,80 @@ def referencesTest(tmp_path_factory, getReferencesConfs):
                 workFile[f"SOAP/{k}"], FramesRequest[k], nmax=nmax, lmax=lmax
             )
     return referenceDict, FramesRequest
+
+
+@pytest.fixture(scope="session")
+def referencesWater(tmp_path_factory):
+    """Creates a base hdf5file to be used in various tests"""
+    nMol = 27
+    u = getUniverseWithWaterMolecules(nMol)
+
+    fname = tmp_path_factory.mktemp("waterBase") / f"waterBase.hdf5"
+    groupname = "waterBase"
+    HDF5er.MDA2HDF5(u, fname, groupname, override=True)
+    return fname, groupname, nMol
+
+
+@pytest.fixture(scope="session")
+def referencesSingleWater(tmp_path_factory):
+    """Creates a base hdf5file to be used in various tests"""
+    nMol = 1
+    u = getUniverseWithWaterMolecules(nMol)
+
+    fname = tmp_path_factory.mktemp("waterBase") / f"waterSingleMol.hdf5"
+    groupname = "waterSingleMol"
+    HDF5er.MDA2HDF5(u, fname, groupname, override=True)
+    return fname, groupname, nMol
+
+
+@pytest.fixture(scope="session")
+def referencesWaterSOAP(referencesWater):
+    """Creates a base hdf5file to be used in various tests"""
+    confFile, groupName, nMol = referencesWater
+    nmax = 8
+    lmax = 8
+    rcut = 10.0
+    with h5py.File(confFile, "a") as f:
+        soapGroup = f.require_group("SOAP")
+        SOAPify.saponifyMultipleTrajectories(
+            f["Trajectories"],
+            soapGroup,
+            rcut,
+            nmax,
+            lmax,
+            useSoapFrom="dscribe",
+        )
+
+    return confFile, groupName, nMol
+
+
+@pytest.fixture(scope="session")
+def referencesTrajectory(tmp_path_factory):
+    """Creates a base hdf5file to be used in various tests"""
+    u = giveUniverse()
+
+    fname = tmp_path_factory.mktemp("trajBase") / f"trajBase.hdf5"
+    groupname = "trajBase"
+    HDF5er.MDA2HDF5(u, fname, groupname, override=True)
+    return fname, groupname
+
+
+@pytest.fixture(scope="session")
+def referencesTrajectorySOAP(referencesTrajectory):
+    """Creates a base hdf5file to be used in various tests"""
+    confFile, groupName = referencesTrajectory
+    nmax = 8
+    lmax = 8
+    rcut = 3.0
+    with h5py.File(confFile, "a") as f:
+        soapGroup = f.require_group("SOAP")
+        SOAPify.saponifyMultipleTrajectories(
+            f["Trajectories"],
+            soapGroup,
+            rcut,
+            nmax,
+            lmax,
+            useSoapFrom="dscribe",
+        )
+
+    return confFile, groupName

@@ -20,4 +20,4 @@ SOAPify
    distances
    classify
    transitions
-   
+   analysis
