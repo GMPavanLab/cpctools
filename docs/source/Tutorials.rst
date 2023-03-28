@@ -2,5 +2,6 @@ Tutorials and Examples
 =========
 
 .. nbgallery::
-   Examples
    TimeAnalysis
+   tempoSOAP
+   LENS
