@@ -17,7 +17,8 @@ def isTrajectoryGroup(trajGroup: h5py.Group) -> bool:
     """
 
     if (
-        "Trajectory" in trajGroup.keys()
+        isinstance(trajGroup, h5py.Group)
+        and "Trajectory" in trajGroup.keys()
         and "Types" in trajGroup.keys()
         and "Box" in trajGroup.keys()
     ):
