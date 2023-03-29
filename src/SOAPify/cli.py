@@ -40,9 +40,13 @@ def createTrajectory():
         help="the trajectory file(s)",
         metavar="trajectory",
         action="append",
+        default=[],
     )
     parser.add_argument(
-        "-n", "--name", metavar="name", help="the name of the trajectory to save"
+        "-n",
+        "--name",
+        metavar="name",
+        help="the name of the trajectory to save",
     )
     parser.add_argument(
         "--types",
@@ -58,7 +62,7 @@ def createTrajectory():
         action="append",
         dest="extraAttributes",
         metavar=("name", "value"),
-        help="extra attributes to store in the trajectory",
+        help="extra attributes to store in the trajectory, saved as strings",
     )
     parser.add_argument(
         "-u",
@@ -67,7 +71,8 @@ def createTrajectory():
         action="append",
         dest="universeOPTs",
         metavar=("name", "value"),
-        help="extra option to pass to the MDA universe",
+        help="extra option to pass to the MDA universe, compatible only with string"
+        " values, use the python script if you need to pass more other settings",
     )
     parser.add_argument(
         "-d",
@@ -76,7 +81,7 @@ def createTrajectory():
         help="just print the output without making any action",
     )
     args = parser.parse_args()
-    print(args)
+    # print(args)
     # arguments
     trajectoryFiles = args.trajectory
     filename = args.hdf5File
@@ -120,3 +125,109 @@ def createTrajectory():
     # ref = mdaUniverse(topo, atom_style="id type x y z")
     # u.trajectory.add_transformations(transformations.fit_rot_trans(u, ref))
     # MDA2HDF5(u, name + "_fitted.hdf5", f"{name}_fitted", trajChunkSize=1000))
+
+
+def traj2SOAP():
+    """Given an hdf5 file containing trajectories calculates SOAP of the contained trajectories
+
+
+    default SOAP engine is dscribe"""
+
+    from SOAPify import saponifyTrajectory
+    from SOAPify.HDF5er import isTrajectoryGroup
+    import h5py
+
+    parser = ArgumentParser(description=traj2SOAP.__doc__)
+    parser.add_argument(
+        "trajFile",
+        help="the file containing the trajectories",
+    )
+    parser.add_argument(
+        "-s",
+        "--SOAPFile",
+        help="The file were to save the SOAP fingerprints, if not specified"
+        " creates a SOAP group in within the trajFile",
+    )
+    parser.add_argument(
+        "-t",
+        "--trajectory",
+        default="Trajectories",
+        help="Specify the group containing the trajectories groups or the"
+        " trajectory group tha you wnat to calculate the SOAP fingerprints",
+    )
+    parser.add_argument(
+        "-e",
+        "--engine",
+        choices=["dscribe", "quippy"],
+        default="dscribe",
+        help="the engine used to calculate SOAP",
+    )
+    parser.add_argument(
+        "-l",
+        "--lMax",
+        type=int,
+        default=8,
+        help="the lmax parameter, defaults to 8",
+    )
+    parser.add_argument(
+        "-n",
+        "--nMax",
+        type=int,
+        default=8,
+        help="the nmax parameter, defaults to 8",
+    )
+    parser.add_argument(
+        "-r",
+        "--rCut",
+        type=float,
+        default=10.0,
+        help="the rcut parameter, defaults to 10.0 Å",
+    )
+    parser.add_argument(
+        "-j",
+        "--jobs",
+        type=int,
+        default=1,
+        help="the number of jobs to use, defaults to 1",
+    )
+    parser.add_argument(
+        "-d",
+        "--dry-run",
+        action="store_true",
+        help="just print the output without making any action",
+    )
+    args = parser.parse_args()
+    # print(args)
+
+    trajGroupLocation = args.trajectory
+
+    def worker(group: "h5py.Group|h5py.Dataset", soapFile: h5py.File):
+        print(
+            f"\"{group.name}\" is {'' if isTrajectoryGroup(group) else 'not '}a trajectory group"
+        )
+        if isTrajectoryGroup(group):
+            if args.dry_run:
+                return
+            saponifyTrajectory(
+                trajContainer=group,
+                SOAPoutContainer=soapFile.require_group("SOAP"),
+                SOAPOutputChunkDim=1000,
+                SOAPnJobs=args.jobs,
+                SOAPrcut=args.rCut,
+                SOAPnmax=args.nMax,
+                SOAPlmax=args.lMax,
+                useSoapFrom=args.engine,
+            )
+
+    SOAPFile = args.SOAPFile
+    if args.SOAPFile is None:
+        SOAPFile = args.trajFile
+    with h5py.File(
+        args.trajFile, "r" if SOAPFile != args.trajFile else "a"
+    ) as workFile, h5py.File(SOAPFile, "a") as SOAPFile:
+        trajGroup = workFile[trajGroupLocation]
+        if isTrajectoryGroup(trajGroup):
+            worker(trajGroup, SOAPFile)
+        else:
+            for _, group in trajGroup.items():
+                worker(group, SOAPFile)

@@ -54,7 +54,8 @@ Source = "https://github.com/GMPavanLab/SOAPify"
 
 #TODO: define some cli scripts that can be useful!
 [project.scripts]
-createHdf5 = "SOAPify.cli:createTrajectory"
+SOAPify-prepareTrajectory = "SOAPify.cli:createTrajectory"
+SOAPify-traj2SOAP = "SOAPify.cli:traj2SOAP"
 
 [tool.hatch.version]
 path = "src/SOAPify/__init__.py"
