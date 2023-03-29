@@ -155,8 +155,8 @@ def neighbourChangeInTime(
             - **lensNumerators** the numerators used for calculating LENS parameter
             - **lensDenominators** the denominators used for calculating LENS parameter
     """
-    nAt = numpy.shape(nnListPerFrame)[1]
-    nFrames = numpy.shape(nnListPerFrame)[0]
+    nAt = numpy.asarray(nnListPerFrame, dtype=object).shape[1]
+    nFrames = numpy.asarray(nnListPerFrame, dtype=object).shape[0]
     # this is the number of common NN between frames
     lensArray = numpy.zeros((nAt, nFrames))
     # this is the number of NN at that frame

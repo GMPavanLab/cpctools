@@ -11,5 +11,6 @@ from .saponify import *
 from .utils import *
 from .transitions import *
 from .engine import *
+from .analysis import *
 
 __version__ = "v0.1.0rc0"
