@@ -21,3 +21,5 @@ SOAPify
    classify
    transitions
    analysis
+   cli
+   

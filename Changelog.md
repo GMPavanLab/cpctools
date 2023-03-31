@@ -33,6 +33,9 @@ Until we get to a release version you may encounter different broken interface p
     - `SOAPify.RemoveAtomIdentityFromEventTracker()` &rarr; `SOAPify.transitions.saponifyTrajectory()`
 - Cleaned the code with pylint
 - Added LENS and tempoSOAP base functions
+- `SOAPify.HDF5er.isTrajectoryGroup` now returns `False` with Datasets
+- Added some simple cli interfaces
+- Added examples for LENS
 
 
 ## Changes since v0.0.4
