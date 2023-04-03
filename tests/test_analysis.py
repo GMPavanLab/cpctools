@@ -70,7 +70,12 @@ def test_tempoSOAP(referencesTrajectorySOAP, inputWindows):
     timedSOAP, deltaTimedSOAP = analysis.tempoSOAP(
         SOAPTraj, stride=stride, window=window
     )
-    print(timedSOAP, expectedTimedSOAP)
+    # print(timedSOAP, expectedTimedSOAP)
+    print(deltaTimedSOAP.shape, timedSOAP.shape)
+    print(
+        numpy.asarray(expectedDeltaTimedSOAP).shape,
+        numpy.asarray(expectedTimedSOAP).shape,
+    )
     assert_array_almost_equal(timedSOAP, expectedTimedSOAP)
 
     assert_array_almost_equal(deltaTimedSOAP, expectedDeltaTimedSOAP)

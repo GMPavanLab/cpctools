@@ -52,9 +52,9 @@ def tempoSOAP(
     # )
     # print(SOAPTrajectory.shape)
 
-    expectedDeltaTimedSOAP = numpy.diff(timedSOAP, axis=-1)
+    deltaTimedSOAP = numpy.diff(timedSOAP.T, axis=-1)
 
-    return timedSOAP, expectedDeltaTimedSOAP
+    return timedSOAP, deltaTimedSOAP
 
 
 def tempoSOAPsimple(
@@ -86,7 +86,9 @@ def tempoSOAPsimple(
         deltaT (int): number of frames to skip
 
     Returns:
-        tuple[numpy.ndarray,numpy.ndarray]: _description_
+        tuple[numpy.ndarray,numpy.ndarray]:
+            - **timedSOAP** the tempoSOAP values, shape(frames-1,natoms)
+            - **deltaTimedSOAP** the derivatives of tempoSOAP, shape(natoms, frames-2)
     """
     if stride is None:
         stride = window
@@ -103,9 +105,9 @@ def tempoSOAPsimple(
         timedSOAP[frame - window] = numpy.linalg.norm(actual - prev, axis=1)
         prev = actual
 
-    expectedDeltaTimedSOAP = numpy.diff(timedSOAP, axis=-1)
+    deltaTimedSOAP = numpy.diff(timedSOAP.T, axis=-1)
 
-    return timedSOAP, expectedDeltaTimedSOAP
+    return timedSOAP, deltaTimedSOAP
 
 
 def listNeighboursAlongTrajectory(
