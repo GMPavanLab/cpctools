@@ -35,7 +35,9 @@ Until we get to a release version you may encounter different broken interface p
 - Added LENS and tempoSOAP base functions
 - `SOAPify.HDF5er.isTrajectoryGroup` now returns `False` with Datasets
 - Added some simple cli interfaces
-- Added examples for LENS
+- Added examples for LENS and tSOAP
+- Added getSOAPSettings for getting the SOAP oragnization fro a dataset
+
 
 
 ## Changes since v0.0.4
