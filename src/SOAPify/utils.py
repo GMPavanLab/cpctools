@@ -3,6 +3,7 @@ Author: Daniele Rapetti"""
 from itertools import combinations_with_replacement
 import numpy
 from ase.data import atomic_numbers
+import h5py
 
 
 def _SOAPpstr(l, Z, n, Zp, np) -> str:
@@ -321,3 +322,32 @@ def fillSOAPVectorFromdscribe(
     raise ValueError(
         "fillSOAPVectorFromdscribe: cannot convert array with len(shape) >=3"
     )
+
+
+def getSOAPSettings(fitsetData: h5py.Dataset) -> dict:
+    """Gets the settings of the SOAP calculation
+
+        you can feed directly this output to :func:`fillSOAPVectorFromdscribe`
+
+        #TODO: make tests for this
+    Args:
+        fitsetData (h5py.Dataset): A soap dataset with attributes
+
+    Returns:
+        dict: a dictionary with the following components:
+            - **nMax**
+            - **lMax**
+            - **atomTypes**
+            - **atomicSlices**
+
+    """
+    lmax = fitsetData.attrs["l_max"]
+    nmax = fitsetData.attrs["n_max"]
+    symbols, atomicSlices = getSlicesFromAttrs(fitsetData.attrs)
+
+    return {
+        "nMax": nmax,
+        "lMax": lmax,
+        "atomTypes": symbols,
+        "atomicSlices": atomicSlices,
+    }

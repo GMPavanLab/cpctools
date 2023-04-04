@@ -33,6 +33,12 @@ Until we get to a release version you may encounter different broken interface p
     - `SOAPify.RemoveAtomIdentityFromEventTracker()` &rarr; `SOAPify.transitions.saponifyTrajectory()`
 - Cleaned the code with pylint
 - Added LENS and tempoSOAP base functions
+- `SOAPify.HDF5er.isTrajectoryGroup` now returns `False` with Datasets
+- Added some simple cli interfaces
+- Added examples for LENS and tSOAP
+- Added getSOAPSettings for getting the SOAP oragnization fro a dataset
+- now `createUniverseFromSlice()` returns also types
+
 
 
 ## Changes since v0.0.4

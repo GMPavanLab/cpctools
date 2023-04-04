@@ -53,8 +53,9 @@ Issues = "https://github.com/GMPavanLab/SOAPify/issues"
 Source = "https://github.com/GMPavanLab/SOAPify"
 
 #TODO: define some cli scripts that can be useful!
-#[project.scripts]
-#cli-name = "pkg.subpkg:func"
+[project.scripts]
+SOAPify-prepareTrajectory = "SOAPify.cli:createTrajectory"
+SOAPify-traj2SOAP = "SOAPify.cli:traj2SOAP"
 
 [tool.hatch.version]
 path = "src/SOAPify/__init__.py"

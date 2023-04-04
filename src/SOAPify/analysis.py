@@ -52,9 +52,9 @@ def tempoSOAP(
     # )
     # print(SOAPTrajectory.shape)
 
-    expectedDeltaTimedSOAP = numpy.diff(timedSOAP, axis=-1)
+    deltaTimedSOAP = numpy.diff(timedSOAP.T, axis=-1)
 
-    return timedSOAP, expectedDeltaTimedSOAP
+    return timedSOAP, deltaTimedSOAP
 
 
 def tempoSOAPsimple(
@@ -86,7 +86,9 @@ def tempoSOAPsimple(
         deltaT (int): number of frames to skip
 
     Returns:
-        tuple[numpy.ndarray,numpy.ndarray]: _description_
+        tuple[numpy.ndarray,numpy.ndarray]:
+            - **timedSOAP** the tempoSOAP values, shape(frames-1,natoms)
+            - **deltaTimedSOAP** the derivatives of tempoSOAP, shape(natoms, frames-2)
     """
     if stride is None:
         stride = window
@@ -103,9 +105,9 @@ def tempoSOAPsimple(
         timedSOAP[frame - window] = numpy.linalg.norm(actual - prev, axis=1)
         prev = actual
 
-    expectedDeltaTimedSOAP = numpy.diff(timedSOAP, axis=-1)
+    deltaTimedSOAP = numpy.diff(timedSOAP.T, axis=-1)
 
-    return timedSOAP, expectedDeltaTimedSOAP
+    return timedSOAP, deltaTimedSOAP
 
 
 def listNeighboursAlongTrajectory(
@@ -155,8 +157,8 @@ def neighbourChangeInTime(
             - **lensNumerators** the numerators used for calculating LENS parameter
             - **lensDenominators** the denominators used for calculating LENS parameter
     """
-    nAt = numpy.shape(nnListPerFrame)[1]
-    nFrames = numpy.shape(nnListPerFrame)[0]
+    nAt = numpy.asarray(nnListPerFrame, dtype=object).shape[1]
+    nFrames = numpy.asarray(nnListPerFrame, dtype=object).shape[0]
     # this is the number of common NN between frames
     lensArray = numpy.zeros((nAt, nFrames))
     # this is the number of NN at that frame

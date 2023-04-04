@@ -13,10 +13,17 @@ def test_istTrajectoryGroupCheck(tmp_path):
         assert not HDF5er.isTrajectoryGroup(group)
         group.create_dataset("Trajectory", data=numpy.zeros((5, 4, 3)))
         assert not HDF5er.isTrajectoryGroup(group)
+        assert not HDF5er.isTrajectoryGroup(group["Trajectory"])
+
         group.create_dataset("Types", data=numpy.zeros((4)))
         assert not HDF5er.isTrajectoryGroup(group)
+        assert not HDF5er.isTrajectoryGroup(group["Types"])
+
         group.create_dataset("Box", data=numpy.zeros((5, 3)))
+        # now group contains a Box. a Types and  and a Trajectory Datasets
         assert HDF5er.isTrajectoryGroup(group)
+        assert not HDF5er.isTrajectoryGroup(group["Box"])
+
     with h5py.File(fname, "w") as hdf5test:
         group = hdf5test.create_group("Trajectories/4Atoms3Frames")
         # empty group

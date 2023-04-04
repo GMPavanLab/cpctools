@@ -125,6 +125,7 @@ def input_mockedTrajectoryClassification(request):
         slice(None, None, None),  # no slice
         slice(1, None, 2),  # classic slice
         [0, 4],  # list-like slice
+        [0],  # list-like slice - single atom
     ],
 )
 def input_framesSlice(request):
@@ -327,7 +328,7 @@ def referencesWaterSOAP(referencesWater):
 @pytest.fixture(scope="session")
 def referencesTrajectory(tmp_path_factory):
     """Creates a base hdf5file to be used in various tests"""
-    u = giveUniverse()
+    u = giveUniverse(repeatFrames=10)
 
     fname = tmp_path_factory.mktemp("trajBase") / f"trajBase.hdf5"
     groupname = "trajBase"

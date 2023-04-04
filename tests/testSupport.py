@@ -208,7 +208,9 @@ def getUniverseWithWaterMolecules(n_residues=10):
     return sol
 
 
-def giveUniverse(angles: set = (90.0, 90.0, 90.0)) -> MDAnalysis.Universe:
+def giveUniverse(
+    angles: set = (90.0, 90.0, 90.0), repeatFrames=1
+) -> MDAnalysis.Universe:
     traj = numpy.array(
         [
             [[0.0, 0.0, 0.0], [1.0, 1.0, 1.0], [2.0, 2.0, 2.0], [3.0, 3.0, 3.0]],
@@ -217,6 +219,7 @@ def giveUniverse(angles: set = (90.0, 90.0, 90.0)) -> MDAnalysis.Universe:
             [[0.3, 0.3, 0.3], [1.3, 1.3, 1.3], [2.3, 2.3, 2.3], [3.3, 3.3, 3.3]],
             [[0.4, 0.4, 0.4], [1.4, 1.4, 1.4], [2.4, 2.4, 2.4], [3.4, 3.4, 3.4]],
         ]
+        * repeatFrames
     )
     u = MDAnalysis.Universe.empty(
         4, trajectory=True, atom_resindex=[0, 0, 0, 0], residue_segindex=[0]
