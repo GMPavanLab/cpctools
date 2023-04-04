@@ -2,7 +2,7 @@ import SOAPify.HDF5er as HDF5er
 import h5py
 import pytest
 import numpy
-from numpy.testing import assert_array_almost_equal
+from numpy.testing import assert_array_almost_equal, assert_array_equal
 from io import StringIO
 from .testSupport import (
     giveUniverse,
@@ -352,3 +352,5 @@ def test_HDF52Universe(
         ):
             assert_array_almost_equal(frameTraj, newUniverse.atoms.positions)
             assert_array_almost_equal(frameBox, newUniverse.dimensions)
+
+        assert_array_equal(group["Types"].asstr(), newUniverse.atoms.types)

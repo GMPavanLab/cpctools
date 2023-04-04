@@ -319,9 +319,10 @@ def createUniverseFromSlice(
         MDAnalysis.Universe:
             an universe containing the wnated part of the trajectory
     """
+    # TODO: also add a slice for the atoms
     traj = trajectoryGroup["Trajectory"]
     box = trajectoryGroup["Box"]
-    # atomNames = trajectoryGroup["Types"].asstr()
+    atomNames = trajectoryGroup["Types"].asstr()
     nAt = traj.shape[1]
     # TODO add names
     toRet = MDAnalysis.Universe.empty(
@@ -332,7 +333,7 @@ def createUniverseFromSlice(
         residue_segindex=[1] * nAt,
         trajectory=True,
     )
-
+    toRet.add_TopologyAttr("type", atomNames)
     toRet.load_new(
         traj[useSlice],
         format=MDAnalysis.coordinates.memory.MemoryReader,

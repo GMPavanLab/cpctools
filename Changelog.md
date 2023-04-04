@@ -37,6 +37,7 @@ Until we get to a release version you may encounter different broken interface p
 - Added some simple cli interfaces
 - Added examples for LENS and tSOAP
 - Added getSOAPSettings for getting the SOAP oragnization fro a dataset
+- now `createUniverseFromSlice()` returns also types
 
 
 

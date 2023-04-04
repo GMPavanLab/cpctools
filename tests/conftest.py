@@ -125,6 +125,7 @@ def input_mockedTrajectoryClassification(request):
         slice(None, None, None),  # no slice
         slice(1, None, 2),  # classic slice
         [0, 4],  # list-like slice
+        [0],  # list-like slice - single atom
     ],
 )
 def input_framesSlice(request):
