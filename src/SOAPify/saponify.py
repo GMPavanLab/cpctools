@@ -331,7 +331,7 @@ def saponifyTrajectory(
             Defaults to True.
     """
     if isTrajectoryGroup(trajContainer):
-        print(f'using "{useSoapFrom}" to calculate SOAP for {trajContainer.name}')
+        print(f'using "{useSoapFrom}" to calculate SOAP for "{trajContainer.name}"')
         print("extra SOAP arguments:", SOAPkwargs)
         symbols = trajContainer["Types"].asstr()[:]
         soapEngine = getSoapEngine(
