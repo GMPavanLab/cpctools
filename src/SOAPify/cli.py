@@ -146,14 +146,22 @@ def traj2SOAP():
         "-s",
         "--SOAPFile",
         help="The file were to save the SOAP fingerprints, if not specified"
-        " creates a SOAP group in within the trajFile",
+        ' creates a "SOAP" group in within the trajFile',
+    )
+    parser.add_argument(
+        "-g",
+        "--group",
+        default="SOAP",
+        help="the name of the group where to store the SOAP fingerprints,"
+        ' if not specified is "SOAP"',
+        dest="SOAPgroup",
     )
     parser.add_argument(
         "-t",
         "--trajectory",
         default="Trajectories",
         help="Specify the group containing the trajectories groups or the"
-        " trajectory group tha you wnat to calculate the SOAP fingerprints",
+        " trajectory group tha you want to calculate the SOAP fingerprints",
     )
     parser.add_argument(
         "-e",
@@ -201,7 +209,9 @@ def traj2SOAP():
 
     trajGroupLocation = args.trajectory
 
-    def worker(group: "h5py.Group|h5py.Dataset", soapFile: h5py.File):
+    def worker(
+        group: "h5py.Group|h5py.Dataset", soapFile: h5py.File, SOAPgroup: str = "SOAP"
+    ):
         print(
             f"\"{group.name}\" is {'' if isTrajectoryGroup(group) else 'not '}a trajectory group"
         )
@@ -210,7 +220,7 @@ def traj2SOAP():
                 return
             saponifyTrajectory(
                 trajContainer=group,
-                SOAPoutContainer=soapFile.require_group("SOAP"),
+                SOAPoutContainer=soapFile.require_group(SOAPgroup),
                 SOAPOutputChunkDim=1000,
                 SOAPnJobs=args.jobs,
                 SOAPrcut=args.rCut,
@@ -220,6 +230,7 @@ def traj2SOAP():
             )
 
     SOAPFile = args.SOAPFile
+    SOAPgroup = args.SOAPgroup
     if args.SOAPFile is None:
         SOAPFile = args.trajFile
     with h5py.File(
@@ -227,7 +238,7 @@ def traj2SOAP():
     ) as workFile, h5py.File(SOAPFile, "a") as SOAPFile:
         trajGroup = workFile[trajGroupLocation]
         if isTrajectoryGroup(trajGroup):
-            worker(trajGroup, SOAPFile)
+            worker(trajGroup, SOAPFile, SOAPgroup)
         else:
             for _, group in trajGroup.items():
-                worker(group, SOAPFile)
+                worker(group, SOAPFile, SOAPgroup)

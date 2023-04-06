@@ -18,6 +18,7 @@ def _saponifyWorker(
     soapEngine: SOAPengineContainer,
     SOAPOutputChunkDim: int = 100,
     SOAPnJobs: int = 1,
+    verbose: bool = True,
 ):
     """Calculates the soap descriptor and store the result in the given dataset
 
@@ -35,6 +36,9 @@ def _saponifyWorker(
         SOAPnJobs (int, optional):
             the number of concurrent SOAP calculations (option passed to the
             desired SOAP engine). Defaults to 1.
+        verbose (bool, optional):
+            regulates the verbosity of the step by step operations.
+            Defaults to True.
     """
     symbols = trajGroup["Types"].asstr()[:]
     SOAPoutDataset.attrs["SOAPengine"] = soapEngine.SOAPenginekind
@@ -66,8 +70,9 @@ def _saponifyWorker(
 
     for chunkTraj in trajGroup["Trajectory"].iter_chunks():
         chunkBox = (chunkTraj[0], slice(0, 6, 1))
-        print(f'working on trajectory chunk "{chunkTraj}"')
-        print(f'   and working on box chunk "{repr(chunkBox)}"')
+        if verbose:
+            print(f'working on trajectory chunk "{chunkTraj}"')
+            print(f'   and working on box chunk "{repr(chunkBox)}"')
         # load in memory a chunk of data
         atoms = HDF2ase(trajGroup, chunkTraj, chunkBox, symbols)
         jobchunk = min(SOAPOutputChunkDim, len(atoms))
@@ -77,7 +82,8 @@ def _saponifyWorker(
             tStart = time.time()
             frameStart = jobStart + chunkTraj[0].start
             frameEnd = jobEnd + chunkTraj[0].start
-            print(f"working on frames: [{frameStart}:{frameEnd}]")
+            if verbose:
+                print(f"working on frames: [{frameStart}:{frameEnd}]")
             # TODO: dscribe1.2.1 return (nat,nsoap) instead of (1,nat,nsoap) with 1 frame input!
             SOAPoutDataset[frameStart:frameEnd] = soapEngine(
                 atoms[jobStart:jobEnd],
@@ -88,7 +94,8 @@ def _saponifyWorker(
             jobchunk = min(SOAPOutputChunkDim, len(atoms) - jobEnd)
             jobStart = jobEnd
             jobEnd = jobStart + jobchunk
-            print(f"delta create= {tStop-tStart}")
+            if verbose:
+                print(f"delta create= {tStop-tStart}")
 
 
 def _applySOAP(
@@ -99,6 +106,7 @@ def _applySOAP(
     SOAPOutputChunkDim: int = 100,
     SOAPnJobs: int = 1,
     doOverride: bool = False,
+    verbose: bool = True,
 ):
     """helper function: applies the soap engine to the given trajectory within the trajContainer
 
@@ -121,6 +129,9 @@ def _applySOAP(
         doOverride (bool, optional):
             if False will raise and exception if the user ask to override an
             already existing DataSet. Defaults to False.
+        verbose (bool, optional):
+            regulates the verbosity of the step by step operations.
+            Defaults to True.
     """
     nOfFeatures = soapEngine.features
     symbols = trajContainer["Types"].asstr()[:]
@@ -156,6 +167,7 @@ def _applySOAP(
         soapEngine,
         SOAPOutputChunkDim,
         SOAPnJobs,
+        verbose=verbose,
     )
 
 
@@ -173,6 +185,7 @@ def saponifyMultipleTrajectories(
     SOAPkwargs: dict = None,
     useSoapFrom: KNOWNSOAPENGINES = "dscribe",
     doOverride: bool = False,
+    verbose: bool = True,
 ):
     """Calculates and stores the SOAP descriptor for all of the trajectories in
     the given group/file
@@ -224,12 +237,10 @@ def saponifyMultipleTrajectories(
         doOverride (bool, optional)
             if False will raise and exception if the user ask to override an
             already existing DataSet. Defaults to False.
+        verbose (bool, optional):
+            regulates the verbosity of the step by step operations.
+            Defaults to True.
     """
-    if SOAPkwargs is None:
-        SOAPkwargs = {}
-    print(f"using {useSoapFrom} to calculate SOAP")
-    print(SOAPkwargs)
-
     for key in trajContainers.keys():
         if isTrajectoryGroup(trajContainers[key]):
             saponifyTrajectory(
@@ -246,6 +257,7 @@ def saponifyMultipleTrajectories(
                 SOAPkwargs=SOAPkwargs,
                 useSoapFrom=useSoapFrom,
                 doOverride=doOverride,
+                verbose=verbose,
             )
 
 
@@ -263,6 +275,7 @@ def saponifyTrajectory(
     SOAPkwargs: dict = None,
     useSoapFrom: KNOWNSOAPENGINES = "dscribe",
     doOverride: bool = False,
+    verbose: bool = True,
 ):
     """Calculates the SOAP fingerprints for each atom in a given hdf5 trajectory
 
@@ -313,12 +326,13 @@ def saponifyTrajectory(
         doOverride (bool, optional):
             if False will raise and exception if the user ask to override an
             already existing DataSet. Defaults to False.
+        verbose (bool, optional):
+            regulates the verbosity of the step by step operations.
+            Defaults to True.
     """
-    if SOAPkwargs is None:
-        SOAPkwargs = {}
-    print(f"using {useSoapFrom} to calculate SOAP")
-    print(SOAPkwargs)
     if isTrajectoryGroup(trajContainer):
+        print(f'using "{useSoapFrom}" to calculate SOAP for {trajContainer.name}')
+        print("extra SOAP arguments:", SOAPkwargs)
         symbols = trajContainer["Types"].asstr()[:]
         soapEngine = getSoapEngine(
             atomNames=symbols,
@@ -340,6 +354,7 @@ def saponifyTrajectory(
             SOAPOutputChunkDim,
             SOAPnJobs,
             doOverride=doOverride,
+            verbose=verbose,
         )
     else:
         raise ValueError("saponify: The input object is not a trajectory group.")

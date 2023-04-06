@@ -6,6 +6,8 @@
 *.png
 *.csv
 *.xyz
+*.lammpsdump
+*.zip*
 test.py
 log.lammps
 .vscode
