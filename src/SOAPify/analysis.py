@@ -1,4 +1,5 @@
 """Module that contains various analysis routines"""
+
 import numpy
 from numpy import ndarray
 from .distances import simpleSOAPdistance
@@ -19,7 +20,7 @@ def tempoSOAP(
         * Mantainer: Daniele Rapetti
     Args:
         SOAPTrajectory (int):
-            an array containg a soap trajectory, the shape is (frames, atom, SOAPdim)
+            a trajectory of SOAP fingerprints, should have shape (nFrames,nAtoms,SOAPlenght)
         window (int):
             the dimension of the windows between each state confrontations.
             Defaults to 1.
@@ -31,7 +32,9 @@ def tempoSOAP(
             the function that define the distance. Defaults to :func:`SOAPify.distances.simpleSOAPdistance`.
 
     Returns:
-        tuple[numpy.ndarray,numpy.ndarray]: _description_
+        tuple[numpy.ndarray,numpy.ndarray]:
+            - **timedSOAP** the tempoSOAP values, shape(frames-1,natoms)
+            - **deltaTimedSOAP** the derivatives of tempoSOAP, shape(natoms, frames-2)
     """
     if stride is None:
         stride = window
@@ -63,20 +66,34 @@ def tempoSOAPsimple(
     stride: int = None,
     backward: bool = False,
 ) -> "tuple[ndarray, ndarray]":
-    """performs the 'tempoSOAP' analysis on the given SOAP trajectory
+    r"""performs the 'tempoSOAP' analysis on the given **normalized** SOAP trajectory
 
-        this is optimized to use :func:`SOAPify.distances.simpleSOAPdistance`
-        without calling it
+        this is optimized to use :func:`SOAPify.distances.simpleSOAPdistance`,
+        without calling it.
 
         .. warning:: this function works **only** with normalized numpy.float64
           soap vectors!
 
+            The SOAP distance is calculated with
+
+            .. math::
+                d(\vec{a},\vec{b})=\sqrt{2-2\frac{\vec{a}\cdot\vec{b}}{\left\|\vec{a}\right\|\left\|\vec{b}\right\|}}
+
+            That is equivalent to
+
+            .. math::
+                d(\vec{a},\vec{b})=\sqrt{2-2\hat{a}\cdot\hat{b}} = \sqrt{\hat{a}\cdot\hat{a}+\hat{b}\cdot\hat{b}-2\hat{a}\cdot\hat{b}} =
+
+                \sqrt{(\hat{a}-\hat{b})\cdot(\hat{a}-\hat{b})}
+
+            That is the euclidean distance between the versors
 
         * Original author: Cristina Caruso
         * Mantainer: Daniele Rapetti
     Args:
         SOAPTrajectory (int):
-            _description_
+            a **normalize ** trajectory of SOAP fingerprints, should have shape
+            (nFrames,nAtoms,SOAPlenght)
         window (int):
             the dimension of the windows between each state confrontations.
             Defaults to 1.
