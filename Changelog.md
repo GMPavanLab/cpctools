@@ -7,8 +7,9 @@ Until we get to a release version you may encounter different broken interface p
 - `SOAPify.HDF5er.isTrajectoryGroup` now returns `False` with Datasets
 - Added some simple cli interfaces
 - Added examples for LENS and tSOAP and for generating hdf5 files
-- Added getSOAPSettings for getting the SOAP organization from a hdf5 dataset
-- now `createUniverseFromSlice()` returns also types
+- Added `getSOAPSettings()` for getting the SOAP organization from a hdf5 dataset
+- Added `getTimeSOAPSimple()` to give the user a simple and easy 
+- Now `createUniverseFromSlice()` returns also types
 
 ## Changes since v0.0.6
 

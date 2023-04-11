@@ -2,9 +2,12 @@
 
 import numpy
 from numpy import ndarray
-from .distances import simpleSOAPdistance
 from MDAnalysis import Universe, AtomGroup
 from MDAnalysis.lib.NeighborSearch import AtomNeighborSearch
+import h5py
+
+from .distances import simpleSOAPdistance
+from .utils import getSOAPSettings, normalizeArray, fillSOAPVectorFromdscribe
 
 
 def timeSOAP(
@@ -12,6 +15,7 @@ def timeSOAP(
     window: int = 1,
     stride: int = None,
     backward: bool = False,
+    returnDiff: bool = True,
     distanceFunction: callable = simpleSOAPdistance,
 ) -> "tuple[ndarray, ndarray]":
     """performs the 'timeSOAP' analysis on the given SOAP trajectory
@@ -27,7 +31,11 @@ def timeSOAP(
         stride (int):
             the stride in frames between each state confrontation. **NOT IN USE**.
             Defaults to None.
-        deltaT (int): number of frames to skip
+        backward (bool):
+            If true the soap distance is referred to the previous frame.
+             **NOT IN USE**. Defaulst to True.
+        returnDiff (bool):
+            If true returns also the first derivative of timeSOAP. Defaults to True.
         distanceFunction (callable, optional):
             the function that define the distance. Defaults to :func:`SOAPify.distances.simpleSOAPdistance`.
 
@@ -55,9 +63,10 @@ def timeSOAP(
     # )
     # print(SOAPTrajectory.shape)
 
-    deltaTimedSOAP = numpy.diff(timedSOAP.T, axis=-1)
-
-    return timedSOAP, deltaTimedSOAP
+    if returnDiff:
+        deltaTimedSOAP = numpy.diff(timedSOAP.T, axis=-1)
+        return timedSOAP, deltaTimedSOAP
+    return timedSOAP
 
 
 def timeSOAPsimple(
@@ -65,6 +74,7 @@ def timeSOAPsimple(
     window: int = 1,
     stride: int = None,
     backward: bool = False,
+    returnDiff: bool = True,
 ) -> "tuple[ndarray, ndarray]":
     r"""performs the 'timeSOAP' analysis on the given **normalized** SOAP trajectory
 
@@ -100,7 +110,11 @@ def timeSOAPsimple(
         stride (int):
             the stride in frames between each state confrontation. **NOT IN USE**.
             Defaults to None.
-        deltaT (int): number of frames to skip
+        backward (bool):
+            If true the soap distance is referred to the previous frame.
+             **NOT IN USE**. Defaulst to True.
+        returnDiff (bool):
+            If true returns also the first derivative of timeSOAP. Defaults to True.
 
     Returns:
         tuple[numpy.ndarray,numpy.ndarray]:
@@ -122,9 +136,71 @@ def timeSOAPsimple(
         timedSOAP[frame - window] = numpy.linalg.norm(actual - prev, axis=1)
         prev = actual
 
-    deltaTimedSOAP = numpy.diff(timedSOAP.T, axis=-1)
+    if returnDiff:
+        deltaTimedSOAP = numpy.diff(timedSOAP.T, axis=-1)
+        return timedSOAP, deltaTimedSOAP
+    return timedSOAP
 
-    return timedSOAP, deltaTimedSOAP
+
+def getTimeSOAPSimple(
+    soapDataset: h5py.Dataset,
+    window: int = 1,
+    stride: int = None,
+    backward: bool = False,
+):
+    """Shortcut to extract the timeSOAP from large datasets.
+
+        This function is the equivalent to:
+
+        - loading a chunk of the trajectory from a h5py.Dataset with a SOAP fingerprints trajectory
+        - filling the vector with :func:`SOAPify.utils.fillSOAPVectorFromdscribe`
+        - normalizing it with :func:`SOAPify.utils.normalizeArray`
+        - calculating the timeSOAP with  :func:`timeSOAPsimple`
+        and then returning timeSOAP and the derivative
+
+
+    Args:
+        soapDataset (h5py.Dataset):
+            the dataset with the SOAP fingerprints
+        window (int):
+            the dimension of the windows between each state confrontations.
+            See :func:`timeSOAPsimple`
+            Defaults to 1.
+        stride (int):
+            the stride in frames between each state confrontation.
+            See :func:`timeSOAPsimple`
+            Defaults to None.
+        backward (bool):
+            If true the soap distance is referred to the previous frame.
+            See :func:`timeSOAPsimple` . Defaulst to True.
+
+    Returns:
+        tuple[numpy.ndarray,numpy.ndarray]:
+            - **timedSOAP** the timeSOAP values, shape(frames-1,natoms)
+            - **deltaTimedSOAP** the derivatives of timeSOAP, shape(natoms, frames-2)
+    """
+    fillSettings = getSOAPSettings(soapDataset)
+    timedSOAP = numpy.zeros((soapDataset.shape[0] - window, soapDataset.shape[1]))
+    # TODO: add a check to the window
+
+    slide = 0
+    # this looks a lot convoluted, but it is way faster than working one atom
+    # at a time
+    for c in soapDataset.iter_chunks():
+        theSlice = slice(c[0].start - slide, c[0].stop, c[0].step)
+        outSlice = slice(c[0].start - slide, c[0].stop - 1, c[0].step)
+        timedSOAP[outSlice] = timeSOAPsimple(
+            normalizeArray(
+                fillSOAPVectorFromdscribe(soapDataset[theSlice], **fillSettings)
+            ),
+            window=window,
+            stride=stride,
+            backward=backward,
+            returnDiff=False,
+        )
+        slide = 1
+
+    return timedSOAP, numpy.diff(timedSOAP.T, axis=-1)
 
 
 def listNeighboursAlongTrajectory(

@@ -8,8 +8,12 @@ import h5py
 import MDAnalysis
 from .testSupport import is_sorted, fewFrameUniverse
 
+# NB: the trueFalse fixture for the backward settings is here to anticipate the
+# implementation of that feature
 
-def test_tempoSOAP(referencesTrajectorySOAP, inputWindows):
+
+@pytest.mark.parametrize("backward", [True, False])
+def test_timeSOAP(referencesTrajectorySOAP, inputWindows, backward):
     window = inputWindows
     stride = window
     confFile, groupName = referencesTrajectorySOAP
@@ -56,6 +60,9 @@ def test_tempoSOAP(referencesTrajectorySOAP, inputWindows):
             x = SOAPTraj[frame, molecule, :]
             y = SOAPTraj[frame - window, molecule, :]
             distance = SOAPify.simpleSOAPdistance(x, y)
+            # TODO:
+            # if backward:
+            # else:
             expectedTimedSOAP[
                 frame - window, molecule
             ] = distance  # fill the matrix (each molecule for each frame)
@@ -66,7 +73,7 @@ def test_tempoSOAP(referencesTrajectorySOAP, inputWindows):
         expectedDeltaTimedSOAP.append(derivative)
 
     timedSOAP, deltaTimedSOAP = analysis.timeSOAP(
-        SOAPTraj, stride=stride, window=window
+        SOAPTraj, stride=stride, window=window, backward=backward
     )
     # print(timedSOAP, expectedTimedSOAP)
     print(deltaTimedSOAP.shape, timedSOAP.shape)
@@ -79,7 +86,8 @@ def test_tempoSOAP(referencesTrajectorySOAP, inputWindows):
     assert_array_almost_equal(deltaTimedSOAP, expectedDeltaTimedSOAP)
 
 
-def test_tempoSOAPsimple(referencesTrajectorySOAP, inputWindows):
+@pytest.mark.parametrize("backward", [True, False])
+def test_timeSOAPsimple(referencesTrajectorySOAP, inputWindows, backward):
     window = inputWindows
     stride = window
     confFile, groupName = referencesTrajectorySOAP
@@ -117,11 +125,62 @@ def test_tempoSOAPsimple(referencesTrajectorySOAP, inputWindows):
     SOAPTraj = SOAPify.normalizeArray(SOAPTraj)
 
     expectedTimedSOAP, expectedDeltaTimedSOAP = analysis.timeSOAP(
-        SOAPTraj, stride=stride, window=window
+        SOAPTraj, stride=stride, window=window, backward=backward
     )
     timedSOAP, deltaTimedSOAP = analysis.timeSOAPsimple(
-        SOAPTraj, stride=stride, window=window
+        SOAPTraj, stride=stride, window=window, backward=backward
     )
+    print(timedSOAP, expectedTimedSOAP)
+    assert_array_almost_equal(timedSOAP, expectedTimedSOAP)
+
+    assert_array_almost_equal(deltaTimedSOAP, expectedDeltaTimedSOAP)
+
+
+@pytest.mark.parametrize("backward", [True, False])
+def test_getTimeSOAPsimple(referencesTrajectorySOAP, inputWindows, backward):
+    window = inputWindows
+    stride = window
+    confFile, groupName = referencesTrajectorySOAP
+
+    with h5py.File(confFile, "r") as f:
+        t = f[f"/SOAP/{groupName}"]
+        fillArgs = {
+            "soapFromdscribe": t[:],
+            "lMax": t.attrs["l_max"],
+            "nMax": t.attrs["n_max"],
+        }
+        fillArgs["atomTypes"], fillArgs["atomicSlices"] = SOAPify.getSlicesFromAttrs(
+            t.attrs
+        )
+
+    def isInvalidCombination(dataLen, stride, window):
+        return (stride is not None and window < stride) or (
+            (stride is not None and stride >= dataLen) or window >= dataLen
+        )
+
+    if isInvalidCombination(fillArgs["soapFromdscribe"].shape[0], stride, window):
+        with pytest.raises(ValueError) as excinfo:
+            analysis.timeSOAP(fillArgs["soapFromdscribe"], stride=stride, window=window)
+        if stride is not None and window < stride:
+            assert "window must be bigger" in str(excinfo.value)
+            pytest.skip("Exception thrown correctly")
+        if (
+            stride is not None and stride >= fillArgs["soapFromdscribe"].shape[0]
+        ) or window >= fillArgs["soapFromdscribe"].shape[0]:
+            assert "window must be smaller" in str(excinfo.value)
+            pytest.skip("Exception thrown correctly")
+
+    SOAPTraj = SOAPify.fillSOAPVectorFromdscribe(**fillArgs)
+
+    SOAPTraj = SOAPify.normalizeArray(SOAPTraj)
+
+    expectedTimedSOAP, expectedDeltaTimedSOAP = analysis.timeSOAPsimple(
+        SOAPTraj, stride=stride, window=window, backward=backward
+    )
+    with h5py.File(confFile, "r") as f:
+        timedSOAP, deltaTimedSOAP = analysis.getTimeSOAPSimple(
+            f[f"/SOAP/{groupName}"], stride=stride, window=window, backward=backward
+        )
     print(timedSOAP, expectedTimedSOAP)
     assert_array_almost_equal(timedSOAP, expectedTimedSOAP)
 
