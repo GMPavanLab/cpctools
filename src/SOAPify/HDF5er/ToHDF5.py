@@ -14,6 +14,7 @@ def universe2HDF5(
     trajFolder: h5py.Group,
     trajChunkSize: int = 100,
     trajslice: slice = slice(None),
+    useType="float64",
 ):
     """Uploads an mda.Universe or an mda.AtomGroup to a h5py.Group in an hdf5 file
 
@@ -25,12 +26,14 @@ def universe2HDF5(
         trajChunkSize (int, optional):
             The desired dimension of the chunks of data that are stored in the hdf5 file.
             Defaults to 100.
+        useType (str,optional):
+            The precision used to store the data. Defaults to "float64".
     """
 
     atoms = mdaTrajectory.atoms
     universe = mdaTrajectory.universe
     nat = len(atoms)
-
+    useType = numpy.dtype(useType)
     if "Types" not in list(trajFolder.keys()):
         trajFolder.create_dataset("Types", (nat), compression="gzip", data=atoms.types)
 
@@ -41,7 +44,7 @@ def universe2HDF5(
             compression="gzip",
             chunks=(trajChunkSize, nat, 3),
             maxshape=(None, nat, 3),
-            dtype=numpy.float64,
+            dtype=useType,
         )
 
     if "Box" not in list(trajFolder.keys()):
@@ -51,7 +54,7 @@ def universe2HDF5(
             compression="gzip",
             chunks=True,
             maxshape=(None, 6),
-            dtype=numpy.float64,
+            dtype=useType,
         )
 
     frameNum = 0
@@ -82,6 +85,7 @@ def MDA2HDF5(
     override: bool = False,
     attrs: dict = None,
     trajslice: slice = slice(None),
+    useType="float64",
 ):
     """Creates an HDF5 trajectory groupfrom an mda trajectory
 
@@ -106,6 +110,8 @@ def MDA2HDF5(
         override (bool, optional):
             If true the hdf5 file will be completely overwritten.
             Defaults to False.
+        useType (str,optional):
+            The precision used to store the data. Defaults to "float64".
     """
     with h5py.File(targetHDF5File, "w" if override else "a") as newTraj:
         trajGroup = newTraj.require_group(f"Trajectories/{groupName}")
@@ -114,6 +120,7 @@ def MDA2HDF5(
             trajGroup,
             trajChunkSize=trajChunkSize,
             trajslice=trajslice,
+            useType=useType,
         )
         if attrs:
             for key in attrs.keys():

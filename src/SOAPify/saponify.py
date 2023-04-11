@@ -107,6 +107,7 @@ def _applySOAP(
     SOAPnJobs: int = 1,
     doOverride: bool = False,
     verbose: bool = True,
+    useType="float64",
 ):
     """helper function: applies the soap engine to the given trajectory within the trajContainer
 
@@ -132,7 +133,10 @@ def _applySOAP(
         verbose (bool, optional):
             regulates the verbosity of the step by step operations.
             Defaults to True.
+        useType (str,optional):
+            The precision used to store the data. Defaults to "float64".
     """
+    useType = numpy.dtype(useType)
     nOfFeatures = soapEngine.features
     symbols = trajContainer["Types"].asstr()[:]
     nCenters = (
@@ -157,7 +161,7 @@ def _applySOAP(
             compression_opts=9,
             chunks=(SOAPOutputChunkDim, nCenters, nOfFeatures),
             maxshape=(None, nCenters, nOfFeatures),
-            dtype=numpy.float64,
+            dtype=useType,
         )
     SOAPout = SOAPoutContainer[key]
     SOAPout.resize((len(trajContainer["Trajectory"]), nCenters, nOfFeatures))
@@ -186,6 +190,7 @@ def saponifyMultipleTrajectories(
     useSoapFrom: KNOWNSOAPENGINES = "dscribe",
     doOverride: bool = False,
     verbose: bool = True,
+    useType="float64",
 ):
     """Calculates and stores the SOAP descriptor for all of the trajectories in
     the given group/file
@@ -240,6 +245,8 @@ def saponifyMultipleTrajectories(
         verbose (bool, optional):
             regulates the verbosity of the step by step operations.
             Defaults to True.
+        useType (str,optional):
+            The precision used to store the data. Defaults to "float64".
     """
     for key in trajContainers.keys():
         if isTrajectoryGroup(trajContainers[key]):
@@ -258,6 +265,7 @@ def saponifyMultipleTrajectories(
                 useSoapFrom=useSoapFrom,
                 doOverride=doOverride,
                 verbose=verbose,
+                useType=useType,
             )
 
 
@@ -276,6 +284,7 @@ def saponifyTrajectory(
     useSoapFrom: KNOWNSOAPENGINES = "dscribe",
     doOverride: bool = False,
     verbose: bool = True,
+    useType="float64",
 ):
     """Calculates the SOAP fingerprints for each atom in a given hdf5 trajectory
 
@@ -329,6 +338,8 @@ def saponifyTrajectory(
         verbose (bool, optional):
             regulates the verbosity of the step by step operations.
             Defaults to True.
+        useType (str,optional):
+            The precision used to store the data. Defaults to "float64".
     """
     if isTrajectoryGroup(trajContainer):
         print(f'using "{useSoapFrom}" to calculate SOAP for "{trajContainer.name}"')
@@ -355,6 +366,7 @@ def saponifyTrajectory(
             SOAPnJobs,
             doOverride=doOverride,
             verbose=verbose,
+            useType=useType,
         )
     else:
         raise ValueError("saponify: The input object is not a trajectory group.")

@@ -1,3 +1,4 @@
+"""Test for HDF5er"""
 import SOAPify.HDF5er as HDF5er
 import h5py
 import numpy

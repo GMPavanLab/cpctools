@@ -10,6 +10,7 @@ Until we get to a release version you may encounter different broken interface p
 - Added `getSOAPSettings()` for getting the SOAP organization from a hdf5 dataset
 - Added `getTimeSOAPSimple()` to give the user a shortcut to solve memory problem with large SOAP datasets
 - Now `createUniverseFromSlice()` returns also types
+- added precision selection for storing the trajectories and the SOAP fingerprints
 
 ## Changes since v0.0.6
 
