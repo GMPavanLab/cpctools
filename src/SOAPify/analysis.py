@@ -7,14 +7,14 @@ from MDAnalysis import Universe, AtomGroup
 from MDAnalysis.lib.NeighborSearch import AtomNeighborSearch
 
 
-def tempoSOAP(
+def timeSOAP(
     SOAPTrajectory: ndarray,
     window: int = 1,
     stride: int = None,
     backward: bool = False,
     distanceFunction: callable = simpleSOAPdistance,
 ) -> "tuple[ndarray, ndarray]":
-    """performs the 'tempoSOAP' analysis on the given SOAP trajectory
+    """performs the 'timeSOAP' analysis on the given SOAP trajectory
 
         * Original author: Cristina Caruso
         * Mantainer: Daniele Rapetti
@@ -33,8 +33,8 @@ def tempoSOAP(
 
     Returns:
         tuple[numpy.ndarray,numpy.ndarray]:
-            - **timedSOAP** the tempoSOAP values, shape(frames-1,natoms)
-            - **deltaTimedSOAP** the derivatives of tempoSOAP, shape(natoms, frames-2)
+            - **timedSOAP** the timeSOAP values, shape(frames-1,natoms)
+            - **deltaTimedSOAP** the derivatives of timeSOAP, shape(natoms, frames-2)
     """
     if stride is None:
         stride = window
@@ -60,13 +60,13 @@ def tempoSOAP(
     return timedSOAP, deltaTimedSOAP
 
 
-def tempoSOAPsimple(
+def timeSOAPsimple(
     SOAPTrajectory: ndarray,
     window: int = 1,
     stride: int = None,
     backward: bool = False,
 ) -> "tuple[ndarray, ndarray]":
-    r"""performs the 'tempoSOAP' analysis on the given **normalized** SOAP trajectory
+    r"""performs the 'timeSOAP' analysis on the given **normalized** SOAP trajectory
 
         this is optimized to use :func:`SOAPify.distances.simpleSOAPdistance`,
         without calling it.
@@ -104,8 +104,8 @@ def tempoSOAPsimple(
 
     Returns:
         tuple[numpy.ndarray,numpy.ndarray]:
-            - **timedSOAP** the tempoSOAP values, shape(frames-1,natoms)
-            - **deltaTimedSOAP** the derivatives of tempoSOAP, shape(natoms, frames-2)
+            - **timedSOAP** the timeSOAP values, shape(frames-1,natoms)
+            - **deltaTimedSOAP** the derivatives of timeSOAP, shape(natoms, frames-2)
     """
     if stride is None:
         stride = window

@@ -32,9 +32,7 @@ def test_tempoSOAP(referencesTrajectorySOAP, inputWindows):
 
     if isInvalidCombination(fillArgs["soapFromdscribe"].shape[0], stride, window):
         with pytest.raises(ValueError) as excinfo:
-            analysis.tempoSOAP(
-                fillArgs["soapFromdscribe"], stride=stride, window=window
-            )
+            analysis.timeSOAP(fillArgs["soapFromdscribe"], stride=stride, window=window)
         if stride is not None and window < stride:
             assert "window must be bigger" in str(excinfo.value)
             pytest.skip("Exception thrown correctly")
@@ -67,7 +65,7 @@ def test_tempoSOAP(referencesTrajectorySOAP, inputWindows):
         derivative = numpy.diff(expectedTimedSOAP[:, molecule])
         expectedDeltaTimedSOAP.append(derivative)
 
-    timedSOAP, deltaTimedSOAP = analysis.tempoSOAP(
+    timedSOAP, deltaTimedSOAP = analysis.timeSOAP(
         SOAPTraj, stride=stride, window=window
     )
     # print(timedSOAP, expectedTimedSOAP)
@@ -104,9 +102,7 @@ def test_tempoSOAPsimple(referencesTrajectorySOAP, inputWindows):
 
     if isInvalidCombination(fillArgs["soapFromdscribe"].shape[0], stride, window):
         with pytest.raises(ValueError) as excinfo:
-            analysis.tempoSOAP(
-                fillArgs["soapFromdscribe"], stride=stride, window=window
-            )
+            analysis.timeSOAP(fillArgs["soapFromdscribe"], stride=stride, window=window)
         if stride is not None and window < stride:
             assert "window must be bigger" in str(excinfo.value)
             pytest.skip("Exception thrown correctly")
@@ -120,10 +116,10 @@ def test_tempoSOAPsimple(referencesTrajectorySOAP, inputWindows):
 
     SOAPTraj = SOAPify.normalizeArray(SOAPTraj)
 
-    expectedTimedSOAP, expectedDeltaTimedSOAP = analysis.tempoSOAP(
+    expectedTimedSOAP, expectedDeltaTimedSOAP = analysis.timeSOAP(
         SOAPTraj, stride=stride, window=window
     )
-    timedSOAP, deltaTimedSOAP = analysis.tempoSOAPsimple(
+    timedSOAP, deltaTimedSOAP = analysis.timeSOAPsimple(
         SOAPTraj, stride=stride, window=window
     )
     print(timedSOAP, expectedTimedSOAP)
