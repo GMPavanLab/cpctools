@@ -12,9 +12,9 @@ from .testSupport import is_sorted, fewFrameUniverse
 # implementation of that feature
 
 
+@pytest.mark.parametrize("window", [1, 2, 5, 7, 10])
 @pytest.mark.parametrize("backward", [True, False])
-def test_timeSOAP(referencesTrajectorySOAP, inputWindows, backward):
-    window = inputWindows
+def test_timeSOAP(referencesTrajectorySOAP, window, backward):
     stride = window
     confFile, groupName = referencesTrajectorySOAP
 
@@ -86,9 +86,9 @@ def test_timeSOAP(referencesTrajectorySOAP, inputWindows, backward):
     assert_array_almost_equal(deltaTimedSOAP, expectedDeltaTimedSOAP)
 
 
+@pytest.mark.parametrize("window", [1, 2, 5, 7, 10])
 @pytest.mark.parametrize("backward", [True, False])
-def test_timeSOAPsimple(referencesTrajectorySOAP, inputWindows, backward):
-    window = inputWindows
+def test_timeSOAPsimple(referencesTrajectorySOAP, window, backward):
     stride = window
     confFile, groupName = referencesTrajectorySOAP
 
@@ -136,9 +136,9 @@ def test_timeSOAPsimple(referencesTrajectorySOAP, inputWindows, backward):
     assert_array_almost_equal(deltaTimedSOAP, expectedDeltaTimedSOAP)
 
 
+@pytest.mark.parametrize("window", [1, 2, 5, 7, 10])
 @pytest.mark.parametrize("backward", [True, False])
-def test_getTimeSOAPsimple(referencesTrajectorySOAP, inputWindows, backward):
-    window = inputWindows
+def test_getTimeSOAPsimple(referencesTrajectorySOAP, window, backward):
     stride = window
     confFile, groupName = referencesTrajectorySOAP
 

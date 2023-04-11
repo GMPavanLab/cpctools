@@ -8,7 +8,7 @@ Until we get to a release version you may encounter different broken interface p
 - Added some simple cli interfaces
 - Added examples for LENS and tSOAP and for generating hdf5 files
 - Added `getSOAPSettings()` for getting the SOAP organization from a hdf5 dataset
-- Added `getTimeSOAPSimple()` to give the user a simple and easy 
+- Added `getTimeSOAPSimple()` to give the user a shortcut to solve memory problem with large SOAP datasets
 - Now `createUniverseFromSlice()` returns also types
 
 ## Changes since v0.0.6
