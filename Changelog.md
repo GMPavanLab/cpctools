@@ -9,7 +9,7 @@ Until we get to a release version you may encounter different broken interface p
 - Added examples for LENS and tSOAP and for generating hdf5 files
 - Added getSOAPSettings for getting the SOAP oragnization fro a dataset
 - now `createUniverseFromSlice()` returns also types
-
+- added precision selection for storing the trajectories
 ## Changes since v0.0.6
 
 - The **v0.0.6** has been set flagged as the 'stable version'
