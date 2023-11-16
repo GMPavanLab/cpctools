@@ -13,4 +13,4 @@ from .transitions import *
 from .engine import *
 from .analysis import *
 
-__version__ = "v0.1.0"
+__version__ = "v0.2.0"
