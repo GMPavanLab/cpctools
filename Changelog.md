@@ -2,6 +2,10 @@
 
 Until we get to a release version you may encounter different broken interface problem each time we increase a minor version.
 
+## Changes since v0.1.1
+
+- This should be the final release from this repository.
+
 ## Changes since v0.1.0rc0
 
 - Rename SOAPify to cpctools

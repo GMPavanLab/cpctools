@@ -21,7 +21,7 @@ It contains two packages, `SOAPify` and `SOAPify.HDF5er`.
 
 `cpctools` uses `h5py` to store the trajectories, the SOAP fingerprints, and the analysis results in a binary format, facilitated by `HDF5er`.
 
-The documentation is available on [read the docs](https://cpctools.readthedocs.io/en/latest/). There you can consult the documentation for each available version of the package.
+The documentation is available on [read the docs](https://soapify.readthedocs.io/en/latest/). There you can consult the documentation for each available version of the package.
 
 ## How To Install
 
