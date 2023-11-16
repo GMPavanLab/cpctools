@@ -2,11 +2,6 @@
 
 Until we get to a release version you may encounter different broken interface problem each time we increase a minor version.
 
-## Changes since v0.2.0
-
-- Rename SOAPify to cpctools
-- Clarify README
-
 ## Changes since v0.1.0rc0
 
 - `SOAPify.HDF5er.isTrajectoryGroup` now returns `False` with Datasets
