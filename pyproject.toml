@@ -37,7 +37,7 @@ docs = [
     "sphinx_gallery==0.12.2",
     "ipython"
 ]
-dscribe=["dscribe >1.2.0, <=12.2",]
+dscribe=["dscribe >1.2.0, <=1.2.2",]
 quippy=["quippy-ase==0.9.10",]
 tests = [
     "coverage[toml]",
@@ -95,7 +95,7 @@ serve = 'cd docs && SPHINXBUILD=sphinx-autobuild SPHINXOPTS="-a --watch ../src/ 
 [tool.hatch.envs.test]
 features = [
   "quippy",
-  "dscribe",
+  "dscribe==1.2.2",
   "tests",
 ]
 pre-install-commands = ["which python"]
