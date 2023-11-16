@@ -3,7 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to SOAPify's documentation!
+Welcome to cpctools's documentation!
 ===================================
 
 .. include:: Readme.md
@@ -20,10 +20,10 @@ Welcome to SOAPify's documentation!
 
 .. toctree::
    :maxdepth: 1
-   :caption: Documentation
+   :caption: Packages
 
    SOAPify
-      
+
 
 Indices and tables
 ==================

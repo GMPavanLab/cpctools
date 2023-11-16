@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "cpctools"
-description = "A package for creating and studying SOAP fingerprints"
+description = "A package for analysing molecular systems"
 readme = "Readme.md"
 requires-python = "<3.11,>=3.8"
 license = "MIT"
@@ -18,9 +18,9 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
 ]
 dependencies = [
-    "ase==3.22.1", 
+    "ase==3.22.1",
     "MDAnalysis==2.4.2",
-    "h5py==3.8.0", 
+    "h5py==3.8.0",
     "Deprecated==1.2.13",
     "numpy<1.24,>=1.18", #problems with numba and f90wrap
     ]
@@ -37,7 +37,7 @@ docs = [
     "sphinx_gallery==0.12.2",
     "ipython"
 ]
-dscribe=["dscribe >1.2.0, <=12.2",]
+dscribe=["dscribe >1.2.0, <=1.2.2",]
 quippy=["quippy-ase==0.9.10",]
 tests = [
     "coverage[toml]",
@@ -47,11 +47,7 @@ tests = [
 
 
 [project.urls]
-Homepage = "https://github.com/GMPavanLab/SOAPify"
-Documentation = "https://gmpavanlab.github.io/SOAPify/"
-ReadTheDocs = "https://soapify.readthedocs.io/en/latest/"
-Issues = "https://github.com/GMPavanLab/SOAPify/issues"
-Source = "https://github.com/GMPavanLab/SOAPify"
+Homepage = "https://github.com/GMPavanLab/cpctools"
 
 #TODO: define some cli scripts that can be useful!
 [project.scripts]
@@ -85,7 +81,7 @@ cleanbuild = 'cd docs && make clean build'
 
 [tool.hatch.envs.livedocs]
 template="docs"
-extra-dependencies = [   
+extra-dependencies = [
     "sphinx-autobuild",
     ]
 

@@ -20,7 +20,7 @@ print(sys.path)
 
 # -- Project information -----------------------------------------------------
 
-project = "SOAPify"
+project = "cpctools"
 copyright = "2021, Daniele Rapetti"
 author = "Daniele Rapetti"
 
