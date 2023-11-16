@@ -10,22 +10,22 @@
 [![Powered by MDAnalysis](https://img.shields.io/badge/powered%20by-MDAnalysis-orange.svg?logoWidth=16&logo=data:image/x-icon;base64,AAABAAEAEBAAAAEAIAAoBAAAFgAAACgAAAAQAAAAIAAAAAEAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJD+XwCY/fEAkf3uAJf97wGT/a+HfHaoiIWE7n9/f+6Hh4fvgICAjwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACT/yYAlP//AJ///wCg//8JjvOchXly1oaGhv+Ghob/j4+P/39/f3IAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJH8aQCY/8wAkv2kfY+elJ6al/yVlZX7iIiI8H9/f7h/f38UAAAAAAAAAAAAAAAAAAAAAAAAAAB/f38egYF/noqAebF8gYaagnx3oFpUUtZpaWr/WFhY8zo6OmT///8BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgICAn46Ojv+Hh4b/jouJ/4iGhfcAAADnAAAA/wAAAP8AAADIAAAAAwCj/zIAnf2VAJD/PAAAAAAAAAAAAAAAAICAgNGHh4f/gICA/4SEhP+Xl5f/AwMD/wAAAP8AAAD/AAAA/wAAAB8Aov9/ALr//wCS/Z0AAAAAAAAAAAAAAACBgYGOjo6O/4mJif+Pj4//iYmJ/wAAAOAAAAD+AAAA/wAAAP8AAABhAP7+FgCi/38Axf4fAAAAAAAAAAAAAAAAiIiID4GBgYKCgoKogoB+fYSEgZhgYGDZXl5e/m9vb/9ISEjpEBAQxw8AAFQAAAAAAAAANQAAADcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjo6Mb5iYmP+cnJz/jY2N95CQkO4pKSn/AAAA7gAAAP0AAAD7AAAAhgAAAAEAAAAAAAAAAACL/gsAkv2uAJX/QQAAAAB9fX3egoKC/4CAgP+NjY3/c3Nz+wAAAP8AAAD/AAAA/wAAAPUAAAAcAAAAAAAAAAAAnP4NAJL9rgCR/0YAAAAAfX19w4ODg/98fHz/i4uL/4qKivwAAAD/AAAA/wAAAP8AAAD1AAAAGwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALGxsVyqqqr/mpqa/6mpqf9KSUn/AAAA5QAAAPkAAAD5AAAAhQAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADkUFBSuZ2dn/3V1df8uLi7bAAAATgBGfyQAAAA2AAAAMwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB0AAADoAAAA/wAAAP8AAAD/AAAAWgC3/2AAnv3eAJ/+dgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA9AAAA/wAAAP8AAAD/AAAA/wAKDzEAnP3WAKn//wCS/OgAf/8MAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIQAAANwAAADtAAAA7QAAAMAAABUMAJn9gwCe/e0Aj/2LAP//AQAAAAAAAAAA)](https://www.mdanalysis.org)
 
 
-We are no longer developing in this project. Future works will be in [dynsight](https://github.com/GMPavanLab/dynsight).
+### **We are no longer developing in this project. Future works will be in [dynsight](https://github.com/GMPavanLab/dynsight).**
 
 
-cpctools is a python 3.8/3.9/3.10 library aimed at simplifying the analysis of Molecular Dynamics simulations.
+`cpctools` is a python 3.8/3.9/3.10 library aimed at simplifying the analysis of Molecular Dynamics simulations.
 
 _cpctools_ stands for **C**omputational **P**hysical **C**hemistry **TOOLS**, or, if you prefer, for **C**hemical **P**hysics **C**omputational **TOOLS**.
 
 It contains two packages, `SOAPify` and `SOAPify.HDF5er`.
 
-cpctools uses `h5py` to store the trajectories, the SOAP fingerprints, and the analysis results in a binary format, facilitated by `HDF5er`.
+`cpctools` uses `h5py` to store the trajectories, the SOAP fingerprints, and the analysis results in a binary format, facilitated by `HDF5er`.
 
 The documentation is available on [read the docs](https://cpctools.readthedocs.io/en/latest/). There you can consult the documentation for each available version of the package.
 
 ## How To Install
 
-To install the stable version of cpctools just type:
+To install the stable version of `cpctools` just type:
 ```bash
 pip install cpctools
 ```
@@ -36,8 +36,8 @@ If you want to use _dscribe_ or _quippy_ for calculating the SOAP features you s
 pip install "dscribe<=1.2.2,>1.2.0"
 pip install "quippy-ase==0.9.10"
 ```
-
-## SOAPify
+---
+### package: SOAPify
 
 This package contains:
  - a toolbox to calculate the [SOAP fingerprints](https://doi.org/10.1103/PhysRevB.87.184115) of a system of atoms. The principal aim is to simplify the setup of the calculation. This toolbox depends on `dscribe` or `quippy` and 'unify' the output of the two codes.
@@ -45,7 +45,7 @@ This package contains:
  - a simple analysis tool for trajectories of classified atoms
 
 
-## SOAPify.HDF5er
+### package: SOAPify.HDF5er
 
 This package is a toolbox to create [hdf5 files](https://www.hdfgroup.org/) with [h5py](https://www.h5py.org/) from the trajectory and topology files. The format we use **do not** align with [h5md](https://www.nongnu.org/h5md/h5md.html)
 
