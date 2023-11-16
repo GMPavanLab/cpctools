@@ -95,7 +95,7 @@ serve = 'cd docs && SPHINXBUILD=sphinx-autobuild SPHINXOPTS="-a --watch ../src/ 
 [tool.hatch.envs.test]
 features = [
   "quippy",
-  "dscribe==1.2.2",
+  "dscribe",
   "tests",
 ]
 pre-install-commands = ["which python"]
